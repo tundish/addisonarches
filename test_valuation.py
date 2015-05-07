@@ -63,7 +63,7 @@ class ValueBook(dict):
         else:
             return Valuation(
                 None,
-                statistics.mean(i.value for i in series),
+                statistics.median(i.value for i in series),
                 currencies.pop()
             )
 
@@ -111,7 +111,7 @@ class ValueBookTests(unittest.TestCase):
         book = ValueBook()
         valuation = book.commit(goods, note)
         self.assertEqual(
-            Decimal(1785.50), valuation.value.quantize(Decimal("0.01"))
+            Decimal("1779.85"), valuation.value.quantize(Decimal("0.01"))
         )
         self.assertEqual(1, len(book))
         self.assertEqual(
@@ -167,6 +167,90 @@ class ValueBookTests(unittest.TestCase):
         offer = Offer(then, 1200, "£")
         valuation = book.commit(goods, offer)
         self.assertEqual(
-            Decimal(1723.00), valuation.value.quantize(Decimal("0.01"))
+            Decimal("1779.85"), valuation.value.quantize(Decimal("0.01"))
         )
 
+    def test_simple_haggling(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders"
+        )
+        goods = Asset(commodity, int, 10, note.date)
+        book = ValueBook()
+        book.commit(goods, note)
+
+        now = then
+        offer = Offer(now, 1200, "£")
+        valuation = book.commit(goods, offer)
+        while valuation.value > offer.value:
+            print(offer)
+            now += datetime.timedelta(days=1)
+            offer = Offer(
+                now,
+                offer.value + (valuation.value - offer.value) // 2,
+                valuation.currency
+            )
+            valuation = book.commit(goods, offer)
+
+    def test_stubborn_haggling(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders"
+        )
+        goods = Asset(commodity, int, 10, note.date)
+        book = ValueBook()
+        book.commit(goods, note)
+
+        now = then
+        offer = Offer(now, 1200, "£")
+        valuation = book.commit(goods, offer)
+        while valuation.value > offer.value:
+            print(offer)
+            now += datetime.timedelta(days=1)
+            valuation = book.commit(goods, offer)
+
+    def test_quick_deal(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders"
+        )
+        goods = Asset(commodity, int, 10, note.date)
+        book = ValueBook()
+        book.commit(goods, note)
+
+        now = then
+        offer = Offer(now, 1800, "£")
+        valuation = book.commit(goods, offer)
+        while valuation.value > offer.value:
+            print(offer)
+            now += datetime.timedelta(days=1)
+            offer = Offer(
+                now,
+                offer.value + (valuation.value - offer.value) // 2,
+                valuation.currency
+            )
+            valuation = book.commit(goods, offer)
