@@ -25,7 +25,7 @@ import functools
 import unittest
 
 from tallywallet.common.finance import Note
-from tallywallet.common.finance import value_simple
+from tallywallet.common.finance import value_series
 
 
 Commodity = namedtuple("Commodity", ["label", "description"])
@@ -35,37 +35,69 @@ Asset = namedtuple(
 )
 
 Offer = namedtuple("Offer", ["ts"])
-Valuation = namedtuple("Valuation", ["ts"])
+Valuation = namedtuple("Valuation", ["ts", "value", "currency"])
 
 class ValueBook(dict):
 
-    def commit(self, asset:Asset, obj:[Note, Offer]):
-        """
-        Valuation remains constant during duration of note.
-        Then each Offer or Valuation modulates the mean of
-        the series.
-        """
+    def commit(self, asset:Asset, obj:set([Note, Offer])):
         if isinstance(obj, Note):
-            self.series = deque(maxlen=8)  # TODO: calculate maxlen
+            series = super().setdefault(
+                asset.commodity,
+                deque([Valuation(*i, currency=obj.currency)
+                       for i in value_series(**vars(obj))],
+                      maxlen=obj.term // obj.period)
+            )
+            rv = series[0]
         else:
             raise NotImplementedError
+        return rv
+
+    def __setitem__(self, key, value):
+        raise NotImplementedError
+
+    def setdefault(self, key, default=None):
+        raise NotImplementedError
+
+    def update(self, other):
+        raise NotImplementedError
 
 
-class ValuationAPITests(unittest.TestCase):
+class ValueBookTests(unittest.TestCase):
 
-    def test_class(self):
+    def test_is_readonly(self):
+        book = ValueBook()
+        self.assertRaises(
+            NotImplementedError, book.setdefault, "commodity"
+        )
+        self.assertRaises(
+            NotImplementedError, book.update, {}
+        )
+        try:
+            book["commodity"] = None
+        except NotImplementedError:
+            pass
+        else:
+            self.fail()
+
+    def test_valuation_from_finance_note(self):
         then = datetime.date(2015, 4, 1)
         note = Note(
             date=then,
             principal=1500,
             currency="£",
             term=datetime.timedelta(days=30),
-            interest=Decimal("0.20"),
-            period=datetime.timedelta(days=30)
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
         )
-        goods = Commodity("VCRs", "Betamax video cassette recorders")
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders"
+        )
+        goods = Asset(commodity, int, 10, note.date)
         book = ValueBook()
-        val = book.commit(Asset(goods, int, 10, note.date), note)
-        #val = book.commit(Asset(goods, int, 10, note.date), Offer(..))
-        self.fail(book)
-        self.fail(value_simple(note))
+        valuation = book.commit(goods, note)
+        self.assertEqual(1575, valuation.value)
+        self.assertEqual(1, len(book))
+        self.assertEqual(
+            note.term // note.period,
+            len(book[commodity])
+        )
