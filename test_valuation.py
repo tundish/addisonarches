@@ -22,7 +22,9 @@ from collections import namedtuple
 import datetime
 from decimal import Decimal
 import functools
+import statistics
 import unittest
+import warnings
 
 from tallywallet.common.finance import Note
 from tallywallet.common.finance import value_series
@@ -34,8 +36,9 @@ Asset = namedtuple(
     ["commodity", "unit", "quantity", "acquired"]
 )
 
-Offer = namedtuple("Offer", ["ts"])
+Offer = namedtuple("Offer", ["ts", "value", "currency"])
 Valuation = namedtuple("Valuation", ["ts", "value", "currency"])
+
 
 class ValueBook(dict):
 
@@ -47,10 +50,22 @@ class ValueBook(dict):
                        for i in value_series(**vars(obj))],
                       maxlen=obj.term // obj.period)
             )
-            rv = series[0]
+        elif isinstance(obj, Offer):
+            series = self[asset.commodity]
+            series.append(obj)
         else:
             raise NotImplementedError
-        return rv
+
+        currencies = {i.currency for i in series}
+        if len(currencies) > 1:
+            warnings.warn("Mixed currencies ({})".format(currencies))
+            return None
+        else:
+            return Valuation(
+                None,
+                statistics.mean(i.value for i in series),
+                currencies.pop()
+            )
 
     def __setitem__(self, key, value):
         raise NotImplementedError
@@ -95,9 +110,63 @@ class ValueBookTests(unittest.TestCase):
         goods = Asset(commodity, int, 10, note.date)
         book = ValueBook()
         valuation = book.commit(goods, note)
-        self.assertEqual(1575, valuation.value)
+        self.assertEqual(
+            Decimal(1785.50), valuation.value.quantize(Decimal("0.01"))
+        )
         self.assertEqual(1, len(book))
         self.assertEqual(
             note.term // note.period,
             len(book[commodity])
         )
+
+    def test_valuation_from_offer(self):
+        then = datetime.date(2015, 4, 1)
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders"
+        )
+        goods = Asset(commodity, int, 10, then)
+        book = ValueBook()
+        offer = Offer(then, 1800, "£")
+        self.assertRaises(KeyError, book.commit, goods, offer)
+
+    def test_mixed_currency(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders"
+        )
+        goods = Asset(commodity, int, 10, note.date)
+        book = ValueBook()
+        book.commit(goods, note)
+        offer = Offer(then, 1200, "$")
+        self.assertWarns(Warning, book.commit, goods, offer)
+
+    def test_offer_too_low(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders"
+        )
+        goods = Asset(commodity, int, 10, note.date)
+        book = ValueBook()
+        book.commit(goods, note)
+        offer = Offer(then, 1200, "£")
+        valuation = book.commit(goods, offer)
+        self.assertEqual(
+            Decimal(1723.00), valuation.value.quantize(Decimal("0.01"))
+        )
+
