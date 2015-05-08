@@ -59,31 +59,31 @@ class ValueBook(dict):
                 currencies.pop()
             )
 
+    @staticmethod
+    def approve(series, offer, capacity=1.0, **kwargs):
+        sd = statistics.pstdev(i.value for i in series)
+        estimate = ValueBook.estimate(series)
+        return (offer.value > estimate.value
+                or estimate.value - offer.value < sd / 2)
+
     def __setitem__(self, key, value):
         raise NotImplementedError
 
-    def commit(self, asset:Asset, obj:set([Note, Offer])):
+    def commit(self, commodity:Commodity, obj:set([Note, Offer])):
         if isinstance(obj, Note):
             series = super().setdefault(
-                asset.commodity,
+                commodity,
                 deque([Valuation(*i, currency=obj.currency)
                        for i in value_series(**vars(obj))],
                       maxlen=obj.term // obj.period)
             )
         elif isinstance(obj, Offer):
-            series = self[asset.commodity]
+            series = self[commodity]
             series.append(obj)
         else:
             raise NotImplementedError
 
         return self.estimate(series)
-
-    def recommend(self, asset, offer):
-        series = self[asset.commodity]
-        sd = statistics.pstdev(i.value for i in series)
-        estimate = ValueBook.estimate(series)
-        return (offer.value > estimate.value
-                or estimate.value - offer.value < sd / 2)
 
     def setdefault(self, key, default=None):
         raise NotImplementedError
@@ -124,9 +124,9 @@ class ValueBookTests(unittest.TestCase):
         )
         goods = Asset(commodity, int, 10, note.date)
         book = ValueBook()
-        valuation = book.commit(goods, note)
+        valuation = book.commit(commodity, note)
         self.assertEqual(
-            Decimal("1779.85"), valuation.value.quantize(Decimal("0.01"))
+            Decimal("1823.26"), valuation.value.quantize(Decimal("0.01"))
         )
         self.assertEqual(1, len(book))
         self.assertEqual(
@@ -142,7 +142,7 @@ class ValueBookTests(unittest.TestCase):
         goods = Asset(commodity, int, 10, then)
         book = ValueBook()
         offer = Offer(then, 1800, "£")
-        self.assertRaises(KeyError, book.commit, goods, offer)
+        self.assertRaises(KeyError, book.commit, commodity, offer)
 
     def test_mixed_currency(self):
         then = datetime.date(2015, 4, 1)
@@ -159,9 +159,9 @@ class ValueBookTests(unittest.TestCase):
         )
         goods = Asset(commodity, int, 10, note.date)
         book = ValueBook()
-        book.commit(goods, note)
+        book.commit(commodity, note)
         offer = Offer(then, 1200, "$")
-        self.assertWarns(Warning, book.commit, goods, offer)
+        self.assertWarns(Warning, book.commit, commodity, offer)
 
     def test_offer_too_low(self):
         then = datetime.date(2015, 4, 1)
@@ -178,11 +178,11 @@ class ValueBookTests(unittest.TestCase):
         )
         goods = Asset(commodity, int, 10, note.date)
         book = ValueBook()
-        book.commit(goods, note)
+        book.commit(commodity, note)
         offer = Offer(then, 1200, "£")
-        valuation = book.commit(goods, offer)
+        valuation = book.commit(commodity, offer)
         self.assertEqual(
-            Decimal("1779.85"), valuation.value.quantize(Decimal("0.01"))
+            Decimal("1823.26"), valuation.value.quantize(Decimal("0.01"))
         )
 
     def test_simple_haggling(self):
@@ -200,20 +200,23 @@ class ValueBookTests(unittest.TestCase):
         )
         goods = Asset(commodity, int, 10, note.date)
         book = ValueBook()
-        book.commit(goods, note)
+        book.commit(commodity, note)
 
+        n = 0
         now = then
         offer = Offer(now, 1200, "£")
-        valuation = book.commit(goods, offer)
-        while valuation.value > offer.value:
-            print(offer)
+        valuation = book.commit(commodity, offer)
+        while not book.approve(book[commodity], offer):
+            n += 1
             now += datetime.timedelta(days=1)
             offer = Offer(
                 now,
                 offer.value + (valuation.value - offer.value) // 2,
                 valuation.currency
             )
-            valuation = book.commit(goods, offer)
+            valuation = book.commit(commodity, offer)
+
+        self.assertEqual(3, n)
 
     def test_stubborn_haggling(self):
         then = datetime.date(2015, 4, 1)
@@ -230,15 +233,20 @@ class ValueBookTests(unittest.TestCase):
         )
         goods = Asset(commodity, int, 10, note.date)
         book = ValueBook()
-        book.commit(goods, note)
+        book.commit(commodity, note)
 
+        n = 0
         now = then
         offer = Offer(now, 1200, "£")
-        valuation = book.commit(goods, offer)
-        while valuation.value > offer.value:
-            print(offer)
+        while not book.approve(book[commodity], offer):
+            n += 1
             now += datetime.timedelta(days=1)
-            valuation = book.commit(goods, offer)
+            valuation = book.commit(commodity, offer)
+
+        self.assertFalse(
+            n < len(book[commodity]),
+            "Too easy: {}".format(n)
+        )
 
     def test_quick_deal(self):
         then = datetime.date(2015, 4, 1)
@@ -255,9 +263,9 @@ class ValueBookTests(unittest.TestCase):
         )
         goods = Asset(commodity, int, 10, note.date)
         book = ValueBook()
-        book.commit(goods, note)
+        book.commit(commodity, note)
 
         now = then
         offer = Offer(now, 1800, "£")
-        valuation = book.commit(goods, offer)
-        self.assertTrue(book.recommend(goods, offer))
+        valuation = book.commit(commodity, offer)
+        self.assertTrue(book.approve(book[commodity], offer))
