@@ -41,6 +41,26 @@ Valuation = namedtuple("Valuation", ["ts", "value", "currency"])
 
 
 class ValueBook(dict):
+    """
+    .. todo:: refactor methods to accept commodities
+
+    """
+
+    @staticmethod
+    def estimate(series):
+        currencies = {i.currency for i in series}
+        if len(currencies) > 1:
+            warnings.warn("Mixed currencies ({})".format(currencies))
+            return None
+        else:
+            return Valuation(
+                None,
+                statistics.median_high(i.value for i in series),
+                currencies.pop()
+            )
+
+    def __setitem__(self, key, value):
+        raise NotImplementedError
 
     def commit(self, asset:Asset, obj:set([Note, Offer])):
         if isinstance(obj, Note):
@@ -56,19 +76,14 @@ class ValueBook(dict):
         else:
             raise NotImplementedError
 
-        currencies = {i.currency for i in series}
-        if len(currencies) > 1:
-            warnings.warn("Mixed currencies ({})".format(currencies))
-            return None
-        else:
-            return Valuation(
-                None,
-                statistics.median(i.value for i in series),
-                currencies.pop()
-            )
+        return self.estimate(series)
 
-    def __setitem__(self, key, value):
-        raise NotImplementedError
+    def recommend(self, asset, offer):
+        series = self[asset.commodity]
+        sd = statistics.pstdev(i.value for i in series)
+        estimate = ValueBook.estimate(series)
+        return (offer.value > estimate.value
+                or estimate.value - offer.value < sd / 2)
 
     def setdefault(self, key, default=None):
         raise NotImplementedError
@@ -245,12 +260,4 @@ class ValueBookTests(unittest.TestCase):
         now = then
         offer = Offer(now, 1800, "£")
         valuation = book.commit(goods, offer)
-        while valuation.value > offer.value:
-            print(offer)
-            now += datetime.timedelta(days=1)
-            offer = Offer(
-                now,
-                offer.value + (valuation.value - offer.value) // 2,
-                valuation.currency
-            )
-            valuation = book.commit(goods, offer)
+        self.assertTrue(book.recommend(goods, offer))
