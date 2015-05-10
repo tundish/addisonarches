@@ -26,21 +26,16 @@ import warnings
 from tallywallet.common.finance import Note
 from tallywallet.common.finance import value_series
 
-Commodity = namedtuple("Commodity", ["label", "description"])
 Asset = namedtuple(
     "Asset",
     ["commodity", "unit", "quantity", "acquired"]
 )
-
+Commodity = namedtuple("Commodity", ["label", "description"])
 Offer = namedtuple("Offer", ["ts", "value", "currency"])
 Valuation = namedtuple("Valuation", ["ts", "value", "currency"])
 
 
 class ValueBook(dict):
-    """
-    .. todo:: refactor methods to accept commodities
-
-    """
 
     @staticmethod
     def approve(series, offer, **kwargs):
@@ -65,20 +60,13 @@ class ValueBook(dict):
     def __setitem__(self, key, value):
         raise NotImplementedError
 
-    def consider(self, commodity:Commodity, offer:Offer, constraint=1.0):
-        estimate = self.estimate(self[commodity])
-        if offer.value > estimate.value or random.random() <= constraint:
-            return self.commit(commodity, offer)
-        else:
-            return estimate
-
     def commit(self, commodity:Commodity, obj:set([Note, Offer])):
         if isinstance(obj, Note):
             series = super().setdefault(
                 commodity,
                 deque([Valuation(*i, currency=obj.currency)
                        for i in value_series(**vars(obj))],
-                      maxlen= obj.term // obj.period)
+                      maxlen=obj.term // obj.period)
             )
         elif isinstance(obj, Offer):
             series = self[commodity]
@@ -87,6 +75,13 @@ class ValueBook(dict):
             raise NotImplementedError
 
         return self.estimate(series)
+
+    def consider(self, commodity:Commodity, offer:Offer, constraint=1.0):
+        estimate = self.estimate(self[commodity])
+        if offer.value > estimate.value or random.random() <= constraint:
+            return self.commit(commodity, offer)
+        else:
+            return estimate
 
     def setdefault(self, key, default=None):
         raise NotImplementedError
