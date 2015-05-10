@@ -16,88 +16,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import defaultdict
-from collections import deque
-from collections import namedtuple
 import datetime
 from decimal import Decimal
-import functools
-import random
-import statistics
 import unittest
-import warnings
 
 from tallywallet.common.finance import Note
-from tallywallet.common.finance import value_series
 
-
-Commodity = namedtuple("Commodity", ["label", "description"])
-Asset = namedtuple(
-    "Asset",
-    ["commodity", "unit", "quantity", "acquired"]
-)
-
-Offer = namedtuple("Offer", ["ts", "value", "currency"])
-Valuation = namedtuple("Valuation", ["ts", "value", "currency"])
-
-
-class ValueBook(dict):
-    """
-    .. todo:: refactor methods to accept commodities
-
-    """
-
-    @staticmethod
-    def approve(series, offer, **kwargs):
-        sd = statistics.pstdev(i.value for i in series)
-        estimate = ValueBook.estimate(series)
-        return (offer.value > estimate.value
-                or estimate.value - offer.value < sd / 2)
-
-    @staticmethod
-    def estimate(series):
-        currencies = {i.currency for i in series}
-        if len(currencies) > 1:
-            warnings.warn("Mixed currencies ({})".format(currencies))
-            return None
-        else:
-            return Valuation(
-                None,
-                statistics.median_high(i.value for i in series),
-                currencies.pop()
-            )
-
-    def __setitem__(self, key, value):
-        raise NotImplementedError
-
-    def consider(self, commodity:Commodity, offer:Offer, constraint=1.0):
-        estimate = self.estimate(self[commodity])
-        if offer.value > estimate.value or random.random() <= constraint:
-            return self.commit(commodity, offer)
-        else:
-            return estimate
-
-    def commit(self, commodity:Commodity, obj:set([Note, Offer])):
-        if isinstance(obj, Note):
-            series = super().setdefault(
-                commodity,
-                deque([Valuation(*i, currency=obj.currency)
-                       for i in value_series(**vars(obj))],
-                      maxlen= obj.term // obj.period)
-            )
-        elif isinstance(obj, Offer):
-            series = self[commodity]
-            series.append(obj)
-        else:
-            raise NotImplementedError
-
-        return self.estimate(series)
-
-    def setdefault(self, key, default=None):
-        raise NotImplementedError
-
-    def update(self, other):
-        raise NotImplementedError
+from valuation import Asset
+from valuation import Commodity
+from valuation import Offer
+from valuation import ValueBook
 
 
 class ValueBookTests(unittest.TestCase):
