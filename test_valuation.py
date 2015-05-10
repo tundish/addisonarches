@@ -22,6 +22,7 @@ from collections import namedtuple
 import datetime
 from decimal import Decimal
 import functools
+import random
 import statistics
 import unittest
 import warnings
@@ -47,6 +48,13 @@ class ValueBook(dict):
     """
 
     @staticmethod
+    def approve(series, offer, **kwargs):
+        sd = statistics.pstdev(i.value for i in series)
+        estimate = ValueBook.estimate(series)
+        return (offer.value > estimate.value
+                or estimate.value - offer.value < sd / 2)
+
+    @staticmethod
     def estimate(series):
         currencies = {i.currency for i in series}
         if len(currencies) > 1:
@@ -59,15 +67,15 @@ class ValueBook(dict):
                 currencies.pop()
             )
 
-    @staticmethod
-    def approve(series, offer, capacity=1.0, **kwargs):
-        sd = statistics.pstdev(i.value for i in series)
-        estimate = ValueBook.estimate(series)
-        return (offer.value > estimate.value
-                or estimate.value - offer.value < sd / 2)
-
     def __setitem__(self, key, value):
         raise NotImplementedError
+
+    def consider(self, commodity:Commodity, offer:Offer, constraint=1.0):
+        estimate = self.estimate(self[commodity])
+        if offer.value > estimate.value or random.random() <= constraint:
+            return self.commit(commodity, offer)
+        else:
+            return estimate
 
     def commit(self, commodity:Commodity, obj:set([Note, Offer])):
         if isinstance(obj, Note):
@@ -75,7 +83,7 @@ class ValueBook(dict):
                 commodity,
                 deque([Valuation(*i, currency=obj.currency)
                        for i in value_series(**vars(obj))],
-                      maxlen=obj.term // obj.period)
+                      maxlen= obj.term // obj.period)
             )
         elif isinstance(obj, Offer):
             series = self[commodity]
@@ -205,7 +213,7 @@ class ValueBookTests(unittest.TestCase):
         n = 0
         now = then
         offer = Offer(now, 1200, "£")
-        valuation = book.commit(commodity, offer)
+        valuation = book.consider(commodity, offer)
         while not book.approve(book[commodity], offer):
             n += 1
             now += datetime.timedelta(days=1)
@@ -214,11 +222,11 @@ class ValueBookTests(unittest.TestCase):
                 offer.value + (valuation.value - offer.value) // 2,
                 valuation.currency
             )
-            valuation = book.commit(commodity, offer)
+            valuation = book.consider(commodity, offer)
 
         self.assertEqual(3, n)
 
-    def test_stubborn_haggling(self):
+    def test_stubborn_haggling_under_constraint(self):
         then = datetime.date(2015, 4, 1)
         note = Note(
             date=then,
@@ -241,12 +249,32 @@ class ValueBookTests(unittest.TestCase):
         while not book.approve(book[commodity], offer):
             n += 1
             now += datetime.timedelta(days=1)
-            valuation = book.commit(commodity, offer)
+            valuation = book.consider(commodity, offer, constraint=1.0)
 
-        self.assertFalse(
-            n < len(book[commodity]),
-            "Too easy: {}".format(n)
+        self.assertEqual(4, n)
+        self.assertEqual(1200, valuation.value)
+
+    def test_stubborn_haggling_without_constraint(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
         )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders"
+        )
+        goods = Asset(commodity, int, 10, note.date)
+        book = ValueBook()
+        book.commit(commodity, note)
+
+        offer = Offer(then, 1200, "£")
+        valuation = book.consider(commodity, offer, constraint=0)
+
+        self.assertNotIn(1200, (i.value for i in book[commodity]))
 
     def test_quick_deal(self):
         then = datetime.date(2015, 4, 1)
