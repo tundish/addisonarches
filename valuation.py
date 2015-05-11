@@ -27,8 +27,8 @@ from tallywallet.common.finance import Note
 from tallywallet.common.finance import value_series
 
 from inventory import Commodity
+from inventory import Offer
 
-Offer = namedtuple("Offer", ["ts", "value", "currency"])
 Valuation = namedtuple("Valuation", ["ts", "value", "currency"])
 
 

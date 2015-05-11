@@ -23,9 +23,9 @@ import unittest
 from tallywallet.common.finance import Note
 
 from inventory import Asset
-from inventory import Commodity
-from inventory import Volume
-from valuation import Offer
+from inventory import Offer
+from scenario import Commodity
+from scenario import Volume
 from valuation import ValueBook
 
 

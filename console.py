@@ -21,15 +21,6 @@ from collections import namedtuple
 import datetime
 import itertools
 
-Location = namedtuple("Location", ["name", "capacity"])
-
-locations = [
-    Location("Indigent Street Car Boot Sale", 1000),
-    Location("Harry's House Clearances", 300),
-    Location("Kinh Ship Bulk Buy", 500),
-    Location("Addison Arches 18a", 100),
-]
-
 
 class Console(cmd.Cmd):
     clock = (

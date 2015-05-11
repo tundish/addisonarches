@@ -18,9 +18,9 @@
 
 import unittest
 
-from inventory import Commodity
 from inventory import Inventory
-from inventory import Volume
+from scenario import Commodity
+from scenario import Volume
 
 
 class BuyerTests(unittest.TestCase):
