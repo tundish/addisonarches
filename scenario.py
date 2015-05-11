@@ -59,9 +59,10 @@ characters = [
     for i in (
     "Harry McAllister",
     "Sally Paul",
-    "David Wen",
-    "Jimmy Chang",
-    "Mick Phillips",
+    "David Man",
+    "Jimmy Wei Zhang",
+    "Rob Fairfield",
+    "Mike Phillips",
     "Ian Thomas",
     "Barry Lattimer",
     "Siobhan Regan",
@@ -74,7 +75,9 @@ characters = [
 locations = [
     Location("Indigent St. Open Market", 1000),
     Location("Harry's House Clearances", 300),
+    Location("White City Non-ferrous Recovery Ltd.", 1000),
     Location("Kinh Ship Bulk Buy", 500),
+    Location("Itta's Antiques", 30),
     Location("Addison Arches 18a", 100),
 ]
 
