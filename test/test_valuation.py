@@ -22,8 +22,9 @@ import unittest
 
 from tallywallet.common.finance import Note
 
-from valuation import Asset
-from valuation import Commodity
+from inventory import Asset
+from inventory import Commodity
+from inventory import Volume
 from valuation import Offer
 from valuation import ValueBook
 
@@ -56,9 +57,9 @@ class ValueBookTests(unittest.TestCase):
             period=datetime.timedelta(days=5)
         )
         commodity = Commodity(
-            "VCRs", "Betamax video cassette recorders"
+            "VCRs", "Betamax video cassette recorders", Volume.box
         )
-        goods = Asset(commodity, int, 10, note.date)
+        goods = Asset(commodity, 10, note.date)
         book = ValueBook()
         valuation = book.commit(commodity, note)
         self.assertEqual(
@@ -73,9 +74,9 @@ class ValueBookTests(unittest.TestCase):
     def test_valuation_from_offer(self):
         then = datetime.date(2015, 4, 1)
         commodity = Commodity(
-            "VCRs", "Betamax video cassette recorders"
+            "VCRs", "Betamax video cassette recorders", Volume.box
         )
-        goods = Asset(commodity, int, 10, then)
+        goods = Asset(commodity, 10, then)
         book = ValueBook()
         offer = Offer(then, 1800, "£")
         self.assertRaises(KeyError, book.commit, commodity, offer)
@@ -91,9 +92,9 @@ class ValueBookTests(unittest.TestCase):
             period=datetime.timedelta(days=5)
         )
         commodity = Commodity(
-            "VCRs", "Betamax video cassette recorders"
+            "VCRs", "Betamax video cassette recorders", Volume.box
         )
-        goods = Asset(commodity, int, 10, note.date)
+        goods = Asset(commodity, 10, note.date)
         book = ValueBook()
         book.commit(commodity, note)
         offer = Offer(then, 1200, "$")
@@ -110,9 +111,9 @@ class ValueBookTests(unittest.TestCase):
             period=datetime.timedelta(days=5)
         )
         commodity = Commodity(
-            "VCRs", "Betamax video cassette recorders"
+            "VCRs", "Betamax video cassette recorders", Volume.box
         )
-        goods = Asset(commodity, int, 10, note.date)
+        goods = Asset(commodity, 10, note.date)
         book = ValueBook()
         book.commit(commodity, note)
         offer = Offer(then, 1200, "£")
@@ -132,9 +133,9 @@ class ValueBookTests(unittest.TestCase):
             period=datetime.timedelta(days=5)
         )
         commodity = Commodity(
-            "VCRs", "Betamax video cassette recorders"
+            "VCRs", "Betamax video cassette recorders", Volume.box
         )
-        goods = Asset(commodity, int, 10, note.date)
+        goods = Asset(commodity, 10, note.date)
         book = ValueBook()
         book.commit(commodity, note)
 
@@ -165,9 +166,9 @@ class ValueBookTests(unittest.TestCase):
             period=datetime.timedelta(days=5)
         )
         commodity = Commodity(
-            "VCRs", "Betamax video cassette recorders"
+            "VCRs", "Betamax video cassette recorders", Volume.box
         )
-        goods = Asset(commodity, int, 10, note.date)
+        goods = Asset(commodity, 10, note.date)
         book = ValueBook()
         book.commit(commodity, note)
 
@@ -193,9 +194,9 @@ class ValueBookTests(unittest.TestCase):
             period=datetime.timedelta(days=5)
         )
         commodity = Commodity(
-            "VCRs", "Betamax video cassette recorders"
+            "VCRs", "Betamax video cassette recorders", Volume.box
         )
-        goods = Asset(commodity, int, 10, note.date)
+        goods = Asset(commodity, 10, note.date)
         book = ValueBook()
         book.commit(commodity, note)
 
@@ -215,9 +216,9 @@ class ValueBookTests(unittest.TestCase):
             period=datetime.timedelta(days=5)
         )
         commodity = Commodity(
-            "VCRs", "Betamax video cassette recorders"
+            "VCRs", "Betamax video cassette recorders", Volume.box
         )
-        goods = Asset(commodity, int, 10, note.date)
+        goods = Asset(commodity, 10, note.date)
         book = ValueBook()
         book.commit(commodity, note)
 

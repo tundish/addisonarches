@@ -16,47 +16,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import Counter
-from collections import namedtuple
-from enum import Enum
 import unittest
 
-Asset = namedtuple(
-    "Asset",
-    ["commodity", "quantity", "acquired"]
-)
-# TODO: replaces valuation.Commodity
-Commodity = namedtuple("Commodity", ["label", "description", "volume"])
+from inventory import Commodity
+from inventory import Inventory
+from inventory import Volume
 
-class Volume(Enum):
-
-    pallet = 4
-    load = 2
-    heap = 1
-    cubic_metre = 1
-    pile = 25e-2
-    barrel = 128e-3
-    keg = 64e-3
-    sack = 32e-3
-    case = 16e-3
-    bundle = 8e-3
-    box = 4e-3
-    carton = 2e-3
-    bottle = 1e-3
-    litre = 1e-3
-    pack = 5e-4
-
-class Inventory:
-
-    def __init__(self, capacity):
-        self.capacity = capacity
-        self.contents = Counter()
-
-    @property
-    def constraint(self) -> float:
-        return sum(
-            c.volume.value * n for c, n in self.contents.items()
-        ) / self.capacity
 
 class BuyerTests(unittest.TestCase):
 

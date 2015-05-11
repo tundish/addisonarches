@@ -26,11 +26,8 @@ import warnings
 from tallywallet.common.finance import Note
 from tallywallet.common.finance import value_series
 
-Asset = namedtuple(
-    "Asset",
-    ["commodity", "unit", "quantity", "acquired"]
-)
-Commodity = namedtuple("Commodity", ["label", "description"])
+from inventory import Commodity
+
 Offer = namedtuple("Offer", ["ts", "value", "currency"])
 Valuation = namedtuple("Valuation", ["ts", "value", "currency"])
 
