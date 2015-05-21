@@ -23,10 +23,10 @@ import unittest
 from inventory import Asset
 from inventory import Business
 from inventory import Inventory
-from inventory import Offer
 import scenario
 from scenario import Commodity
 from scenario import Volume
+from valuation import Ask
 from valuation import ValueBook
 
 from tallywallet.common.finance import Note
@@ -70,7 +70,7 @@ class GameTests(unittest.TestCase):
 
         for commodity, offer, quantity in zip(
             harry.commodities,
-            (Offer(then, 40, "£"), Offer(then, 600, "£")),
+            (Ask(then, 40, "£"), Ask(then, 600, "£")),
             (8, 1),
         ):
             note = Note(

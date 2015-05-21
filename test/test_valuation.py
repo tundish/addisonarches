@@ -23,9 +23,9 @@ import unittest
 from tallywallet.common.finance import Note
 
 from inventory import Asset
-from inventory import Offer
 from scenario import Commodity
 from scenario import Volume
+from valuation import Bid
 from valuation import ValueBook
 
 
@@ -78,7 +78,7 @@ class ValueBookTests(unittest.TestCase):
         )
         goods = Asset(commodity, 10, then)
         book = ValueBook()
-        offer = Offer(then, 1800, "£")
+        offer = Bid(then, 1800, "£")
         self.assertRaises(KeyError, book.commit, commodity, offer)
 
     def test_mixed_currency(self):
@@ -97,7 +97,7 @@ class ValueBookTests(unittest.TestCase):
         goods = Asset(commodity, 10, note.date)
         book = ValueBook()
         book.commit(commodity, note)
-        offer = Offer(then, 1200, "$")
+        offer = Bid(then, 1200, "$")
         self.assertWarns(Warning, book.commit, commodity, offer)
 
     def test_offer_too_low(self):
@@ -116,7 +116,7 @@ class ValueBookTests(unittest.TestCase):
         goods = Asset(commodity, 10, note.date)
         book = ValueBook()
         book.commit(commodity, note)
-        offer = Offer(then, 1200, "£")
+        offer = Bid(then, 1200, "£")
         valuation = book.commit(commodity, offer)
         self.assertEqual(
             Decimal("1823.26"), valuation.value.quantize(Decimal("0.01"))
@@ -141,12 +141,12 @@ class ValueBookTests(unittest.TestCase):
 
         n = 0
         now = then
-        offer = Offer(now, 1200, "£")
+        offer = Bid(now, 1200, "£")
         valuation = book.consider(commodity, offer)
         while not book.approve(book[commodity], offer):
             n += 1
             now += datetime.timedelta(days=1)
-            offer = Offer(
+            offer = Bid(
                 now,
                 offer.value + (valuation.value - offer.value) // 2,
                 valuation.currency
@@ -174,7 +174,7 @@ class ValueBookTests(unittest.TestCase):
 
         n = 0
         now = then
-        offer = Offer(now, 1200, "£")
+        offer = Bid(now, 1200, "£")
         while not book.approve(book[commodity], offer):
             n += 1
             now += datetime.timedelta(days=1)
@@ -200,7 +200,7 @@ class ValueBookTests(unittest.TestCase):
         book = ValueBook()
         book.commit(commodity, note)
 
-        offer = Offer(then, 1200, "£")
+        offer = Bid(then, 1200, "£")
         valuation = book.consider(commodity, offer, constraint=0)
 
         self.assertNotIn(1200, (i.value for i in book[commodity]))
@@ -223,6 +223,6 @@ class ValueBookTests(unittest.TestCase):
         book.commit(commodity, note)
 
         now = then
-        offer = Offer(now, 1800, "£")
+        offer = Bid(now, 1800, "£")
         valuation = book.commit(commodity, offer)
         self.assertTrue(book.approve(book[commodity], offer))

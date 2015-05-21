@@ -25,7 +25,6 @@ Asset = namedtuple(
     "Asset",
     ["commodity", "quantity", "acquired"]
 )
-Offer = namedtuple("Offer", ["ts", "value", "currency"])
 
 class Inventory:
 
