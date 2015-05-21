@@ -178,6 +178,58 @@ class ValueBookTests(unittest.TestCase):
 
         self.assertEqual(2, n)
 
+    def test_stubborn_asking_without_constraint(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders", Volume.box
+        )
+        goods = Asset(commodity, 10, note.date)
+        book = ValueBook()
+        book.commit(commodity, note)
+
+        n = 0
+        now = then
+        offer = Ask(now, 2000, "£")
+        while not book.approve(book[commodity], offer):
+            n += 1
+            now += datetime.timedelta(days=1)
+            valuation = book.consider(commodity, offer, constraint=0)
+
+        self.assertEqual(2, n)
+        self.assertEqual(
+            Decimal("1957.21"), valuation.value.quantize(Decimal("0.01"))
+        )
+
+    def test_stubborn_asking_under_constraint(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders", Volume.box
+        )
+        goods = Asset(commodity, 10, note.date)
+        book = ValueBook()
+        book.commit(commodity, note)
+
+        offer = Ask(then, 2000, "£")
+        valuation = book.consider(commodity, offer, constraint=1.0)
+
+        self.assertNotIn(2000, (i.value for i in book[commodity]))
+
     def test_quick_bid(self):
         then = datetime.date(2015, 4, 1)
         note = Note(
