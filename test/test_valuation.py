@@ -25,6 +25,7 @@ from tallywallet.common.finance import Note
 from inventory import Asset
 from scenario import Commodity
 from scenario import Volume
+from valuation import Ask
 from valuation import Bid
 from valuation import ValueBook
 
@@ -63,7 +64,7 @@ class ValueBookTests(unittest.TestCase):
         book = ValueBook()
         valuation = book.commit(commodity, note)
         self.assertEqual(
-            Decimal("1823.26"), valuation.value.quantize(Decimal("0.01"))
+            Decimal("1779.85"), valuation.value.quantize(Decimal("0.01"))
         )
         self.assertEqual(1, len(book))
         self.assertEqual(
@@ -71,7 +72,7 @@ class ValueBookTests(unittest.TestCase):
             len(book[commodity])
         )
 
-    def test_valuation_from_offer(self):
+    def test_valuation_from_bid(self):
         then = datetime.date(2015, 4, 1)
         commodity = Commodity(
             "VCRs", "Betamax video cassette recorders", Volume.box
@@ -100,7 +101,51 @@ class ValueBookTests(unittest.TestCase):
         offer = Bid(then, 1200, "$")
         self.assertWarns(Warning, book.commit, commodity, offer)
 
-    def test_offer_too_low(self):
+    def test_quick_ask(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders", Volume.box
+        )
+        goods = Asset(commodity, 10, note.date)
+        book = ValueBook()
+        book.commit(commodity, note)
+
+        now = then
+        offer = Ask(now, 1200, "£")
+        valuation = book.commit(commodity, offer)
+        self.assertTrue(book.approve(book[commodity], offer))
+
+    def test_quick_bid(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders", Volume.box
+        )
+        goods = Asset(commodity, 10, note.date)
+        book = ValueBook()
+        book.commit(commodity, note)
+
+        now = then
+        offer = Bid(now, 1800, "£")
+        valuation = book.commit(commodity, offer)
+        self.assertTrue(book.approve(book[commodity], offer))
+
+    def test_bid_too_low(self):
         then = datetime.date(2015, 4, 1)
         note = Note(
             date=then,
@@ -119,10 +164,10 @@ class ValueBookTests(unittest.TestCase):
         offer = Bid(then, 1200, "£")
         valuation = book.commit(commodity, offer)
         self.assertEqual(
-            Decimal("1823.26"), valuation.value.quantize(Decimal("0.01"))
+            Decimal("1779.85"), valuation.value.quantize(Decimal("0.01"))
         )
 
-    def test_simple_haggling(self):
+    def test_simple_bidding(self):
         then = datetime.date(2015, 4, 1)
         note = Note(
             date=then,
@@ -153,9 +198,9 @@ class ValueBookTests(unittest.TestCase):
             )
             valuation = book.consider(commodity, offer)
 
-        self.assertEqual(3, n)
+        self.assertEqual(2, n)
 
-    def test_stubborn_haggling_under_constraint(self):
+    def test_stubborn_bidding_under_constraint(self):
         then = datetime.date(2015, 4, 1)
         note = Note(
             date=then,
@@ -183,7 +228,7 @@ class ValueBookTests(unittest.TestCase):
         self.assertEqual(4, n)
         self.assertEqual(1200, valuation.value)
 
-    def test_stubborn_haggling_without_constraint(self):
+    def test_stubborn_bidding_without_constraint(self):
         then = datetime.date(2015, 4, 1)
         note = Note(
             date=then,
@@ -204,25 +249,3 @@ class ValueBookTests(unittest.TestCase):
         valuation = book.consider(commodity, offer, constraint=0)
 
         self.assertNotIn(1200, (i.value for i in book[commodity]))
-
-    def test_quick_deal(self):
-        then = datetime.date(2015, 4, 1)
-        note = Note(
-            date=then,
-            principal=1500,
-            currency="£",
-            term=datetime.timedelta(days=30),
-            interest=Decimal("0.050"),
-            period=datetime.timedelta(days=5)
-        )
-        commodity = Commodity(
-            "VCRs", "Betamax video cassette recorders", Volume.box
-        )
-        goods = Asset(commodity, 10, note.date)
-        book = ValueBook()
-        book.commit(commodity, note)
-
-        now = then
-        offer = Bid(now, 1800, "£")
-        valuation = book.commit(commodity, offer)
-        self.assertTrue(book.approve(book[commodity], offer))

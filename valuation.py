@@ -28,22 +28,29 @@ from tallywallet.common.finance import value_series
 
 from inventory import Commodity
 
-Ask = namedtuple("Ask", ["ts", "value", "currency"])
-Bid = namedtuple("Bid", ["ts", "value", "currency"])
-Valuation = namedtuple("Valuation", ["ts", "value", "currency"])
+fields = ["ts", "value", "currency"]
+Ask = namedtuple("Ask", fields)
+Bid = namedtuple("Bid", fields)
+Valuation = namedtuple("Valuation", fields)
 
 
 class ValueBook(dict):
 
     @staticmethod
-    def approve(series, offer, **kwargs):
+    def approve(series, offer:set([Ask, Bid]), **kwargs):
         sd = statistics.pstdev(i.value for i in series)
-        estimate = ValueBook.estimate(series)
-        return (offer.value > estimate.value
-                or estimate.value - offer.value < sd / 2)
+        estimate = ValueBook.estimate(series, **kwargs)
+        if isinstance(offer, Ask):
+            return (offer.value < estimate.value
+                    or offer.value - estimate.value < sd / 2)
+        elif isinstance(offer, Bid):
+            return (offer.value > estimate.value
+                    or estimate.value - offer.value < sd / 2)
+        else:
+            raise NotImplementedError
 
     @staticmethod
-    def estimate(series):
+    def estimate(series, ts=None):
         currencies = {i.currency for i in series}
         if len(currencies) > 1:
             warnings.warn("Mixed currencies ({})".format(currencies))
@@ -51,7 +58,7 @@ class ValueBook(dict):
         else:
             return Valuation(
                 None,
-                statistics.median_high(i.value for i in series),
+                statistics.median(i.value for i in series),
                 currencies.pop()
             )
 
@@ -66,7 +73,7 @@ class ValueBook(dict):
                        for i in value_series(**vars(obj))],
                       maxlen=obj.term // obj.period)
             )
-        elif isinstance(obj, Bid):
+        elif isinstance(obj, (Ask, Bid)):
             series = self[commodity]
             series.append(obj)
         else:
@@ -76,10 +83,18 @@ class ValueBook(dict):
 
     def consider(self, commodity:Commodity, offer:set([Ask, Bid]), constraint=1.0):
         estimate = self.estimate(self[commodity])
-        if offer.value > estimate.value or random.random() <= constraint:
-            return self.commit(commodity, offer)
+        if isinstance(offer, Ask):
+            if offer.value < estimate.value or random.random() >= constraint:
+                return self.commit(commodity, offer)
+            else:
+                return estimate
+        elif isinstance(offer, Bid):
+            if offer.value > estimate.value or random.random() <= constraint:
+                return self.commit(commodity, offer)
+            else:
+                return estimate
         else:
-            return estimate
+            raise NotImplementedError
 
     def setdefault(self, key, default=None):
         raise NotImplementedError
