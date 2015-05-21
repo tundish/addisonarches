@@ -88,5 +88,3 @@ class GameTests(unittest.TestCase):
 
             # TODO: harry.store(asset)
             harry.locations["Harry's House Clearances"].contents[asset.commodity] += asset.quantity
-
-        print(harry.book)

@@ -123,6 +123,61 @@ class ValueBookTests(unittest.TestCase):
         valuation = book.commit(commodity, offer)
         self.assertTrue(book.approve(book[commodity], offer))
 
+    def test_ask_too_high(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders", Volume.box
+        )
+        goods = Asset(commodity, 10, note.date)
+        book = ValueBook()
+        book.commit(commodity, note)
+        offer = Ask(then, 1800, "£")
+        valuation = book.commit(commodity, offer)
+        self.assertEqual(
+            Decimal("1811.63"), valuation.value.quantize(Decimal("0.01"))
+        )
+
+    def test_simple_asking(self):
+        then = datetime.date(2015, 4, 1)
+        note = Note(
+            date=then,
+            principal=1500,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
+        commodity = Commodity(
+            "VCRs", "Betamax video cassette recorders", Volume.box
+        )
+        goods = Asset(commodity, 10, note.date)
+        book = ValueBook()
+        book.commit(commodity, note)
+
+        n = 0
+        now = then
+        offer = Ask(now, 2000, "£")
+        valuation = book.consider(commodity, offer)
+        while not book.approve(book[commodity], offer):
+            n += 1
+            now += datetime.timedelta(days=1)
+            offer = Ask(
+                now,
+                offer.value + (valuation.value - offer.value) // 2,
+                valuation.currency
+            )
+            valuation = book.consider(commodity, offer)
+
+        self.assertEqual(2, n)
+
     def test_quick_bid(self):
         then = datetime.date(2015, 4, 1)
         note = Note(
