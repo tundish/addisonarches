@@ -41,9 +41,10 @@ class Inventory:
 
 class Business:
 
-    def __init__(self, proprietor, locations, commodities):
+    def __init__(self, proprietor, book, locations, commodities):
         self.proprietor = proprietor
-        self.locations = locations
+        self.book = book
+        self.locations = {i.name: Inventory(capacity=i.capacity) for i in locations}
         self.commodities = commodities
 
     def offer(self, commodity:Commodity, constraint=1.0):
