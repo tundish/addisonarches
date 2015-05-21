@@ -69,9 +69,11 @@ class ValueBook(dict):
         if isinstance(obj, Note):
             series = super().setdefault(
                 commodity,
-                deque([Valuation(*i, currency=obj.currency)
-                       for i in value_series(**vars(obj))],
-                      maxlen=obj.term // obj.period)
+                deque([], maxlen=obj.term // obj.period)
+            )
+            series.extend(
+                [Valuation(*i, currency=obj.currency)
+                 for i in value_series(**vars(obj))]
             )
         elif isinstance(obj, (Ask, Bid)):
             series = self[commodity]
