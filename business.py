@@ -19,20 +19,22 @@
 from collections import Counter
 from collections import namedtuple
 
-Asset = namedtuple(
-    "Asset",
-    ["commodity", "quantity", "acquired"]
-)
-Commodity = namedtuple("Commodity", ["label", "description", "volume"])
+from inventory import Commodity
+from inventory import Inventory
 
-class Inventory:
 
-    def __init__(self, capacity):
-        self.capacity = capacity
-        self.contents = Counter()
+class Business:
 
-    @property
-    def constraint(self) -> float:
-        return sum(
-            c.volume.value * n for c, n in self.contents.items()
-        ) / self.capacity
+    def __init__(self, proprietor, book, locations, commodities):
+        self.proprietor = proprietor
+        self.book = book
+        self.locations = {i.name: Inventory(capacity=i.capacity) for i in locations}
+        self.commodities = commodities
+
+    def offer(self, commodity:Commodity, constraint=1.0):
+        estimate = self.estimate(self[commodity])
+        if offer.value > estimate.value or random.random() <= constraint:
+            return self.commit(commodity, offer)
+        else:
+            return estimate
+

@@ -20,6 +20,9 @@ from collections import namedtuple
 from enum import Enum
 import uuid
 
+from inventory import Commodity
+
+
 class Volume(Enum):
 
     pallet = 4
@@ -39,10 +42,6 @@ class Volume(Enum):
     litre = 1e-3
     pack = 5e-4
 
-Business = namedtuple(
-    "Business", 
-    ["character", "roles", "locations", "commodities"]
-)
 
 class Role(Enum):
 
@@ -53,7 +52,6 @@ class Role(Enum):
 
 Character = namedtuple("Character", ["uuid", "name"])
 Location = namedtuple("Location", ["name", "capacity"])
-Commodity = namedtuple("Commodity", ["label", "description", "volume"])
 
 characters = [
     Character(uuid.uuid4().hex, i)
