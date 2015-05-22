@@ -62,8 +62,8 @@ class BusinessTests(unittest.TestCase):
         now = datetime.date(2015, 4, 1)
         commodity = scenario.commodities[1]
         asset = Asset(commodity, 3, now)
-        locn = self.business.store(asset)
-        self.assertIn(("Harry's House Clearances", 3), locn)
+        drop = self.business.store(asset)
+        self.assertIn(("Harry's House Clearances", 3), drop)
         self.assertEqual(
             3,
             self.business.inventories["Harry's House Clearances"].contents[commodity]
@@ -74,8 +74,8 @@ class BusinessTests(unittest.TestCase):
         now = datetime.date(2015, 4, 1)
         commodity = scenario.commodities[1]
         asset = Asset(commodity, 3, now)
-        locn = self.business.retrieve(asset)
-        self.assertIn(("Harry's House Clearances", 3), locn)
+        pick = self.business.retrieve(asset)
+        self.assertIn(("Harry's House Clearances", 3), pick)
         self.assertEqual(
             0,
             self.business.inventories["Harry's House Clearances"].contents[commodity]
@@ -86,8 +86,8 @@ class BusinessTests(unittest.TestCase):
         now = datetime.date(2015, 4, 1)
         commodity = scenario.commodities[1]
         asset = Asset(commodity, 4, now)
-        locn = self.business.retrieve(asset)
-        self.assertIn(("Harry's House Clearances", 3), locn)
+        pick = self.business.retrieve(asset)
+        self.assertIn(("Harry's House Clearances", 3), pick)
         self.assertEqual(
             0,
             self.business.inventories["Harry's House Clearances"].contents[commodity]
@@ -98,8 +98,8 @@ class BusinessTests(unittest.TestCase):
         now = datetime.date(2015, 4, 1)
         commodity = scenario.commodities[1]
         asset = Asset(commodity, 1, now)
-        locn = self.business.retrieve(asset)
-        self.assertIn(("Harry's House Clearances", 1), locn)
+        pick = self.business.retrieve(asset)
+        self.assertIn(("Harry's House Clearances", 1), pick)
         self.assertEqual(
             2,
             self.business.inventories["Harry's House Clearances"].contents[commodity]

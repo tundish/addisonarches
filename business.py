@@ -37,14 +37,16 @@ class Business:
         schedule = iter(sorted(
             ((l.constraint, n, l) for n, l in self.inventories.items()),
             reverse=True))
-        while unstored > 0:
-            constraint, locN, loc = next(schedule)
-            space = (1 - constraint) * loc.capacity
-            drop = min(unstored, space / asset.commodity.volume.value)
-            loc.contents[asset.commodity] += drop
-            unstored -= drop
-            rv.append((locN, drop))
-        return rv
+        try:
+            while unstored > 0:
+                constraint, locN, loc = next(schedule)
+                space = (1 - constraint) * loc.capacity
+                drop = min(unstored, space / asset.commodity.volume.value)
+                loc.contents[asset.commodity] += drop
+                unstored -= drop
+                rv.append((locN, drop))
+        finally:
+            return rv
 
     def retrieve(self, asset:Asset):
         rv = []
