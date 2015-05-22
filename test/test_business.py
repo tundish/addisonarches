@@ -24,7 +24,7 @@ from business import Business
 from inventory import Asset
 from inventory import Commodity
 import scenario
-from valuation import Ask
+from valuation import Valuation
 from valuation import ValueBook
 
 from tallywallet.common.finance import Note
@@ -32,22 +32,21 @@ from tallywallet.common.finance import Note
 
 class BusinessTests(unittest.TestCase):
 
-    def test_game_setup(self):
+    def setUp(self):
         then = datetime.date(2015, 4, 1)
         credit = (datetime.timedelta(days=30), Decimal("0.050"))
-        harry = Business(
+        self.business = harry = Business(
             scenario.characters[0],
             ValueBook(),
             scenario.locations[1:2],
-            scenario.commodities[0:2]
         )
-        self.assertIn(scenario.locations[1].name, harry.locations)
-        self.assertEqual(0, harry.locations["Harry's House Clearances"].constraint)
+        self.assertIn(scenario.locations[1].name, harry.inventories)
+        self.assertEqual(0, harry.inventories["Harry's House Clearances"].constraint)
 
         for commodity, offer, quantity in zip(
-            harry.commodities,
-            (Ask(then, 40, "£"), Ask(then, 600, "£")),
-            (8, 1),
+            scenario.commodities[0:2],
+            (Valuation(then, 40, "£"), Valuation(then, 600, "£")),
+            (0, 1),
         ):
             note = Note(
                 date=offer.ts,
@@ -59,8 +58,49 @@ class BusinessTests(unittest.TestCase):
             )
             harry.book.commit(commodity, note)
 
-            # Decide whether to add supply
-            asset = Asset(commodity, quantity, note.date)
+    def test_single_inventory_population(self):
+        now = datetime.date(2015, 4, 1)
+        commodity = scenario.commodities[1]
+        asset = Asset(commodity, 3, now)
+        locn = self.business.store(asset)
+        self.assertIn(("Harry's House Clearances", 3), locn)
+        self.assertEqual(
+            3,
+            self.business.inventories["Harry's House Clearances"].contents[commodity]
+        )
 
-            # TODO: harry.store(asset)
-            harry.locations["Harry's House Clearances"].contents[asset.commodity] += asset.quantity
+    def test_single_inventory_emptying(self):
+        self.test_single_inventory_population()
+        now = datetime.date(2015, 4, 1)
+        commodity = scenario.commodities[1]
+        asset = Asset(commodity, 3, now)
+        locn = self.business.retrieve(asset)
+        self.assertIn(("Harry's House Clearances", 3), locn)
+        self.assertEqual(
+            0,
+            self.business.inventories["Harry's House Clearances"].contents[commodity]
+        )
+
+    def test_single_inventory_overemptying(self):
+        self.test_single_inventory_population()
+        now = datetime.date(2015, 4, 1)
+        commodity = scenario.commodities[1]
+        asset = Asset(commodity, 4, now)
+        locn = self.business.retrieve(asset)
+        self.assertIn(("Harry's House Clearances", 3), locn)
+        self.assertEqual(
+            0,
+            self.business.inventories["Harry's House Clearances"].contents[commodity]
+        )
+
+    def test_single_inventory_picking(self):
+        self.test_single_inventory_population()
+        now = datetime.date(2015, 4, 1)
+        commodity = scenario.commodities[1]
+        asset = Asset(commodity, 1, now)
+        locn = self.business.retrieve(asset)
+        self.assertIn(("Harry's House Clearances", 1), locn)
+        self.assertEqual(
+            2,
+            self.business.inventories["Harry's House Clearances"].contents[commodity]
+        )

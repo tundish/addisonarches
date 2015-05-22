@@ -19,22 +19,45 @@
 from collections import Counter
 from collections import namedtuple
 
+from inventory import Asset
 from inventory import Commodity
 from inventory import Inventory
 
 
 class Business:
 
-    def __init__(self, proprietor, book, locations, commodities):
+    def __init__(self, proprietor, book, locations):
         self.proprietor = proprietor
         self.book = book
-        self.locations = {i.name: Inventory(capacity=i.capacity) for i in locations}
-        self.commodities = commodities
+        self.inventories = {i.name: Inventory(capacity=i.capacity) for i in locations}
 
-    def offer(self, commodity:Commodity, constraint=1.0):
-        estimate = self.estimate(self[commodity])
-        if offer.value > estimate.value or random.random() <= constraint:
-            return self.commit(commodity, offer)
-        else:
-            return estimate
+    def store(self, asset:Asset):
+        rv = []
+        unstored = asset.quantity
+        schedule = iter(sorted(
+            ((l.constraint, n, l) for n, l in self.inventories.items()),
+            reverse=True))
+        while unstored > 0:
+            constraint, locN, loc = next(schedule)
+            space = (1 - constraint) * loc.capacity
+            drop = min(unstored, space / asset.commodity.volume.value)
+            loc.contents[asset.commodity] += drop
+            unstored -= drop
+            rv.append((locN, drop))
+        return rv
 
+    def retrieve(self, asset:Asset):
+        rv = []
+        unfound = asset.quantity
+        schedule = iter(sorted(
+            ((l.constraint, n, l) for n, l in self.inventories.items()),
+            reverse=True))
+        try:
+            while unfound > 0:
+                constraint, locN, loc = next(schedule)
+                pick = min(unfound, loc.contents[asset.commodity])
+                loc.contents[asset.commodity] -= pick
+                unfound -= pick
+                rv.append((locN, pick))
+        finally:
+            return rv
