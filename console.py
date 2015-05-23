@@ -25,39 +25,47 @@ import itertools
 
 import scenario
 
-@asyncio.coroutine
-def game_loop(intervals, commands, executor, loop=None):
-    yield from intervals.put(5)
-    while True:
-        line = yield from commands.get()
-        yield from intervals.put(30)
-
-
-@asyncio.coroutine
-def user_input(intervals, commands, executor, loop=None, prompt="?"):
-    yield from asyncio.sleep(0, loop=loop)
-    while True:
-        interval = yield from intervals.get()
-        try:
-            line = yield from asyncio.wait_for(
-                    loop.run_in_executor(
-                        executor,
-                        input,
-                        prompt
-                    ),
-                    interval,
-                    loop=loop)
-        except asyncio.TimeoutError:
-            line = "wait"
-        yield from commands.put(line)
-
- 
 class Game:
 
     def __init__(self, name, console):
         self.name = name
         self.console = console
 
+    @asyncio.coroutine
+    def game_loop(self, intervals, commands, executor, loop=None):
+        self.console.preloop()
+        stop = False
+        while not stop:
+            yield from intervals.put(30)
+            line = yield from commands.get()
+            line = self.console.precmd(line)
+            stop = self.console.onecmd(line)
+            stop = self.console.postcmd(stop, line)
+        else:
+            self.console.postloop()
+            yield from intervals.put(None)
+
+
+    @asyncio.coroutine
+    def user_input(self, intervals, commands, executor, loop=None):
+        interval = yield from intervals.get()
+        while interval is not None:
+            try:
+                line = yield from asyncio.wait_for(
+                        loop.run_in_executor(
+                            executor,
+                            input,
+                            self.console.prompt
+                        ),
+                        interval,
+                        loop=loop)
+            except asyncio.TimeoutError:
+                line = "wait"
+            finally:
+                yield from commands.put(line)
+                interval = yield from intervals.get()
+
+ 
 class Console(cmd.Cmd):
     clock = (
         t for t in (
@@ -87,6 +95,12 @@ class Console(cmd.Cmd):
                     for n, i in enumerate(scenario.locations)],
                   sep="\n")
 
+    def do_wait(self, arg):
+        """
+        Pass the time quietly.
+        """
+        return False
+
     def do_quit(self, arg):
         """
         End the game.
@@ -99,13 +113,13 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     intervals = asyncio.Queue()
     commands = asyncio.Queue()
-    routines = [user_input, game_loop]
+    routines = [game.user_input, game.game_loop]
     executor = concurrent.futures.ThreadPoolExecutor(len(routines))
     tasks = [
         asyncio.Task(routine(intervals, commands, executor, loop=loop))
         for routine in routines
     ]
     try:
-        loop.run_forever()
+        loop.run_until_complete(asyncio.wait(tasks))
     finally:
         loop.close()
