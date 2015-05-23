@@ -22,50 +22,11 @@ from collections import namedtuple
 import concurrent.futures
 import datetime
 import itertools
+import sys
 
 import scenario
 
-class Game:
 
-    def __init__(self, name, console):
-        self.name = name
-        self.console = console
-
-    @asyncio.coroutine
-    def game_loop(self, intervals, commands, executor, loop=None):
-        self.console.preloop()
-        stop = False
-        while not stop:
-            yield from intervals.put(30)
-            line = yield from commands.get()
-            line = self.console.precmd(line)
-            stop = self.console.onecmd(line)
-            stop = self.console.postcmd(stop, line)
-        else:
-            self.console.postloop()
-            yield from intervals.put(None)
-
-
-    @asyncio.coroutine
-    def user_input(self, intervals, commands, executor, loop=None):
-        interval = yield from intervals.get()
-        while interval is not None:
-            try:
-                line = yield from asyncio.wait_for(
-                        loop.run_in_executor(
-                            executor,
-                            input,
-                            self.console.prompt
-                        ),
-                        interval,
-                        loop=loop)
-            except asyncio.TimeoutError:
-                line = "wait"
-            finally:
-                yield from commands.put(line)
-                interval = yield from intervals.get()
-
- 
 class Console(cmd.Cmd):
     clock = (
         t for t in (
@@ -76,18 +37,36 @@ class Console(cmd.Cmd):
                 7 * 24 * 60 // 30)
             )
         if 8 <= t.hour <= 19)
-    prompt = "{:%A %H:%M} > ".format(next(clock))
+
+    @staticmethod
+    def get_command(prompt):
+        sys.stdout.write(prompt)
+        sys.stdout.flush()
+        line = sys.stdin.readline()
+        if not len(line):
+            line = "EOF"
+        else:
+            line = line.rstrip("\r\n")
+        return line
+
+    def preloop(self):
+        self.__class__.prompt = "{:%A %H:%M} > ".format(
+            next(self.clock)
+        )
+
+    def precmd(self, line):
+        return line
 
     def postcmd(self, stop, line):
         try:
-            self.prompt = "{:%A %H:%M} > ".format(next(self.clock))
+            self.preloop()
         except StopIteration:
             stop = True
         return stop
 
     def do_go(self, arg):
         """
-        Boo.
+        travel to another location.
         """
         line = arg.strip()
         if not line:
@@ -107,19 +86,60 @@ class Console(cmd.Cmd):
         """
         return True
 
+class Game:
+
+    def __init__(self, name, console):
+        self.name = name
+        self.console = console
+
+    @asyncio.coroutine
+    def console_loop(self, intervals, commands, executor, loop=None):
+        console = self.console()
+        console.preloop()
+        stop = False
+        while not stop:
+            yield from intervals.put(30)
+            line = yield from commands.get()
+            line = console.precmd(line)
+            stop = console.onecmd(line)
+            stop = console.postcmd(stop, line)
+        else:
+            console.postloop()
+            yield from intervals.put(None)
+
+    @asyncio.coroutine
+    def user_input(self, intervals, commands, executor, loop=None):
+        interval = yield from intervals.get()
+        while interval is not None:
+            prompt = self.console.prompt
+            try:
+                line = yield from asyncio.wait_for(
+                        loop.run_in_executor(
+                            executor,
+                            self.console.get_command,
+                            prompt
+                        ),
+                        interval,
+                        loop=loop)
+            except asyncio.TimeoutError:
+                line = "wait"
+                sys.stdout.write("\n" + prompt + line + "\n")
+                sys.stdout.flush()
+                
+            yield from commands.put(line)
+            interval = yield from intervals.get()
+
+ 
 if __name__ == "__main__":
     name = input("Please enter your name: ")
-    game = Game(name=name, console=Console())
+    game = Game(name=name, console=Console)
     loop = asyncio.get_event_loop()
     intervals = asyncio.Queue()
     commands = asyncio.Queue()
-    routines = [game.user_input, game.game_loop]
+    routines = [game.user_input, game.console_loop]
     executor = concurrent.futures.ThreadPoolExecutor(len(routines))
     tasks = [
         asyncio.Task(routine(intervals, commands, executor, loop=loop))
         for routine in routines
     ]
-    try:
-        loop.run_until_complete(asyncio.wait(tasks))
-    finally:
-        loop.close()
+    loop.run_until_complete(asyncio.wait(tasks))
