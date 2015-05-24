@@ -38,7 +38,6 @@ class Console(cmd.Cmd):
             line = line.rstrip("\r\n")
         return line
 
-
     def precmd(self, line):
         return line
 
@@ -51,7 +50,7 @@ class Console(cmd.Cmd):
 
     def do_go(self, arg):
         """
-        travel to another location.
+        Travel to another location.
         """
         line = arg.strip()
         if not line:
@@ -108,24 +107,26 @@ class Game:
             line = console.precmd(line)
             stop = console.onecmd(line)
             self.stop = console.postcmd(stop, line)
-            self.prompt = "{:%A %H:%M} > ".format(
-                next(self.clock)
-            )
+            try:
+                self.prompt = "{:%A %H:%M} > ".format(
+                    next(self.clock)
+                )
+            except StopIteration:
+                self.stop = True
         else:
             console.postloop()
             sys.stdout.write("Press return.")
             sys.stdout.flush()
 
     @asyncio.coroutine
-    def user_input(self, commands, executor, loop=None):
+    def input_loop(self, commands, executor, loop=None):
         while not self.stop:
-            prompt = self.prompt
             try:
                 line = yield from asyncio.wait_for(
                         loop.run_in_executor(
                             executor,
                             self.console.get_command,
-                            prompt
+                            self.prompt
                         ),
                         timeout=None,
                         loop=loop)
@@ -139,10 +140,10 @@ if __name__ == "__main__":
     game = Game(name=name, console=Console)
     loop = asyncio.get_event_loop()
     commands = asyncio.Queue()
-    routines = [game.user_input, game.console_loop, game.clock_loop]
+    routines = [game.console_loop, game.input_loop, game.clock_loop]
     executor = concurrent.futures.ThreadPoolExecutor(len(routines))
     tasks = [
         asyncio.Task(routine(commands, executor, loop=loop))
         for routine in routines
     ]
-    loop.run_until_complete(asyncio.wait(tasks))
+    loop.run_until_complete(asyncio.wait_for(tasks[0], timeout=None))
