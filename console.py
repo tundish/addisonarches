@@ -88,6 +88,15 @@ class Game:
             if 8 <= t.hour <= 19)
         self.prompt = "Type 'help' for commands > "
 
+    def setup(self, loop=None):
+        commands = asyncio.Queue()
+        routines = [self.console_loop, self.input_loop, self.clock_loop]
+        executor = concurrent.futures.ThreadPoolExecutor(len(routines))
+        return [
+            asyncio.Task(routine(commands, executor, loop=loop))
+            for routine in routines
+        ]
+
     @asyncio.coroutine
     def clock_loop(self, commands, executor, loop=None):
         while not self.stop:
@@ -117,19 +126,22 @@ class Game:
             console.postloop()
             sys.stdout.write("Press return.")
             sys.stdout.flush()
+            for task in asyncio.Task.all_tasks(loop):
+                task.cancel()
+            loop.stop()
 
     @asyncio.coroutine
     def input_loop(self, commands, executor, loop=None):
         while not self.stop:
             try:
                 line = yield from asyncio.wait_for(
-                        loop.run_in_executor(
-                            executor,
-                            self.console.get_command,
-                            self.prompt
-                        ),
-                        timeout=None,
-                        loop=loop)
+                    loop.run_in_executor(
+                        executor,
+                        self.console.get_command,
+                        self.prompt
+                    ),
+                    timeout=None,
+                    loop=loop)
             except asyncio.TimeoutError:
                 pass
                 
@@ -139,11 +151,5 @@ if __name__ == "__main__":
     name = input("Please enter your name: ")
     game = Game(name=name, console=Console)
     loop = asyncio.get_event_loop()
-    commands = asyncio.Queue()
-    routines = [game.console_loop, game.input_loop, game.clock_loop]
-    executor = concurrent.futures.ThreadPoolExecutor(len(routines))
-    tasks = [
-        asyncio.Task(routine(commands, executor, loop=loop))
-        for routine in routines
-    ]
-    loop.run_until_complete(asyncio.wait_for(tasks[0], timeout=None))
+    game.setup(loop)
+    loop.run_forever()
