@@ -18,12 +18,33 @@
 
 from collections import Counter
 from collections import namedtuple
+from enum import Enum
 
 Asset = namedtuple(
     "Asset",
     ["commodity", "quantity", "acquired"]
 )
 Commodity = namedtuple("Commodity", ["label", "description", "volume"])
+
+class Volume(Enum):
+
+    pallet = 4
+    load = 2
+    heap = 1
+    cubic_metre = 1
+    pile = 25e-2
+    box = 128e-3
+    barrel = 128e-3
+    keg = 64e-3
+    sack = 32e-3
+    case = 16e-3
+    bundle = 8e-3
+    tray = 4e-3
+    carton = 2e-3
+    bottle = 1e-3
+    litre = 1e-3
+    pack = 5e-4
+
 
 class Inventory:
 

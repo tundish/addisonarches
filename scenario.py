@@ -21,26 +21,7 @@ from enum import Enum
 import uuid
 
 from inventory import Commodity
-
-
-class Volume(Enum):
-
-    pallet = 4
-    load = 2
-    heap = 1
-    cubic_metre = 1
-    pile = 25e-2
-    box = 128e-3
-    barrel = 128e-3
-    keg = 64e-3
-    sack = 32e-3
-    case = 16e-3
-    bundle = 8e-3
-    tray = 4e-3
-    carton = 2e-3
-    bottle = 1e-3
-    litre = 1e-3
-    pack = 5e-4
+from inventory import Volume
 
 
 class Role(Enum):
@@ -72,12 +53,13 @@ characters = [
 )]
 
 locations = [
-    Location("Indigent St. Open Market", 1000),
-    Location("Harry's House Clearances", 300),
-    Location("White City Non-ferrous Recovery Ltd.", 1000),
-    Location("Kinh Ship Bulk Buy", 500),
-    Location("Itta's Antiques", 30),
     Location("Addison Arches 18a", 100),
+    Location("Harry's House Clearances", 300),
+    Location("Kinh Ship Bulk Buy", 500),
+    Location("The Goldhawk Tavern", 10),
+    Location("White City Non-ferrous Recovery Ltd.", 1000),
+    Location("Indigent St. Open Market", 1000),
+    Location("Itta's Antiques", 30),
 ]
 
 commodities = [
@@ -87,4 +69,19 @@ commodities = [
     Commodity("Topsoil", "Finest growing medium from Norfolk", Volume.heap),
     Commodity("VCRs", "Betamax video cassette recorders", Volume.box),
     Commodity("PVRs", "Freeview HD recorders with dual HDMI", Volume.box),
+]
+
+businesses = [
+    (characters[0], [locations[1]]),
+    (characters[2], [locations[2]]),
+    (characters[8], [locations[4]]),
+    (characters[10], [locations[5]]),
+    (characters[12], [locations[6]]),
+]
+
+trade = [
+    (businesses[0], [
+        (commodities[0], 40, 0),
+        (commodities[1], 600, 1),
+    ]),
 ]
