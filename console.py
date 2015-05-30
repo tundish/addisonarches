@@ -26,14 +26,6 @@ import sys
 
 import scenario
 
-__doc__ + """
-Commodity items in their millions (eg: shells): named tuples
-Combine commodities to make objects (eg: shells + string -> wampum): classes
-Modify objects by mixing (eg: wampum + shape -> belt)
-Innovate objects by subclassing (eg: belt + speech -> influence) Influence is a commodity!
-Break down objects to commodities again.
-
-"""
 
 class Console(cmd.Cmd):
 

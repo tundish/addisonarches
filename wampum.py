@@ -21,6 +21,7 @@ import cmd
 from collections import namedtuple
 import concurrent.futures
 import datetime
+from enum import Enum
 import itertools
 import sys
 
@@ -34,6 +35,50 @@ Innovate objects by subclassing (eg: belt + speech -> influence) Influence is a 
 Break down objects to commodities again.
 
 """
+
+class Length(Enum):
+    metre = 1
+
+class Pellets(Enum):
+    one = 1
+    handful = 12
+    pouch = 64
+    bag = 4800
+    sack = 144000
+ 
+Shell = namedtuple("Shell", ["colour"])
+String = namedtuple("String", ["length"])
+
+class Promise:
+    pass
+
+class Makeable:
+
+    @staticmethod()
+    def recipe():
+        raise NotImplementedError
+
+    @classmethod
+    def build(class_, *kwargs):
+        """Kwargs contain ingredients from recipe"""
+        return class_()
+
+    def breakUp(self, bits=None):
+        bits = {} if bits is None else bits
+        bits.update(super().breakUp())
+        return bits
+
+class Wampum(Makeable):
+
+    @staticmethod()
+    def recipe():
+        return {Shell: Pellets.pouch, String: Length.metre}
+
+class Belt(Makeable, Promise):
+
+    @staticmethod()
+    def recipe():
+        return {Wampum: Length.metre}
 
 class Console(cmd.Cmd):
 
