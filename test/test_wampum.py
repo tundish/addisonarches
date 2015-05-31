@@ -70,22 +70,22 @@ class Compound:
                 yield (k, getattr(v, "value", v))
         
     @classmethod
-    def build(class_, bits):
-        """Kwargs contain ingredients from recipe"""
+    def build(class_, inventory:Counter):
         recipe = Counter(
             {k: getattr(v, "value", v) for k, v in class_.recipe().items()}
         )
         components = Counter()
-        remains = []
-        for bit in bits:
-            typ = type(bit)
-            if recipe[typ]:
-                recipe[typ] -= 1
-                components[bit] += 1
-            else:
-                remains.append(bit)
-            
-        return (class_(components), itertools.chain(bits, remains))
+        for obj, n in inventory.copy().items():
+            typ = type(obj)
+            used = min(n, recipe[typ])
+            recipe[typ] -= used
+            components[obj] += used
+
+        if sum(recipe.values()):
+            return None
+        else:
+            inventory.subtract(components) 
+            return class_(components)
 
     def __init__(self, components, *args, **kwargs):
         self.components = components
@@ -122,10 +122,27 @@ class BeltTests(unittest.TestCase):
         self.assertIn(String, req)
         self.assertNotIn(Wampum, req)
 
-    def test_build(self):
-        bits = itertools.chain(
+    def test_build_exact(self):
+        inventory = Counter(itertools.chain(
             (String(1), ), itertools.repeat(Shell("white"), 64)
-        )
-        w, bits = Wampum.build(bits)
-        self.assertFalse(list(bits))
+        ))
+        w = Wampum.build(inventory)
         self.assertIsInstance(w, Wampum)
+        self.assertFalse(sum(inventory.values()), inventory)
+
+    def test_build_over(self):
+        inventory = Counter(itertools.chain(
+            (String(1), ), itertools.repeat(Shell("white"), 65)
+        ))
+        w = Wampum.build(inventory)
+        self.assertIsInstance(w, Wampum)
+        self.assertEqual(1, inventory[Shell("white")])
+        self.assertEqual(1, sum(inventory.values()))
+
+    def test_build_under(self):
+        inventory = Counter(itertools.chain(
+            (String(1), ), itertools.repeat(Shell("white"), 63)
+        ))
+        w = Wampum.build(inventory)
+        self.assertIsNone(w)
+        self.assertEqual(64, sum(inventory.values()))
