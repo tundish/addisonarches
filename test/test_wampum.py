@@ -43,7 +43,7 @@ class Length(Enum):
 
 class Pellets(Enum):
     one = 1
-    handful = 12
+    handful = 16
     pouch = 64
     bag = 4800
     sack = 144000
@@ -55,7 +55,7 @@ String = namedtuple("String", ["length"])
 class Promise:
     pass
 
-class Makeable:
+class Compound:
 
     @staticmethod
     def recipe():
@@ -70,28 +70,37 @@ class Makeable:
                 yield (k, getattr(v, "value", v))
         
     @classmethod
-    def build(class_, bits:list):
+    def build(class_, bits):
         """Kwargs contain ingredients from recipe"""
         recipe = Counter(
             {k: getattr(v, "value", v) for k, v in class_.recipe().items()}
         )
-        bits.subtract(recipe)
-        return class_()
+        components = Counter()
+        remains = []
+        for bit in bits:
+            typ = type(bit)
+            if recipe[typ]:
+                recipe[typ] -= 1
+                components[bit] += 1
+            else:
+                remains.append(bit)
+            
+        return (class_(components), itertools.chain(bits, remains))
 
-    def breakUp(self, bits=None):
-        bits = {} if bits is None else bits
-        bits.update(super().breakUp())
-        return bits
+    def __init__(self, components, *args, **kwargs):
+        self.components = components
+        super().__init__(*args, **kwargs)
+
 
 Memory = deque
 
-class Wampum(Makeable):
+class Wampum(Compound):
 
     @staticmethod
     def recipe():
         return {Shell: Pellets.pouch, String: Length.metre}
 
-class Belt(Makeable, Memory):
+class Belt(Compound, Memory):
 
     @staticmethod
     def recipe():
@@ -114,6 +123,9 @@ class BeltTests(unittest.TestCase):
         self.assertNotIn(Wampum, req)
 
     def test_build(self):
-        bits = {k: getattr(v, "value", v) for k, v in Belt.recipe().items()}
-        belt = Belt.build(Counter(bits).elements())
-        self.assertIsInstance(belt, Belt)
+        bits = itertools.chain(
+            (String(1), ), itertools.repeat(Shell("white"), 64)
+        )
+        w, bits = Wampum.build(bits)
+        self.assertFalse(list(bits))
+        self.assertIsInstance(w, Wampum)
