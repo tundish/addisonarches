@@ -52,6 +52,13 @@ Glyph = namedtuple("Glyph", ["name"])
 Shell = namedtuple("Shell", ["colour"])
 String = namedtuple("String", ["length"])
 
+class Memory:
+
+    def __init__(self, *args, **kwargs):
+        iterable = kwargs.pop("iterable", [])
+        maxlen = kwargs.pop("maxlen", None)
+        self.memory = deque(iterable, maxlen)
+
 class Promise:
     pass
 
@@ -70,7 +77,7 @@ class Compound:
                 yield (k, getattr(v, "value", v))
         
     @classmethod
-    def build(class_, inventory:Counter):
+    def build(class_, inventory:Counter, *args, **kwargs):
         recipe = Counter(
             {k: getattr(v, "value", v) for k, v in class_.recipe().items()}
         )
@@ -85,14 +92,12 @@ class Compound:
             return None
         else:
             inventory.subtract(components) 
-            return class_(components)
+            return class_(components, *args, **kwargs)
 
     def __init__(self, components, *args, **kwargs):
         self.components = components
         super().__init__(*args, **kwargs)
 
-
-Memory = deque
 
 class Wampum(Compound):
 
@@ -146,3 +151,16 @@ class BeltTests(unittest.TestCase):
         w = Wampum.build(inventory)
         self.assertIsNone(w)
         self.assertEqual(64, sum(inventory.values()))
+
+    def test_belt_build(self):
+        inventory = Counter(itertools.chain(
+            (String(1), Glyph("snake")), itertools.repeat(Shell("white"), 64)
+        ))
+        inventory[Wampum.build(inventory)] += 1
+        belt = Belt.build(inventory, maxlen=3)
+        self.assertIsInstance(belt, Belt)
+        self.assertTrue(hasattr(belt, "components"))
+        self.assertTrue(hasattr(belt, "memory"))
+        self.assertFalse(sum(inventory.values()), inventory)
+        belt.memory.extend([None] * 4)
+        self.assertEqual(3, len(belt.memory))
