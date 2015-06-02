@@ -20,7 +20,6 @@ from collections import Counter
 from collections import namedtuple
 
 from inventory import Asset
-from inventory import Commodity
 from inventory import Inventory
 
 

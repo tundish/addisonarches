@@ -24,7 +24,6 @@ Asset = namedtuple(
     "Asset",
     ["commodity", "quantity", "acquired"]
 )
-Commodity = namedtuple("Commodity", ["label", "description", "volume"])
 
 class Volume(Enum):
 

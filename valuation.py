@@ -26,8 +26,6 @@ import warnings
 from tallywallet.common.finance import Note
 from tallywallet.common.finance import value_series
 
-from inventory import Commodity
-
 fields = ["ts", "value", "currency"]
 Ask = namedtuple("Ask", fields)
 Bid = namedtuple("Bid", fields)
@@ -65,7 +63,7 @@ class ValueBook(dict):
     def __setitem__(self, key, value):
         raise NotImplementedError
 
-    def commit(self, commodity:Commodity, obj:set([Ask, Bid, Note])):
+    def commit(self, commodity, obj:set([Ask, Bid, Note])):
         if isinstance(obj, Note):
             series = super().setdefault(
                 commodity,
@@ -83,7 +81,7 @@ class ValueBook(dict):
 
         return self.estimate(series)
 
-    def consider(self, commodity:Commodity, offer:set([Ask, Bid]), constraint=1.0):
+    def consider(self, commodity, offer:set([Ask, Bid]), constraint=1.0):
         estimate = self.estimate(self[commodity])
         if isinstance(offer, Ask):
             if offer.value < estimate.value or random.random() >= constraint:

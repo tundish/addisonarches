@@ -20,16 +20,28 @@ from collections import namedtuple
 from enum import Enum
 import uuid
 
-from inventory import Commodity
+from compound import Compound
+from compound import Memory
 from inventory import Volume
 
 
-class Role(Enum):
+class Length(Enum):
+    metre = 1
 
-    player = 1
-    npc = 2
-    trader = 3
-    predator = 4
+Commodity = namedtuple("Commodity", ["label", "description", "volume"])
+Plank = namedtuple("Plank", Commodity._fields)
+
+class Pallet(Compound):
+
+    @staticmethod
+    def recipe():
+        return {Plank: 6}
+
+class Hutch(Compound):
+
+    @staticmethod
+    def recipe():
+        return {Plank: 8}
 
 Character = namedtuple("Character", ["uuid", "name"])
 Location = namedtuple("Location", ["name", "capacity"])
@@ -71,6 +83,9 @@ commodities = [
     Commodity("PVRs", "Freeview HD recorders with dual HDMI", Volume.box),
 ]
 
+operations = [
+]
+
 businesses = [
     (characters[0], [locations[1]]),
     (characters[2], [locations[2]]),
@@ -85,3 +100,26 @@ trade = [
         (commodities[1], 600, 1),
     ]),
 ]
+
+__doc__ = """
+{characters[0].name} sells second-hand household articles. People
+come to him for desks and tables, which he doesn't always have,
+so he'd like to offer them cheap flat-pack ones instead.
+
+{characters[7].name} breeds rabbits. He'll pay money for wooden pallets
+which he breaks down to build hutches.
+
+{characters[8].name} runs a scrap metal yard. She always needs Swarfega
+and blue roll. She has a limited capacity for storing recovered fuel,
+so she will sell petrol or diesel to you if she trusts you.
+
+{characters[10].name} has a stall on the market. He'll buy anything but
+only at a rock-bottom price.
+
+{characters[12].name} runs an antique shop. She's always looking for
+fabrics which she cuts up and sells as rare designs. She'll also buy
+picture frames if they're cheap and contemporary.
+""".format(characters=characters)
+
+print(__doc__)
+

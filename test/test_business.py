@@ -22,7 +22,6 @@ import unittest
 
 from business import Business
 from inventory import Asset
-from inventory import Commodity
 import scenario
 from valuation import Valuation
 from valuation import ValueBook
