@@ -16,27 +16,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
-import asyncio
-import cmd
 from collections import Counter
-from collections import deque
 from collections import namedtuple
-import concurrent.futures
-import datetime
 from enum import Enum
 import itertools
-import sys
-
 import unittest
 
-__doc__ = """
-Commodity items in their millions (eg: shells): named tuples
-Combine commodities to make objects (eg: shells + string -> wampum): classes
-Modify objects by mixing (eg: wampum + shape -> belt)
-Innovate objects by subclassing (eg: belt + speech -> influence) Influence is a commodity!
-Break down objects to commodities again.
+from compound import Compound
+from compound import Memory
 
-"""
 
 class Length(Enum):
     metre = 1
@@ -51,53 +39,6 @@ class Pellets(Enum):
 Glyph = namedtuple("Glyph", ["name"])
 Shell = namedtuple("Shell", ["colour"])
 String = namedtuple("String", ["length"])
-
-class Memory:
-
-    def __init__(self, *args, **kwargs):
-        iterable = kwargs.pop("iterable", [])
-        maxlen = kwargs.pop("maxlen", None)
-        self.memory = deque(iterable, maxlen)
-
-class Promise:
-    pass
-
-class Compound:
-
-    @staticmethod
-    def recipe():
-        raise NotImplementedError
-
-    @classmethod
-    def requirements(class_):
-        for k, v in class_.recipe().items():
-            try:
-                yield from k.requirements()
-            except AttributeError:
-                yield (k, getattr(v, "value", v))
-        
-    @classmethod
-    def build(class_, inventory:Counter, *args, **kwargs):
-        recipe = Counter(
-            {k: getattr(v, "value", v) for k, v in class_.recipe().items()}
-        )
-        components = Counter()
-        for obj, n in inventory.copy().items():
-            typ = type(obj)
-            used = min(n, recipe[typ])
-            recipe[typ] -= used
-            components[obj] += used
-
-        if sum(recipe.values()):
-            return None
-        else:
-            inventory.subtract(components) 
-            return class_(components, *args, **kwargs)
-
-    def __init__(self, components, *args, **kwargs):
-        self.components = components
-        super().__init__(*args, **kwargs)
-
 
 class Wampum(Compound):
 
