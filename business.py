@@ -30,11 +30,6 @@ class Business:
         self.book = book
         self.inventories = {i.name: Inventory(capacity=i.capacity) for i in locations}
 
-    @property
-    def __doc__(self):
-        return self.__class__.__doc__.format(
-            proprietor=self.proprietor)
-
     def store(self, asset:Asset):
         rv = []
         unstored = asset.quantity

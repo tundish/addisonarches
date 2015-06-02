@@ -24,6 +24,7 @@ from business import Business
 from compound import Compound
 from compound import Memory
 from inventory import Volume
+from valuation import ValueBook
 
 
 class Length(Enum):
@@ -87,43 +88,66 @@ commodities = [
 operations = [
 ]
 
-businesses = [
-    (characters[0], [locations[1]]),
-    (characters[2], [locations[2]]),
-    (characters[8], [locations[4]]),
-    (characters[10], [locations[5]]),
-    (characters[12], [locations[6]]),
-]
-
 class HouseClearance(Business):
     """
     {proprietor.name} sells second-hand household articles. People
     come to him for desks and tables, which he doesn't always have,
-    so he'd like to offer them cheap flat-pack ones instead.
+    so he'd like to source cheap flat-pack ones also.
+
     """
 
     def __call__(self, loop=None):
         pass
 
-__doc__ = """
-{characters[0].name} sells second-hand household articles. People
-come to him for desks and tables, which he doesn't always have,
-so he'd like to offer them cheap flat-pack ones instead.
+class Hobbyist(Business):
+    """
+    {proprietor.name} breeds rabbits. He'll pay money for wooden
+    pallets which he breaks down to build hutches.
 
-{characters[7].name} breeds rabbits. He'll pay money for wooden pallets
-which he breaks down to build hutches.
+    """
 
-{characters[8].name} runs a scrap metal yard. She always needs Swarfega
-and blue roll. She has a limited capacity for storing recovered fuel,
-so she will sell petrol or diesel to you if she trusts you.
+    def __call__(self, loop=None):
+        pass
 
-{characters[10].name} has a stall on the market. He'll buy anything but
-only at a rock-bottom price.
+class Recycling(Business):
+    """
+    {proprietor.name} runs a scrap metal yard. She always needs
+    Swarfega and blue roll. She has a limited capacity for storing
+    recovered fuel; she will consider selling petrol or diesel to
+    you if she trusts you.
 
-{characters[12].name} runs an antique shop. She's always looking for
-fabrics which she cuts up and sells as rare designs. She'll also buy
-picture frames if they're cheap and contemporary.
-""".format(characters=characters)
+    """
 
-print(__doc__)
+    def __call__(self, loop=None):
+        pass
 
+class MarketStall(Business):
+    """
+    {proprietor.name} has a stall on the market. He'll buy anything
+    but only at a rock-bottom price.
+
+    """
+
+    def __call__(self, loop=None):
+        pass
+
+class Antiques(Business):
+    """
+    {proprietor.name} runs an antique shop. She's always looking
+    for fabrics which she cuts up and sells as rare designs. She'll
+    also buy picture frames if they're cheap and contemporary.
+
+    """
+
+    def __call__(self, loop=None):
+        pass
+
+businesses = [
+    HouseClearance(characters[0], ValueBook(), [locations[1]]),
+    Hobbyist(characters[2], ValueBook(), [locations[2]]),
+    Recycling(characters[8], ValueBook(), [locations[4]]),
+    MarketStall(characters[10], ValueBook(), [locations[5]]),
+    Antiques(characters[12], ValueBook(), [locations[6]]),
+]
+
+print(*[i.__doc__ for i in businesses], sep="\n")
