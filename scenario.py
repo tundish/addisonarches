@@ -20,6 +20,7 @@ from collections import namedtuple
 from enum import Enum
 import uuid
 
+from business import Business
 from compound import Compound
 from compound import Memory
 from inventory import Volume
@@ -94,12 +95,15 @@ businesses = [
     (characters[12], [locations[6]]),
 ]
 
-trade = [
-    (businesses[0], [
-        (commodities[0], 40, 0),
-        (commodities[1], 600, 1),
-    ]),
-]
+class HouseClearance(Business):
+    """
+    {proprietor.name} sells second-hand household articles. People
+    come to him for desks and tables, which he doesn't always have,
+    so he'd like to offer them cheap flat-pack ones instead.
+    """
+
+    def __call__(self, loop=None):
+        pass
 
 __doc__ = """
 {characters[0].name} sells second-hand household articles. People
