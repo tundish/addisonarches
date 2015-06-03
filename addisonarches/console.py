@@ -23,11 +23,19 @@ import concurrent.futures
 import datetime
 import itertools
 import sys
+import uuid
 
-import scenario
+from addisonarches.business import Business
+from addisonarches.scenario import Character
+from addisonarches.scenario import Location
 
 
 class Console(cmd.Cmd):
+
+    def __init__(self, game, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.game = game
+        self.prompt = "Type 'help' for commands > "
 
     @staticmethod
     def get_command(prompt):
@@ -37,6 +45,56 @@ class Console(cmd.Cmd):
         else:
             line = line.rstrip("\r\n")
         return line
+
+    @property
+    def routines(self):
+        return [self.command_loop, self.input_loop]
+
+    @asyncio.coroutine
+    def input_loop(self, commands, executor, loop=None):
+        while not self.game.stop:
+            try:
+                line = yield from asyncio.wait_for(
+                    loop.run_in_executor(
+                        executor,
+                        self.get_command,
+                        self.prompt
+                    ),
+                    timeout=None,
+                    loop=loop)
+            except asyncio.TimeoutError:
+                pass
+                
+            yield from commands.put(line)
+ 
+    @asyncio.coroutine
+    def command_loop(self, commands, executor, loop=None):
+        self.preloop()
+        while not self.game.stop:
+            sys.stdout.write(self.prompt)
+            sys.stdout.flush()
+            line = yield from commands.get()
+            try:
+                line = self.precmd(line)
+                stop = self.onecmd(line)
+                self.game.stop = self.postcmd(stop, line)
+            except Exception as e:
+                print(e)
+            try:
+                self.prompt = "{:%A %H:%M} > ".format(
+                    next(self.game.clock)
+                )
+            except StopIteration:
+                self.game.stop = True
+            else:
+                print(self.game.location)
+        else:
+            self.postloop()
+            sys.stdout.write("Press return.")
+            sys.stdout.flush()
+            for task in asyncio.Task.all_tasks(loop):
+                task.cancel()
+            loop.stop()
 
     def precmd(self, line):
         return line
@@ -50,13 +108,22 @@ class Console(cmd.Cmd):
 
     def do_go(self, arg):
         """
-        Travel to another location.
+        'Go' lists places you can go. Supply a number from
+        that menu to travel to a specific location, eg::
+            
+            > go
+            (a list will be shown)
+
+            > go 3
         """
         line = arg.strip()
         if not line:
             print(*["{0:01}: {1.name}".format(n, i)
-                    for n, i in enumerate(scenario.locations)],
+                    for n, i in enumerate(
+                        addisonarches.scenario.inventories)],
                   sep="\n")
+        elif line.isdigit():
+            location = addisonarches.scenario.locations[int(line)]
 
     def do_wait(self, arg):
         """
@@ -70,11 +137,12 @@ class Console(cmd.Cmd):
         """
         return True
 
+
 class Game:
 
-    def __init__(self, name, console):
-        self.name = name
-        self.console = console
+    def __init__(self, businesses):
+        self.businesses = businesses
+        self.location = list(self.businesses[0].inventories.keys())[0]
         self.interval = 30
         self.stop = False
         self.clock = (
@@ -86,16 +154,13 @@ class Game:
                     7 * 24 * 60 // 30)
                 )
             if 8 <= t.hour <= 19)
-        self.prompt = "Type 'help' for commands > "
 
-    def setup(self, loop=None):
-        commands = asyncio.Queue()
-        routines = [self.console_loop, self.input_loop, self.clock_loop]
-        executor = concurrent.futures.ThreadPoolExecutor(len(routines))
-        return [
-            asyncio.Task(routine(commands, executor, loop=loop))
-            for routine in routines
-        ]
+    def destinations(self):
+        return self.business.locations.keys()
+
+    @property
+    def routines(self):
+        return [self.clock_loop]
 
     @asyncio.coroutine
     def clock_loop(self, commands, executor, loop=None):
@@ -105,51 +170,20 @@ class Game:
             sys.stdout.write("\n")
             sys.stdout.flush()
 
-    @asyncio.coroutine
-    def console_loop(self, commands, executor, loop=None):
-        console = self.console()
-        console.preloop()
-        while not self.stop:
-            sys.stdout.write(self.prompt)
-            sys.stdout.flush()
-            line = yield from commands.get()
-            line = console.precmd(line)
-            stop = console.onecmd(line)
-            self.stop = console.postcmd(stop, line)
-            try:
-                self.prompt = "{:%A %H:%M} > ".format(
-                    next(self.clock)
-                )
-            except StopIteration:
-                self.stop = True
-        else:
-            console.postloop()
-            sys.stdout.write("Press return.")
-            sys.stdout.flush()
-            for task in asyncio.Task.all_tasks(loop):
-                task.cancel()
-            loop.stop()
 
-    @asyncio.coroutine
-    def input_loop(self, commands, executor, loop=None):
-        while not self.stop:
-            try:
-                line = yield from asyncio.wait_for(
-                    loop.run_in_executor(
-                        executor,
-                        self.console.get_command,
-                        self.prompt
-                    ),
-                    timeout=None,
-                    loop=loop)
-            except asyncio.TimeoutError:
-                pass
-                
-            yield from commands.put(line)
- 
 if __name__ == "__main__":
     name = input("Please enter your name: ")
-    game = Game(name=name, console=Console)
+    proprietor = Character(uuid.uuid4().hex, name)
+    locations = [Location("Addison Arches 18a", 100)]
+    businesses = [Business(proprietor, None, locations)]
+    game = Game(businesses=businesses)
+    console = Console(game)
     loop = asyncio.get_event_loop()
-    game.setup(loop)
+    commands = asyncio.Queue(loop=loop)
+    routines = console.routines + game.routines
+    executor = concurrent.futures.ThreadPoolExecutor(len(routines))
+    tasks = [
+        asyncio.Task(routine(commands, executor, loop=loop))
+        for routine in routines
+    ]
     loop.run_forever()

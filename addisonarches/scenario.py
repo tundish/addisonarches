@@ -20,11 +20,11 @@ from collections import namedtuple
 from enum import Enum
 import uuid
 
-from business import Business
-from compound import Compound
-from compound import Memory
-from inventory import Volume
-from valuation import ValueBook
+from addisonarches.business import Business
+from addisonarches.compound import Compound
+from addisonarches.compound import Memory
+from addisonarches.inventory import Volume
+from addisonarches.valuation import ValueBook
 
 
 class Length(Enum):

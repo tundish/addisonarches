@@ -18,9 +18,10 @@
 
 from collections import Counter
 from collections import namedtuple
+from collections import OrderedDict
 
-from inventory import Asset
-from inventory import Inventory
+from addisonarches.inventory import Asset
+from addisonarches.inventory import Inventory
 
 
 class Business:
@@ -28,7 +29,9 @@ class Business:
     def __init__(self, proprietor, book, locations):
         self.proprietor = proprietor
         self.book = book
-        self.inventories = {i.name: Inventory(capacity=i.capacity) for i in locations}
+        self.inventories = OrderedDict([
+            (i.name, Inventory(capacity=i.capacity))
+             for i in locations])
 
     def store(self, asset:Asset):
         rv = []
