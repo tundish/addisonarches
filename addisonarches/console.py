@@ -157,26 +157,20 @@ class Game:
             if 8 <= t.hour <= 19)
 
     @property
+    def home(self):
+        return list(self.businesses[0].inventories.keys())[0]
+
+    @property
     def destinations(self):
-        hub = [
+        return [
+            nearby for nearby in next(
+            (b for b in self.businesses
+            if self.location in b.inventories),
+            None).inventories if nearby != self.location
+        ] or [self.home] if self.location != self.home else [
             list(b.inventories.keys())[0]
             for b in self.businesses[1:]
         ]
-        # Find the business we're in
-        host = next(
-            (b for b in self.businesses
-            if self.location in b.inventories),
-            None
-        )
-        # Make all this business locations available
-        local_ = list(host.inventories.keys())
-        # Add the game's home location
-        home = list(self.businesses[0].inventories.keys())[0]
-        local_.append(home)
-        # Eliminate our current location
-        for _ in range(local_.count(self.location)):
-            local_.remove(self.location)
-        return local_ or hub
 
     @property
     def routines(self):
