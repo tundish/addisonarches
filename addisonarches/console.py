@@ -25,6 +25,7 @@ import itertools
 import sys
 import uuid
 
+import addisonarches.scenario
 from addisonarches.business import Business
 from addisonarches.scenario import Character
 from addisonarches.scenario import Location
@@ -87,7 +88,7 @@ class Console(cmd.Cmd):
             except StopIteration:
                 self.game.stop = True
             else:
-                print(self.game.location)
+                print("You're at", self.game.location)
         else:
             self.postloop()
             sys.stdout.write("Press return.")
@@ -118,12 +119,12 @@ class Console(cmd.Cmd):
         """
         line = arg.strip()
         if not line:
-            print(*["{0:01}: {1.name}".format(n, i)
-                    for n, i in enumerate(
-                        addisonarches.scenario.inventories)],
-                  sep="\n")
+            print(*["{0:01}: {1}".format(n, i)
+                    for n, i in enumerate(self.game.destinations)],
+                    sep="\n")
+            sys.stdout.write("\n")
         elif line.isdigit():
-            location = addisonarches.scenario.locations[int(line)]
+            self.game.location = self.game.destinations[int(line)]
 
     def do_wait(self, arg):
         """
@@ -155,8 +156,27 @@ class Game:
                 )
             if 8 <= t.hour <= 19)
 
+    @property
     def destinations(self):
-        return self.business.locations.keys()
+        hub = [
+            list(b.inventories.keys())[0]
+            for b in self.businesses[1:]
+        ]
+        # Find the business we're in
+        host = next(
+            (b for b in self.businesses
+            if self.location in b.inventories),
+            None
+        )
+        # Make all this business locations available
+        local_ = list(host.inventories.keys())
+        # Add the game's home location
+        home = list(self.businesses[0].inventories.keys())[0]
+        local_.append(home)
+        # Eliminate our current location
+        for _ in range(local_.count(self.location)):
+            local_.remove(self.location)
+        return local_ or hub
 
     @property
     def routines(self):
@@ -175,8 +195,10 @@ if __name__ == "__main__":
     name = input("Please enter your name: ")
     proprietor = Character(uuid.uuid4().hex, name)
     locations = [Location("Addison Arches 18a", 100)]
-    businesses = [Business(proprietor, None, locations)]
-    game = Game(businesses=businesses)
+    
+    addisonarches.scenario.businesses.insert(
+        0, Business(proprietor, None, locations))
+    game = Game(businesses=addisonarches.scenario.businesses)
     console = Console(game)
     loop = asyncio.get_event_loop()
     commands = asyncio.Queue(loop=loop)
