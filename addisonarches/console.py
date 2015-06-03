@@ -143,7 +143,7 @@ class Game:
 
     def __init__(self, businesses):
         self.businesses = businesses
-        self.location = list(self.businesses[0].inventories.keys())[0]
+        self.location = self.home
         self.interval = 30
         self.stop = False
         self.clock = (
