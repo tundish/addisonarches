@@ -164,7 +164,7 @@ class Antiques(Business):
 
 businesses = [
     HouseClearance(characters[0], ValueBook(), [locations[1]]),
-    Wholesale(characters[10], ValueBook(), [locations[2]]).deposit(
+    Wholesale(characters[3], ValueBook(), [locations[2]]).deposit(
         locations[2].name,
         ShipmentOfTables.build(Counter({
             Table("Table", "self-assembly dining", Volume.slab): 10,
@@ -174,7 +174,7 @@ businesses = [
         })),
         3
     ),
-    Hobbyist(characters[2], ValueBook(), [locations[3]]).deposit(
+    Hobbyist(characters[7], ValueBook(), [locations[3]]).deposit(
         locations[3].name,
         Pallet.build(Counter({
             Plank("Plank", "rough-cut softwood", Volume.slab): 6,

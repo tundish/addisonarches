@@ -90,6 +90,12 @@ class Console(cmd.Cmd):
                 self.game.stop = True
             else:
                 print("You're at {}.".format(self.game.location))
+                if self.game.here != self.game.businesses[0]:
+                    print("{0.name} is nearby.".format(
+                            self.game.here.proprietor
+                    ))
+                else:
+                    print("Earache and fisticuffs? Take them elsewhere.")
         else:
             self.postloop()
             sys.stdout.write("Press return.")
@@ -141,7 +147,6 @@ class Console(cmd.Cmd):
         """
         line = arg.strip()
         view = self.game.here.inventories[self.game.location].contents.items()
-        # TODO: Proprietor is at primary business location
         if not line:
             print("Here's what you can see:")
             print(
