@@ -18,6 +18,7 @@
 
 from collections import Counter
 from collections import deque
+import re
 
 class Memory:
 
@@ -60,11 +61,12 @@ class Compound:
 
     @property
     def description(self):
-        return self.__doc__
+        return self.__doc__.strip()
 
     @property
     def label(self):
-        return self.__class__.__name__
+        return " ".join(i.lower() for i in re.split(
+            "([A-Z][^A-Z]*)", self.__class__.__name__) if i)
 
     @property
     def volume(self):

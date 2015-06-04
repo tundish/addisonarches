@@ -33,6 +33,7 @@ class Length(Enum):
 
 Commodity = namedtuple("Commodity", ["label", "description", "volume"])
 Plank = namedtuple("Plank", Commodity._fields)
+Table = namedtuple("Table", Commodity._fields)
 
 class Pallet(Compound):
 
@@ -45,6 +46,15 @@ class Hutch(Compound):
     @staticmethod
     def recipe():
         return {Plank: 8}
+
+class ShipmentOfTables(Compound):
+    """
+    A shipment of tables from the Far East.
+    """
+
+    @staticmethod
+    def recipe():
+        return {Table: 10, Pallet: 1}
 
 Character = namedtuple("Character", ["uuid", "name"])
 Location = namedtuple("Location", ["name", "capacity"])
@@ -110,6 +120,15 @@ class Hobbyist(Business):
     def __call__(self, loop=None):
         pass
 
+class Wholesale(Business):
+    """
+    {proprietor.name} sells manufactured goods wholesale in quantity.
+
+    """
+
+    def __call__(self, loop=None):
+        pass
+
 class Recycling(Business):
     """
     {proprietor.name} runs a scrap metal yard. She always needs
@@ -145,6 +164,16 @@ class Antiques(Business):
 
 businesses = [
     HouseClearance(characters[0], ValueBook(), [locations[1]]),
+    Wholesale(characters[10], ValueBook(), [locations[2]]).deposit(
+        locations[2].name,
+        ShipmentOfTables.build(Counter({
+            Table("Table", "self-assembly dining", Volume.slab): 10,
+            Pallet.build(Counter({
+                Plank("Plank", "rough-cut softwood", Volume.slab): 6,
+            })): 1,
+        })),
+        3
+    ),
     Hobbyist(characters[2], ValueBook(), [locations[3]]).deposit(
         locations[3].name,
         Pallet.build(Counter({

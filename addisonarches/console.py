@@ -145,9 +145,7 @@ class Console(cmd.Cmd):
         if not line:
             print("Here's what you can see:")
             print(
-                *["{0:01}: {2} {1.label}{3}".format(
-                    n, k, v, ("s" if v > 1 else "")
-                )
+                *["{0:01}: {1.label} ({2})".format(n, k, v)
                 for n, (k, v) in enumerate(view)],
                 sep="\n")
             sys.stdout.write("\n")
