@@ -58,6 +58,10 @@ class Compound:
             inventory.subtract(components) 
             return class_(components, *args, **kwargs)
 
+    @property
+    def volume(self):
+        return sum(getattr(i, "volume", 0) for i in self.components)
+
     def __init__(self, components, *args, **kwargs):
         self.components = components
         super().__init__(*args, **kwargs)

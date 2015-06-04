@@ -21,8 +21,8 @@ from decimal import Decimal
 import unittest
 
 from addisonarches.inventory import Inventory
+from addisonarches.inventory import Volume
 from addisonarches.scenario import Commodity
-from addisonarches.scenario import Volume
 
 from tallywallet.common.finance import Note
 

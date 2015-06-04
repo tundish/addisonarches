@@ -36,10 +36,12 @@ class Volume(Enum):
     barrel = 128e-3
     keg = 64e-3
     sack = 32e-3
+    slab = 24e-3
     case = 16e-3
     bundle = 8e-3
     tray = 4e-3
     carton = 2e-3
+    brick = 1.5e-3
     bottle = 1e-3
     litre = 1e-3
     pack = 5e-4

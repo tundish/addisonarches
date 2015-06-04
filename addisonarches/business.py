@@ -19,6 +19,7 @@
 from collections import Counter
 from collections import namedtuple
 from collections import OrderedDict
+import warnings
 
 from addisonarches.inventory import Asset
 from addisonarches.inventory import Inventory
@@ -32,6 +33,14 @@ class Business:
         self.inventories = OrderedDict([
             (i.name, Inventory(capacity=i.capacity))
              for i in locations])
+
+    def deposit(self, locN, item, quantity):
+        if self.inventories[locN].constraint > 1 or item is None:
+            warnings.warn("Can't deposit {}".format(item))
+            return item
+        else:
+            self.inventories[locN].contents[item] += quantity
+            return self
 
     def store(self, asset:Asset):
         rv = []

@@ -105,3 +105,11 @@ class BeltTests(unittest.TestCase):
         self.assertFalse(sum(inventory.values()), inventory)
         belt.memory.extend([None] * 4)
         self.assertEqual(3, len(belt.memory))
+
+    def test_volume(self):
+        inventory = Counter(itertools.chain(
+            (String(1), ), itertools.repeat(Shell("white"), 64)
+        ))
+        w = Wampum.build(inventory)
+        self.assertTrue(hasattr(w, "volume"))
+        
