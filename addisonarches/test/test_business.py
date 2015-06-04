@@ -20,11 +20,11 @@ import datetime
 from decimal import Decimal
 import unittest
 
-from business import Business
-from inventory import Asset
-import scenario
-from valuation import Valuation
-from valuation import ValueBook
+from addisonarches.business import Business
+from addisonarches.inventory import Asset
+import addisonarches.scenario
+from addisonarches.valuation import Valuation
+from addisonarches.valuation import ValueBook
 
 from tallywallet.common.finance import Note
 
@@ -35,15 +35,20 @@ class BusinessTests(unittest.TestCase):
         then = datetime.date(2015, 4, 1)
         credit = (datetime.timedelta(days=30), Decimal("0.050"))
         self.business = harry = Business(
-            scenario.characters[0],
+            addisonarches.scenario.characters[0],
             ValueBook(),
-            scenario.locations[1:2],
+            addisonarches.scenario.locations[1:2],
         )
-        self.assertIn(scenario.locations[1].name, harry.inventories)
-        self.assertEqual(0, harry.inventories["Harry's House Clearances"].constraint)
+        self.assertIn(
+            addisonarches.scenario.locations[1].name,
+            harry.inventories
+        )
+        self.assertEqual(
+            0, harry.inventories["Harry's House Clearances"].constraint
+        )
 
         for commodity, offer, quantity in zip(
-            scenario.commodities[0:2],
+            addisonarches.scenario.commodities[0:2],
             (Valuation(then, 40, "£"), Valuation(then, 600, "£")),
             (0, 1),
         ):
@@ -59,7 +64,7 @@ class BusinessTests(unittest.TestCase):
 
     def test_single_inventory_population(self):
         now = datetime.date(2015, 4, 1)
-        commodity = scenario.commodities[1]
+        commodity = addisonarches.scenario.commodities[1]
         asset = Asset(commodity, 3, now)
         drop = self.business.store(asset)
         self.assertIn(("Harry's House Clearances", 3), drop)
@@ -71,7 +76,7 @@ class BusinessTests(unittest.TestCase):
     def test_single_inventory_emptying(self):
         self.test_single_inventory_population()
         now = datetime.date(2015, 4, 1)
-        commodity = scenario.commodities[1]
+        commodity = addisonarches.scenario.commodities[1]
         asset = Asset(commodity, 3, now)
         pick = self.business.retrieve(asset)
         self.assertIn(("Harry's House Clearances", 3), pick)
@@ -83,7 +88,7 @@ class BusinessTests(unittest.TestCase):
     def test_single_inventory_overemptying(self):
         self.test_single_inventory_population()
         now = datetime.date(2015, 4, 1)
-        commodity = scenario.commodities[1]
+        commodity = addisonarches.scenario.commodities[1]
         asset = Asset(commodity, 4, now)
         pick = self.business.retrieve(asset)
         self.assertIn(("Harry's House Clearances", 3), pick)
@@ -95,7 +100,7 @@ class BusinessTests(unittest.TestCase):
     def test_single_inventory_picking(self):
         self.test_single_inventory_population()
         now = datetime.date(2015, 4, 1)
-        commodity = scenario.commodities[1]
+        commodity = addisonarches.scenario.commodities[1]
         asset = Asset(commodity, 1, now)
         pick = self.business.retrieve(asset)
         self.assertIn(("Harry's House Clearances", 1), pick)

@@ -126,6 +126,33 @@ class Console(cmd.Cmd):
         elif line.isdigit():
             self.game.location = self.game.destinations[int(line)]
 
+    def do_look(self, arg):
+        """
+        'Look' tells you where you are and what you can see.
+        Add a number from that menu to get specific details, eg::
+            
+            > look
+            (a list will be shown)
+
+            > look 2
+            (more details may follow)
+        """
+        line = arg.strip()
+        if not line:
+            # Proprietor is at primary business location
+            # Find the inventory at you location
+            print(
+                *["{0:01}: {1} {2}".format(n, k, v)
+                for n, (k, v) in enumerate(
+                    self.game.here.inventories[
+                        self.game.location
+                    ].contents.items()
+                )],
+                sep="\n")
+            sys.stdout.write("\n")
+        elif line.isdigit():
+            print("No more details")
+
     def do_wait(self, arg):
         """
         Pass the time quietly.
@@ -163,14 +190,19 @@ class Game:
     @property
     def destinations(self):
         return [
-            nearby for nearby in next(
+            nearby for nearby in self.here.inventories
+            if nearby != self.location
+        ] or [self.home] if self.location != self.home else [
+            list(b.inventories.keys())[0] for b in self.businesses[1:]
+        ]
+
+    @property
+    def here(self):
+        return next(
             (b for b in self.businesses
             if self.location in b.inventories),
-            None).inventories if nearby != self.location
-        ] or [self.home] if self.location != self.home else [
-            list(b.inventories.keys())[0]
-            for b in self.businesses[1:]
-        ]
+            None
+        )
 
     @property
     def routines(self):

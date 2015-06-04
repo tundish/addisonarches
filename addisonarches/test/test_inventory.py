@@ -20,9 +20,9 @@ import datetime
 from decimal import Decimal
 import unittest
 
-from inventory import Inventory
-from scenario import Commodity
-from scenario import Volume
+from addisonarches.inventory import Inventory
+from addisonarches.scenario import Commodity
+from addisonarches.scenario import Volume
 
 from tallywallet.common.finance import Note
 

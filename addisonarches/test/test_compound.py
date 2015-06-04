@@ -22,8 +22,8 @@ from enum import Enum
 import itertools
 import unittest
 
-from compound import Compound
-from compound import Memory
+from addisonarches.compound import Compound
+from addisonarches.compound import Memory
 
 
 class Length(Enum):
