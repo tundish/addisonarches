@@ -143,32 +143,16 @@ class Antiques(Business):
     def __call__(self, loop=None):
         pass
 
-print(
-Pallet.build(Counter([
-    (Plank("Plank", "rough-cut softwood", Volume.slab), 6)
-]))
-)
-
 businesses = [
     HouseClearance(characters[0], ValueBook(), [locations[1]]),
     Hobbyist(characters[2], ValueBook(), [locations[3]]).deposit(
         locations[3].name,
-        Pallet.build(Counter([
-            (Plank("Plank", "rough-cut softwood", Volume.slab), 6)
-        ])),
+        Pallet.build(Counter({
+            Plank("Plank", "rough-cut softwood", Volume.slab): 6,
+        })),
         12
     ),
     Recycling(characters[8], ValueBook(), [locations[4]]),
     MarketStall(characters[10], ValueBook(), [locations[5]]),
     Antiques(characters[12], ValueBook(), [locations[6]]),
 ]
-
-#businesses[1].deposit(
-#    locations[2],
-#    Pallet.build(Counter([
-#        (Plank("Plank", "rough-cut softwood", Volume.slab), 6)
-#    ])),
-#    12
-#)
-
-print(*[i.__doc__ for i in businesses], sep="\n")

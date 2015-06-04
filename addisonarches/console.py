@@ -22,6 +22,7 @@ from collections import namedtuple
 import concurrent.futures
 import datetime
 import itertools
+import random
 import sys
 import uuid
 
@@ -88,7 +89,7 @@ class Console(cmd.Cmd):
             except StopIteration:
                 self.game.stop = True
             else:
-                print("You're at", self.game.location)
+                print("You're at {}.".format(self.game.location))
         else:
             self.postloop()
             sys.stdout.write("Press return.")
@@ -119,6 +120,7 @@ class Console(cmd.Cmd):
         """
         line = arg.strip()
         if not line:
+            print("Here's where you can go:")
             print(*["{0:01}: {1}".format(n, i)
                     for n, i in enumerate(self.game.destinations)],
                     sep="\n")
@@ -138,20 +140,25 @@ class Console(cmd.Cmd):
             (more details may follow)
         """
         line = arg.strip()
+        view = self.game.here.inventories[self.game.location].contents.items()
+        # TODO: Proprietor is at primary business location
         if not line:
-            # Proprietor is at primary business location
-            # Find the inventory at you location
+            print("Here's what you can see:")
             print(
-                *["{0:01}: {1} {2}".format(n, k, v)
-                for n, (k, v) in enumerate(
-                    self.game.here.inventories[
-                        self.game.location
-                    ].contents.items()
-                )],
+                *["{0:01}: {2} {1.label}{3}".format(
+                    n, k, v, ("s" if v > 1 else "")
+                )
+                for n, (k, v) in enumerate(view)],
                 sep="\n")
             sys.stdout.write("\n")
         elif line.isdigit():
-            print("No more details")
+            prefix = random.choice([
+            "Dunno about the", "No details on the", "Just",
+            ])
+            k, v = list(view)[int(line)]
+            print(k.description or "{prefix} {0}{1}.".format(
+                k.label.lower(), ("s" if v > 1 else ""), prefix=prefix
+            ))
 
     def do_wait(self, arg):
         """

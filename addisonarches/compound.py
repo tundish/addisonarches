@@ -59,6 +59,14 @@ class Compound:
             return class_(components, *args, **kwargs)
 
     @property
+    def description(self):
+        return self.__doc__
+
+    @property
+    def label(self):
+        return self.__class__.__name__
+
+    @property
     def volume(self):
         return sum(getattr(i, "volume", 0) for i in self.components)
 
