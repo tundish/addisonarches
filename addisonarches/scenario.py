@@ -19,6 +19,7 @@
 from collections import Counter
 from collections import namedtuple
 from enum import Enum
+import random
 import uuid
 
 from addisonarches.business import Business
@@ -132,8 +133,25 @@ class Wholesale(Business):
 
     """
 
-    def __call__(self, loop=None):
-        pass
+    def __call__(self, game, loop=None):
+        try:
+            latest = game.drama.memory[-1]
+        except (AttributeError, IndexError):
+            greeting = random.choice(
+                ["Hello, {0.name}".format(
+                    game.businesses[0].proprietor
+                ), "What can I do for you?"]
+            )
+            print("{0.name} says, '{1}'.".format(
+                    self.proprietor, greeting
+                 )
+            )
+        if isinstance(game.drama, Buying):
+            print("{0.name} says, 'I see you're "
+                  "considering this fine {1.label}'.".format(
+                    self.proprietor, latest
+                 )
+            )
 
 class Recycling(Business):
     """

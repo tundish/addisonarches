@@ -34,6 +34,9 @@ class Business:
             (i.name, Inventory(capacity=i.capacity))
              for i in locations])
 
+    def __call__(self, game, loop=None):
+        pass
+
     def deposit(self, locN, item, quantity):
         if self.inventories[locN].constraint > 1 or item is None:
             warnings.warn("Can't deposit {}".format(item))

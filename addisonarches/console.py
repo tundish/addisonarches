@@ -92,7 +92,12 @@ class Console(cmd.Cmd):
                 self.game.stop = True
             else:
                 print("You're at {}.".format(self.game.location))
-                print(self.game.drama or "Calm and relaxed.")
+                mood = (self.game.drama.__class__.__name__.lower()
+                        if self.game.drama is not None
+                        else random.choice(
+                            ["hopeful", "optimistic", "relaxed"]
+                        ))
+                print("You're in a {} mood.".format(mood))
                 if self.game.here != self.game.businesses[0]:
                     print("{0.name} is nearby.".format(
                             self.game.here.proprietor
@@ -111,6 +116,8 @@ class Console(cmd.Cmd):
         return line
 
     def postcmd(self, stop, line):
+        "Potential 'game over' decisions."
+        self.game.here(game)
         try:
             self.preloop()
         except StopIteration:
@@ -138,7 +145,7 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             k, v = list(view)[int(line)]
-            self.game.drama = Buying([k])
+            self.game.drama = Buying(iterable=[k])
         
     def do_sell(self, arg):
         """
