@@ -28,6 +28,12 @@ from addisonarches.inventory import Volume
 from addisonarches.valuation import ValueBook
 
 
+class Buying(Memory):
+    pass
+
+class Selling(Memory):
+    pass
+
 class Length(Enum):
     metre = 1
 

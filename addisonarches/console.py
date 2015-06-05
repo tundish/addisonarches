@@ -28,8 +28,10 @@ import uuid
 
 import addisonarches.scenario
 from addisonarches.business import Business
+from addisonarches.scenario import Buying
 from addisonarches.scenario import Character
 from addisonarches.scenario import Location
+from addisonarches.scenario import Selling
 
 
 class Console(cmd.Cmd):
@@ -90,6 +92,7 @@ class Console(cmd.Cmd):
                 self.game.stop = True
             else:
                 print("You're at {}.".format(self.game.location))
+                print(self.game.drama or "Calm and relaxed.")
                 if self.game.here != self.game.businesses[0]:
                     print("{0.name} is nearby.".format(
                             self.game.here.proprietor
@@ -114,6 +117,54 @@ class Console(cmd.Cmd):
             stop = True
         return stop
 
+    def do_buy(self, arg):
+        """
+        'Buy' lists items you can buy. Supply a number from
+        that menu to buy a specific item, eg::
+            
+            > buy
+            (a list will be shown)
+
+            > buy 3
+        """
+        line = arg.strip()
+        view = self.game.here.inventories[self.game.location].contents.items()
+        if not line:
+            print("Here's what you can buy:")
+            print(
+                *["{0:01}: {1.label} ({2})".format(n, k, v)
+                for n, (k, v) in enumerate(view)],
+                sep="\n")
+            sys.stdout.write("\n")
+        elif line.isdigit():
+            k, v = list(view)[int(line)]
+            self.game.drama = Buying([k])
+        
+    def do_sell(self, arg):
+        """
+        'Sell' lists items you can sell. Supply a number from
+        that menu to sell a specific item, eg::
+            
+            > sell
+            (a list will be shown)
+
+            > sell 3
+        """
+        line = arg.strip()
+        view = (
+            c for i in self.game.businesses[0].inventories.values()
+            for c in i.contents.items())
+        if not line:
+            print("Here's what you can buy:")
+            print(
+                *["{0:01}: {1.label} ({2})".format(n, k, v)
+                for n, (k, v) in enumerate(view)],
+                sep="\n")
+            sys.stdout.write("\n")
+        elif line.isdigit():
+            k, v = list(view)[int(line)]
+            print(k, v)
+        
     def do_go(self, arg):
         """
         'Go' lists places you can go. Supply a number from
@@ -192,6 +243,7 @@ class Game:
                     7 * 24 * 60 // 30)
                 )
             if 8 <= t.hour <= 19)
+        self.drama = None
 
     @property
     def home(self):
