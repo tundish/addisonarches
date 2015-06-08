@@ -32,6 +32,8 @@ from addisonarches.scenario import Buying
 from addisonarches.scenario import Character
 from addisonarches.scenario import Location
 from addisonarches.scenario import Selling
+from addisonarches.valuation import Ask
+from addisonarches.valuation import Bid
 
 
 class Console(cmd.Cmd):
@@ -146,6 +148,16 @@ class Console(cmd.Cmd):
         elif line.isdigit():
             k, v = list(view)[int(line)]
             self.game.drama = Buying(iterable=[k])
+        
+    def do_bid(self, arg):
+        """
+        'Bid' offers money for an item, eg::
+
+            > bid 35
+        """
+        line = arg.strip()
+        if line.isdigit():
+            print("£{}!".format(int(line)))
         
     def do_sell(self, arg):
         """

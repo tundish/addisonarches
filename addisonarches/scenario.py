@@ -18,6 +18,8 @@
 
 from collections import Counter
 from collections import namedtuple
+import datetime
+from decimal import Decimal
 from enum import Enum
 import random
 import uuid
@@ -28,6 +30,7 @@ from addisonarches.compound import Memory
 from addisonarches.inventory import Volume
 from addisonarches.valuation import ValueBook
 
+from tallywallet.common.finance import Note
 
 class Buying(Memory):
     pass
@@ -135,7 +138,7 @@ class Wholesale(Business):
 
     def __call__(self, game, loop=None):
         try:
-            latest = game.drama.memory[-1]
+            focus = game.drama.memory[0]
         except (AttributeError, IndexError):
             greeting = random.choice(
                 ["Hello, {0.name}".format(
@@ -149,8 +152,11 @@ class Wholesale(Business):
         if isinstance(game.drama, Buying):
             print("{0.name} says, 'I see you're "
                   "considering this fine {1.label}'.".format(
-                    self.proprietor, latest
+                    self.proprietor, focus
                  )
+            )
+            print("We let those go for {0.currency}{0.value:.0d}.".format(
+                max(self.book[focus]))
             )
 
 class Recycling(Business):
@@ -186,6 +192,7 @@ class Antiques(Business):
     def __call__(self, loop=None):
         pass
 
+then = datetime.date(1985, 9, 4)
 businesses = [
     HouseClearance(characters[0], ValueBook(), [locations[1]]),
     Wholesale(characters[3], ValueBook(), [locations[2]]).deposit(
@@ -196,7 +203,15 @@ businesses = [
                 Plank("Plank", "rough-cut softwood", Volume.slab): 6,
             })): 1,
         })),
-        3
+        3,
+        Note(
+            date=then,
+            principal=200,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
     ),
     Hobbyist(characters[7], ValueBook(), [locations[3]]).deposit(
         locations[3].name,
@@ -209,3 +224,4 @@ businesses = [
     MarketStall(characters[10], ValueBook(), [locations[5]]),
     Antiques(characters[12], ValueBook(), [locations[6]]),
 ]
+

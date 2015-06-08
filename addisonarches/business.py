@@ -37,13 +37,15 @@ class Business:
     def __call__(self, game, loop=None):
         pass
 
-    def deposit(self, locN, item, quantity):
+    def deposit(self, locN, item, quantity, note=None):
         if self.inventories[locN].constraint > 1 or item is None:
             warnings.warn("Can't deposit {}".format(item))
             return item
-        else:
-            self.inventories[locN].contents[item] += quantity
-            return self
+
+        self.inventories[locN].contents[item] += quantity
+        if note is not None:
+            self.book.commit(item, note)
+        return self
 
     def store(self, asset:Asset):
         rv = []
