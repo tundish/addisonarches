@@ -150,14 +150,39 @@ class Wholesale(Business):
                  )
             )
         if isinstance(game.drama, Buying):
-            print("{0.name} says, 'I see you're "
-                  "considering this fine {1.label}'.".format(
-                    self.proprietor, focus
-                 )
-            )
-            print("We let those go for {0.currency}{0.value:.0d}.".format(
-                max(self.book[focus]))
-            )
+            try:
+                offer = game.drama.memory[-1]
+                if not self.book.approve(self.book[focus], offer):
+                    valuation = self.book.consider(
+                        focus, offer, constraint=0
+                    )
+                    print(
+                        "'I can go to "
+                        "{0.currency}{0.value:.0f}'.".format(valuation)
+                    )
+                else:
+                    print(
+                        "'I'll agree on "
+                        "{0.currency}{0.value}'.".format(offer)
+                    )
+                    # TODO: Make transfer
+                    # Reset drama
+            except (TypeError, NotImplementedError):
+                # No offer yet
+                print(
+                    "{0.name} says, 'I see you're "
+                    "considering this fine {1.label}'.".format(
+                        self.proprietor, focus
+                     )
+                )
+                print(
+                    "'We let those go for "
+                    "{0.currency}{0.value:.0f}'.".format(
+                        max(self.book[focus])
+                    )
+                )
+            except Exception as e:
+                print(e)
 
 class Recycling(Business):
     """

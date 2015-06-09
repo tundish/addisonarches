@@ -87,8 +87,9 @@ class Console(cmd.Cmd):
             except Exception as e:
                 print(e)
             try:
+                self.game.ts = next(self.game.clock)
                 self.prompt = "{:%A %H:%M} > ".format(
-                    next(self.game.clock)
+                    self.game.ts
                 )
             except StopIteration:
                 self.game.stop = True
@@ -157,7 +158,8 @@ class Console(cmd.Cmd):
         """
         line = arg.strip()
         if line.isdigit():
-            print("£{}!".format(int(line)))
+            bid = Bid(self.game.ts, int(line), "£")
+            self.game.drama.memory.append(bid)
         
     def do_sell(self, arg):
         """
@@ -263,6 +265,7 @@ class Game:
                 )
             if 8 <= t.hour <= 19)
         self.drama = None
+        self.ts = None
 
     @property
     def home(self):
