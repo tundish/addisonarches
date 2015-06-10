@@ -167,13 +167,15 @@ class Wholesale(Business):
                         "{0.currency}{0.value}'.".format(offer)
                     )
                     asset = Asset(focus, None, game.ts)
-                    pick = self.retrieve(asset)
-                    print(pick)
-                    print(pick.quantity * offer.value)
-                    print(game.businesses[0].store(pick))
-                    # Reset drama
+                    picks = self.retrieve(asset)
+                    quantity = sum(i[1] for i in picks)
+                    price = quantity * offer.value
+                    game.businesses[0].store(
+                        Asset(focus, quantity, game.ts)
+                    )
+                    game.drama = None
             except (TypeError, NotImplementedError) as e:
-                print(repr(e))
+                print(e)
                 # No offer yet
                 print(
                     "{0.name} says, 'I see you're "

@@ -70,7 +70,7 @@ class Compound:
 
     @property
     def volume(self):
-        return sum(getattr(i, "volume", 0) for i in self.components)
+        return sum(getattr(i, "volume.value", 0) for i in self.components)
 
     def __init__(self, components, *args, **kwargs):
         self.components = components

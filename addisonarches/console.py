@@ -223,7 +223,7 @@ class Console(cmd.Cmd):
             print("Here's what you can see:")
             print(
                 *["{0:01}: {1.label} ({2})".format(n, k, v)
-                for n, (k, v) in enumerate(view)],
+                for n, (k, v) in enumerate(view) if v],
                 sep="\n")
             sys.stdout.write("\n")
         elif line.isdigit():

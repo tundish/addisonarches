@@ -53,5 +53,6 @@ class Inventory:
     @property
     def constraint(self) -> float:
         return sum(
-            c.volume.value * n for c, n in self.contents.items()
+            getattr(c.volume, "value", c.volume) * n
+            for c, n in self.contents.items()
         ) / self.capacity

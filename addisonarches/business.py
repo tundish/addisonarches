@@ -66,7 +66,10 @@ class Business:
             while unstored > 0:
                 constraint, locN, loc = next(schedule)
                 space = (1 - constraint) * loc.capacity
-                drop = min(unstored, space / asset.commodity.volume.value)
+                vol = getattr(
+                    asset.commodity.volume, "value", asset.commodity.volume
+                )
+                drop = min(unstored, space / vol)
                 loc.contents[asset.commodity] += drop
                 unstored -= drop
                 rv.append((locN, drop))
