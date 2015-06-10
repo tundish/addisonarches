@@ -21,13 +21,14 @@ import cmd
 from collections import namedtuple
 import concurrent.futures
 import datetime
+from decimal import Decimal
 import itertools
 import random
 import sys
 import uuid
 
 import addisonarches.scenario
-from addisonarches.business import Business
+from addisonarches.scenario import CashBusiness
 from addisonarches.scenario import Buying
 from addisonarches.scenario import Character
 from addisonarches.scenario import Location
@@ -101,6 +102,9 @@ class Console(cmd.Cmd):
                             ["hopeful", "optimistic", "relaxed"]
                         ))
                 print("You're in a {} mood.".format(mood))
+                print("You've got £{0.tally:.2f} in the kitty.".format(
+                    self.game.businesses[0]
+                ))
                 if self.game.here != self.game.businesses[0]:
                     print("{0.name} is nearby.".format(
                             self.game.here.proprietor
@@ -307,7 +311,7 @@ if __name__ == "__main__":
     locations = [Location("Addison Arches 18a", 100)]
     
     addisonarches.scenario.businesses.insert(
-        0, Business(proprietor, None, locations))
+        0, CashBusiness(proprietor, None, locations, tally=Decimal(1000)))
     game = Game(businesses=addisonarches.scenario.businesses)
     console = Console(game)
     loop = asyncio.get_event_loop()

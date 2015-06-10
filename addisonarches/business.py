@@ -69,10 +69,14 @@ class Business:
                 vol = getattr(
                     asset.commodity.volume, "value", asset.commodity.volume
                 )
-                drop = min(unstored, space / vol)
+                drop = min(
+                    unstored, (space / vol) if vol else unstored
+                )
                 loc.contents[asset.commodity] += drop
                 unstored -= drop
                 rv.append((locN, drop))
+        except Exception as e:
+            print("Ooo ", e)
         finally:
             return rv
 

@@ -33,6 +33,12 @@ from addisonarches.valuation import ValueBook
 
 from tallywallet.common.finance import Note
 
+class CashBusiness(Business):
+
+    def __init__(self, *args, **kwargs):
+        self.tally = kwargs.pop("tally", 0)
+        super().__init__(*args, **kwargs)
+
 class Buying(Memory):
     pass
 
@@ -110,7 +116,7 @@ commodities = [
 operations = [
 ]
 
-class HouseClearance(Business):
+class HouseClearance(CashBusiness):
     """
     {proprietor.name} sells second-hand household articles. People
     come to him for desks and tables, which he doesn't always have,
@@ -121,7 +127,7 @@ class HouseClearance(Business):
     def __call__(self, loop=None):
         pass
 
-class Hobbyist(Business):
+class Hobbyist(CashBusiness):
     """
     {proprietor.name} breeds rabbits. He'll pay money for wooden
     pallets which he breaks down to build hutches.
@@ -131,7 +137,7 @@ class Hobbyist(Business):
     def __call__(self, loop=None):
         pass
 
-class Wholesale(Business):
+class Wholesale(CashBusiness):
     """
     {proprietor.name} sells manufactured goods wholesale in quantity.
 
@@ -173,6 +179,8 @@ class Wholesale(Business):
                     game.businesses[0].store(
                         Asset(focus, quantity, game.ts)
                     )
+                    game.businesses[0].tally -= price
+                    self.tally += price
                     game.drama = None
             except (TypeError, NotImplementedError) as e:
                 print(e)
@@ -192,7 +200,7 @@ class Wholesale(Business):
             except Exception as e:
                 print(e)
 
-class Recycling(Business):
+class Recycling(CashBusiness):
     """
     {proprietor.name} runs a scrap metal yard. She always needs
     Swarfega and blue roll. She has a limited capacity for storing
@@ -204,7 +212,7 @@ class Recycling(Business):
     def __call__(self, loop=None):
         pass
 
-class MarketStall(Business):
+class MarketStall(CashBusiness):
     """
     {proprietor.name} has a stall on the market. He'll buy anything
     but only at a rock-bottom price.
@@ -214,7 +222,7 @@ class MarketStall(Business):
     def __call__(self, loop=None):
         pass
 
-class Antiques(Business):
+class Antiques(CashBusiness):
     """
     {proprietor.name} runs an antique shop. She's always looking
     for fabrics which she cuts up and sells as rare designs. She'll

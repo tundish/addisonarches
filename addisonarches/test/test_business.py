@@ -108,3 +108,49 @@ class BusinessTests(unittest.TestCase):
             2,
             self.business.inventories["Harry's House Clearances"].contents[commodity]
         )
+
+    def test_store_integer_volume(self):
+        self.test_single_inventory_population()
+        now = datetime.date(2015, 4, 1)
+        thing = addisonarches.scenario.Commodity(
+            "thing", "one metre cubed ", 1)
+        asset = Asset(thing, 1, now)
+        drop = self.business.store(asset)
+        self.assertIn(("Harry's House Clearances", 1), drop)
+        self.assertEqual(
+            1,
+            self.business.inventories[
+                "Harry's House Clearances"
+            ].contents[thing]
+        )
+        pick = self.business.retrieve(asset)
+        self.assertIn(("Harry's House Clearances", 1), pick)
+        self.assertEqual(
+            0,
+            self.business.inventories[
+                "Harry's House Clearances"
+            ].contents[thing]
+        )
+
+    def test_store_zero_volume(self):
+        self.test_single_inventory_population()
+        now = datetime.date(2015, 4, 1)
+        cloud = addisonarches.scenario.Commodity(
+            "cloud", "nebulous and insubstantial", 0)
+        asset = Asset(cloud, 1, now)
+        drop = self.business.store(asset)
+        self.assertIn(("Harry's House Clearances", 1), drop)
+        self.assertEqual(
+            1,
+            self.business.inventories[
+                "Harry's House Clearances"
+            ].contents[cloud]
+        )
+        pick = self.business.retrieve(asset)
+        self.assertIn(("Harry's House Clearances", 1), pick)
+        self.assertEqual(
+            0,
+            self.business.inventories[
+                "Harry's House Clearances"
+            ].contents[cloud]
+        )
