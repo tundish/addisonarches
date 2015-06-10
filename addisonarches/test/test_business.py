@@ -20,8 +20,8 @@ import datetime
 from decimal import Decimal
 import unittest
 
+from addisonarches.business import Asset
 from addisonarches.business import Business
-from addisonarches.inventory import Asset
 import addisonarches.scenario
 from addisonarches.valuation import Valuation
 from addisonarches.valuation import ValueBook

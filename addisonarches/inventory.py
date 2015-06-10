@@ -20,10 +20,6 @@ from collections import Counter
 from collections import namedtuple
 from enum import Enum
 
-Asset = namedtuple(
-    "Asset",
-    ["commodity", "quantity", "acquired"]
-)
 
 class Volume(Enum):
 
@@ -45,6 +41,7 @@ class Volume(Enum):
     bottle = 1e-3
     litre = 1e-3
     pack = 5e-4
+    zero = 0
 
 
 class Inventory:

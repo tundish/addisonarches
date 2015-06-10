@@ -24,6 +24,7 @@ from enum import Enum
 import random
 import uuid
 
+from addisonarches.business import Asset
 from addisonarches.business import Business
 from addisonarches.compound import Compound
 from addisonarches.compound import Memory
@@ -165,9 +166,14 @@ class Wholesale(Business):
                         "'I'll agree on "
                         "{0.currency}{0.value}'.".format(offer)
                     )
-                    # TODO: Make transfer
+                    asset = Asset(focus, None, game.ts)
+                    pick = self.retrieve(asset)
+                    print(pick)
+                    print(pick.quantity * offer.value)
+                    print(game.businesses[0].store(pick))
                     # Reset drama
-            except (TypeError, NotImplementedError):
+            except (TypeError, NotImplementedError) as e:
+                print(repr(e))
                 # No offer yet
                 print(
                     "{0.name} says, 'I see you're "

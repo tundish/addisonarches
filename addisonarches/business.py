@@ -19,13 +19,22 @@
 from collections import Counter
 from collections import namedtuple
 from collections import OrderedDict
+from functools import singledispatch
 import warnings
 
-from addisonarches.inventory import Asset
 from addisonarches.inventory import Inventory
 
+Asset = namedtuple(
+    "Asset",
+    ["commodity", "quantity", "acquired"]
+)
 
 class Business:
+
+    @singledispatch
+    @staticmethod
+    def handle(obj, business):
+        raise NotImplementedError
 
     def __init__(self, proprietor, book, locations):
         self.proprietor = proprietor
@@ -66,10 +75,10 @@ class Business:
 
     def retrieve(self, asset:Asset):
         rv = []
-        unfound = asset.quantity
         schedule = iter(sorted(
             ((l.constraint, n, l) for n, l in self.inventories.items()),
             reverse=True))
+        unfound = float("inf") if asset.quantity is None else asset.quantity
         try:
             while unfound > 0:
                 constraint, locN, loc = next(schedule)
