@@ -134,8 +134,20 @@ class Hobbyist(CashBusiness):
 
     """
 
-    def __call__(self, loop=None):
-        pass
+    def __call__(self, game, loop=None):
+        try:
+            focus = game.drama.memory[0]
+        except (AttributeError, IndexError):
+            greeting = random.choice(
+                ["Hello, {0.name}".format(
+                    game.businesses[0].proprietor
+                ), "What can I do for you?"]
+            )
+            print("{0.name} says, '{1}'.".format(
+                    self.proprietor, greeting
+                 )
+            )
+
 
 class Wholesale(CashBusiness):
     """

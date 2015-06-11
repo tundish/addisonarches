@@ -180,7 +180,7 @@ class Console(cmd.Cmd):
             c for i in self.game.businesses[0].inventories.values()
             for c in i.contents.items())
         if not line:
-            print("Here's what you can buy:")
+            print("Here's what you can sell:")
             print(
                 *["{0:01}: {1.label} ({2})".format(n, k, v)
                 for n, (k, v) in enumerate(view)],
