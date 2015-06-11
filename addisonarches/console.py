@@ -239,6 +239,40 @@ class Console(cmd.Cmd):
                 k.label.lower(), ("s" if v > 1 else ""), prefix=prefix
             ))
 
+    def do_split(self, arg):
+        """
+        'Split' tells you what you have that can be taken apart.
+        Add a number from that menu to split that item up, eg::
+            
+            > split
+            (a list will be shown)
+
+            > split 2
+            (more details may follow)
+        """
+        line = arg.strip()
+        view = (
+            (k, v)
+            for k, v in self.game.here.inventories[
+                self.game.location
+            ].contents.items()
+            if v and getattr(k, "components", None))
+        if self.game.here != self.game.businesses[0]:
+            print("You can't do that here.")
+            return False
+        if not line:
+            print("Here's what you can split:")
+            print(
+                *["{0:01}: {1.label} ({2})".format(n, k, v)
+                for n, (k, v) in enumerate(view)],
+                sep="\n")
+            sys.stdout.write("\n")
+        elif line.isdigit():
+            k, v = list(view)[int(line)]
+            inv = self.game.here.inventories[self.game.location]
+            inv.contents[k] -= 1
+            inv.contents.update(k.components)
+
     def do_wait(self, arg):
         """
         Pass the time quietly.
