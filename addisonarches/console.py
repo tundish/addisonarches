@@ -154,6 +154,17 @@ class Console(cmd.Cmd):
             k, v = list(view)[int(line)]
             self.game.drama = Buying(iterable=[k])
         
+    def do_ask(self, arg):
+        """
+        'Ask' offers money for an item, eg::
+
+            > ask 50
+        """
+        line = arg.strip()
+        if line.isdigit():
+            bid = Ask(self.game.ts, int(line), "£")
+            self.game.drama.memory.append(bid)
+        
     def do_bid(self, arg):
         """
         'Bid' offers money for an item, eg::
@@ -188,7 +199,7 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             k, v = list(view)[int(line)]
-            print(k, v)
+            self.game.drama = Selling(iterable=[k])
         
     def do_go(self, arg):
         """

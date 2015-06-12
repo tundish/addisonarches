@@ -147,7 +147,64 @@ class Hobbyist(CashBusiness):
                     self.proprietor, greeting
                  )
             )
-
+        if isinstance(game.drama, Selling):
+            try:
+                valuations = self.book[focus]
+                offer = game.drama.memory[-1]
+            except KeyError:
+                # Not in book
+                print(
+                    "{0.name} says, 'No thanks, "
+                    "not at the moment'.".format(
+                        self.proprietor, focus
+                     )
+                )
+                try:
+                    need = random.choice(list(self.book.keys()))
+                except IndexError:
+                    print("'Thanks for coming over, {0.name}. Bye!'".format(
+                        game.businesses[0].proprietor
+                    )
+                )
+                else:
+                    print("'Got any {0.label}s?'".format(need))
+                print(focus)
+                print(vars(self.book))
+                game.drama = None
+            except (TypeError, NotImplementedError) as e:
+                # No offer yet
+                print(
+                    "{0.name} says: 'How much are you asking for "
+                    "a {1.label}?'".format(
+                        self.proprietor, focus
+                     )
+                )
+            except Exception as e:
+                print(e)
+            else:
+                if not self.book.approve(valuations, offer):
+                    valuation = self.book.consider(
+                        focus, offer, constraint=0
+                    )
+                    print(
+                        "'I can go to "
+                        "{0.currency}{0.value:.0f}'.".format(valuation)
+                    )
+                else:
+                    print(
+                        "'I'll agree on "
+                        "{0.currency}{0.value}'.".format(offer)
+                    )
+                    asset = Asset(focus, None, game.ts)
+                    picks = game.businesses[0].retrieve(asset)
+                    quantity = sum(i[1] for i in picks)
+                    price = quantity * offer.value
+                    self.store(
+                        Asset(focus, quantity, game.ts)
+                    )
+                    self.tally -= price
+                    game.businesses[0].tally += price
+                    game.drama = None
 
 class Wholesale(CashBusiness):
     """
@@ -195,7 +252,6 @@ class Wholesale(CashBusiness):
                     self.tally += price
                     game.drama = None
             except (TypeError, NotImplementedError) as e:
-                print(e)
                 # No offer yet
                 print(
                     "{0.name} says, 'I see you're "
@@ -271,7 +327,15 @@ businesses = [
         Pallet.build(Counter({
             Plank("Plank", "rough-cut softwood", Volume.slab): 6,
         })),
-        12
+        12,
+        Note(
+            date=then,
+            principal=7,
+            currency="£",
+            term=datetime.timedelta(days=30),
+            interest=Decimal("0.050"),
+            period=datetime.timedelta(days=5)
+        )
     ),
     Recycling(characters[8], ValueBook(), [locations[4]]),
     MarketStall(characters[10], ValueBook(), [locations[5]]),
