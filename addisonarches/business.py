@@ -53,7 +53,7 @@ class Business:
 
         self.inventories[locN].contents[item] += quantity
         if note is not None:
-            self.book.commit(item, note)
+            self.book.commit(type(item), note)
         return self
 
     def store(self, asset:Asset):

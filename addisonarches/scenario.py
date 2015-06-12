@@ -22,6 +22,7 @@ import datetime
 from decimal import Decimal
 from enum import Enum
 import random
+import re
 import uuid
 
 from addisonarches.business import Asset
@@ -149,7 +150,7 @@ class Hobbyist(CashBusiness):
             )
         if isinstance(game.drama, Selling):
             try:
-                valuations = self.book[focus]
+                valuations = self.book[type(focus)]
                 offer = game.drama.memory[-1]
             except KeyError:
                 # Not in book
@@ -160,51 +161,52 @@ class Hobbyist(CashBusiness):
                      )
                 )
                 try:
-                    need = random.choice(list(self.book.keys()))
+                    pick = random.choice(list(self.book.keys()))
+                    need = " ".join(i.lower() for i in re.split(
+                    "([A-Z][^A-Z]*)", pick.__name__) if i)
                 except IndexError:
                     print("'Thanks for coming over, {0.name}. Bye!'".format(
                         game.businesses[0].proprietor
                     )
                 )
                 else:
-                    print("'Got any {0.label}s?'".format(need))
-                print(focus)
-                print(vars(self.book))
+                    print("'Got any {0}s?'".format(need))
                 game.drama = None
-            except (TypeError, NotImplementedError) as e:
-                # No offer yet
-                print(
-                    "{0.name} says: 'How much are you asking for "
-                    "a {1.label}?'".format(
-                        self.proprietor, focus
-                     )
-                )
             except Exception as e:
                 print(e)
             else:
-                if not self.book.approve(valuations, offer):
-                    valuation = self.book.consider(
-                        focus, offer, constraint=0
-                    )
+                try:
+                    if not self.book.approve(valuations, offer):
+                        valuation = self.book.consider(
+                            type(focus), offer, constraint=0
+                        )
+                        print(
+                            "'I can go to "
+                            "{0.currency}{0.value:.0f}'.".format(valuation)
+                        )
+                    else:
+                        print(
+                            "'I'll agree on "
+                            "{0.currency}{0.value}'.".format(offer)
+                        )
+                        asset = Asset(focus, None, game.ts)
+                        picks = game.businesses[0].retrieve(asset)
+                        quantity = sum(i[1] for i in picks)
+                        price = quantity * offer.value
+                        self.store(
+                            Asset(focus, quantity, game.ts)
+                        )
+                        self.tally -= price
+                        game.businesses[0].tally += price
+                        game.drama = None
+                except (TypeError, NotImplementedError) as e:
+                    # No offer yet
                     print(
-                        "'I can go to "
-                        "{0.currency}{0.value:.0f}'.".format(valuation)
+                        "{0.name} says: 'How much are you asking for "
+                        "a {1.label}?'".format(
+                            self.proprietor, focus
+                         )
                     )
-                else:
-                    print(
-                        "'I'll agree on "
-                        "{0.currency}{0.value}'.".format(offer)
-                    )
-                    asset = Asset(focus, None, game.ts)
-                    picks = game.businesses[0].retrieve(asset)
-                    quantity = sum(i[1] for i in picks)
-                    price = quantity * offer.value
-                    self.store(
-                        Asset(focus, quantity, game.ts)
-                    )
-                    self.tally -= price
-                    game.businesses[0].tally += price
-                    game.drama = None
 
 class Wholesale(CashBusiness):
     """
@@ -228,7 +230,7 @@ class Wholesale(CashBusiness):
         if isinstance(game.drama, Buying):
             try:
                 offer = game.drama.memory[-1]
-                if not self.book.approve(self.book[focus], offer):
+                if not self.book.approve(self.book[type(focus)], offer):
                     valuation = self.book.consider(
                         focus, offer, constraint=0
                     )
@@ -262,7 +264,7 @@ class Wholesale(CashBusiness):
                 print(
                     "'We let those go for "
                     "{0.currency}{0.value:.0f}'.".format(
-                        max(self.book[focus])
+                        max(self.book[type(focus)])
                     )
                 )
             except Exception as e:
