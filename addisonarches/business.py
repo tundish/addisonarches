@@ -75,8 +75,6 @@ class Business:
                 loc.contents[asset.commodity] += drop
                 unstored -= drop
                 rv.append((locN, drop))
-        except Exception as e:
-            print("Ooo ", e)
         finally:
             return rv
 

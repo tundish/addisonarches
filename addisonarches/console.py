@@ -156,14 +156,14 @@ class Console(cmd.Cmd):
         
     def do_ask(self, arg):
         """
-        'Ask' offers money for an item, eg::
+        'Ask' demands money for an item, eg::
 
             > ask 50
         """
         line = arg.strip()
         if line.isdigit():
-            bid = Ask(self.game.ts, int(line), "£")
-            self.game.drama.memory.append(bid)
+            offer = Ask(self.game.ts, int(line), "£")
+            self.game.drama.memory.append(offer)
         
     def do_bid(self, arg):
         """
@@ -173,8 +173,8 @@ class Console(cmd.Cmd):
         """
         line = arg.strip()
         if line.isdigit():
-            bid = Bid(self.game.ts, int(line), "£")
-            self.game.drama.memory.append(bid)
+            offer = Bid(self.game.ts, int(line), "£")
+            self.game.drama.memory.append(offer)
         
     def do_sell(self, arg):
         """

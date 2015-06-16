@@ -232,7 +232,7 @@ class Wholesale(CashBusiness):
                 offer = game.drama.memory[-1]
                 if not self.book.approve(self.book[type(focus)], offer):
                     valuation = self.book.consider(
-                        focus, offer, constraint=0
+                        type(focus), offer, constraint=0
                     )
                     print(
                         "'I can go to "
