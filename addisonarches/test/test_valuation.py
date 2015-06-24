@@ -23,8 +23,8 @@ import unittest
 from tallywallet.common.finance import Note
 
 from addisonarches.business import Asset
-from addisonarches.scenario import Commodity
-from addisonarches.scenario import Volume
+from addisonarches.inventory import Volume
+from addisonarches.scenario.types import Commodity
 from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
 from addisonarches.valuation import ValueBook

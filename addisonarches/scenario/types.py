@@ -16,23 +16,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import Counter
 from collections import namedtuple
-import datetime
-from decimal import Decimal
 from enum import Enum
 import random
 import re
-import uuid
 
 from addisonarches.business import Asset
 from addisonarches.business import Business
 from addisonarches.compound import Compound
 from addisonarches.compound import Memory
-from addisonarches.inventory import Volume
-from addisonarches.valuation import ValueBook
 
-from tallywallet.common.finance import Note
 
 class CashBusiness(Business):
 
@@ -74,48 +67,9 @@ class ShipmentOfTables(Compound):
     def recipe():
         return {Table: 10, Pallet: 1}
 
+
 Character = namedtuple("Character", ["uuid", "name"])
 Location = namedtuple("Location", ["name", "capacity"])
-
-characters = [
-    Character(uuid.uuid4().hex, i)
-    for i in (
-    "Harry McAllister",
-    "Sally Paul",
-    "David Man",
-    "Jimmy Wei Zhang",
-    "Rob Fairfield",
-    "Mike Phillips",
-    "Ian Thomas",
-    "Barry Lattimer",
-    "Siobhan Regan",
-    "Freddie Mays",
-    "Ali Khan",
-    "Rashid Khan",
-    "Itta Metz",
-)]
-
-locations = [
-    Location("Addison Arches 18a", 100),
-    Location("Harry's House Clearances", 300),
-    Location("Kinh Ship Bulk Buy", 500),
-    Location("The Goldhawk Tavern", 10),
-    Location("White City Non-ferrous Recovery Ltd.", 1000),
-    Location("Indigent St. Open Market", 1000),
-    Location("Itta's Antiques", 30),
-]
-
-commodities = [
-    Commodity("Desk", "Self-assembly beech effect office desk", Volume.box),
-    Commodity("Desk", "Antique mahogany campaign desk", Volume.load),
-    Commodity("Bricks", "Reclaimed London clay bricks", Volume.load),
-    Commodity("Topsoil", "Finest growing medium from Norfolk", Volume.heap),
-    Commodity("VCRs", "Betamax video cassette recorders", Volume.box),
-    Commodity("PVRs", "Freeview HD recorders with dual HDMI", Volume.box),
-]
-
-operations = [
-]
 
 class HouseClearance(CashBusiness):
     """
@@ -302,45 +256,3 @@ class Antiques(CashBusiness):
 
     def __call__(self, loop=None):
         pass
-
-then = datetime.date(1985, 9, 4)
-businesses = [
-    HouseClearance(characters[0], ValueBook(), [locations[1]]),
-    Wholesale(characters[3], ValueBook(), [locations[2]]).deposit(
-        locations[2].name,
-        ShipmentOfTables.build(Counter({
-            Table("Table", "self-assembly dining", Volume.slab): 10,
-            Pallet.build(Counter({
-                Plank("Plank", "rough-cut softwood", Volume.slab): 6,
-            })): 1,
-        })),
-        3,
-        Note(
-            date=then,
-            principal=200,
-            currency="£",
-            term=datetime.timedelta(days=30),
-            interest=Decimal("0.050"),
-            period=datetime.timedelta(days=5)
-        )
-    ),
-    Hobbyist(characters[7], ValueBook(), [locations[3]]).deposit(
-        locations[3].name,
-        Pallet.build(Counter({
-            Plank("Plank", "rough-cut softwood", Volume.slab): 6,
-        })),
-        12,
-        Note(
-            date=then,
-            principal=7,
-            currency="£",
-            term=datetime.timedelta(days=30),
-            interest=Decimal("0.050"),
-            period=datetime.timedelta(days=5)
-        )
-    ),
-    Recycling(characters[8], ValueBook(), [locations[4]]),
-    MarketStall(characters[10], ValueBook(), [locations[5]]),
-    Antiques(characters[12], ValueBook(), [locations[6]]),
-]
-
