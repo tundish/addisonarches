@@ -28,11 +28,11 @@ import sys
 import uuid
 
 import addisonarches.scenario
-from addisonarches.scenario import CashBusiness
-from addisonarches.scenario import Buying
-from addisonarches.scenario import Character
 from addisonarches.scenario import Location
-from addisonarches.scenario import Selling
+from addisonarches.scenario.types import Buying
+from addisonarches.scenario.types import CashBusiness
+from addisonarches.scenario.types import Character
+from addisonarches.scenario.types import Selling
 from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
 
