@@ -31,9 +31,9 @@ Asset = namedtuple(
 
 class Business:
 
-    @singledispatch
     @staticmethod
-    def handle(obj, business):
+    @singledispatch
+    def handler(obj, business, *args, **kwargs):
         raise NotImplementedError
 
     def __init__(self, proprietor, book, locations):
@@ -93,3 +93,11 @@ class Business:
                 rv.append((locN, pick))
         finally:
             return rv
+
+
+class CashBusiness(Business):
+
+    def __init__(self, *args, **kwargs):
+        self.tally = kwargs.pop("tally", 0)
+        super().__init__(*args, **kwargs)
+

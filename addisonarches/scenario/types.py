@@ -23,15 +23,10 @@ import re
 
 from addisonarches.business import Asset
 from addisonarches.business import Business
+from addisonarches.business import CashBusiness
 from addisonarches.compound import Compound
 from addisonarches.compound import Memory
 
-
-class CashBusiness(Business):
-
-    def __init__(self, *args, **kwargs):
-        self.tally = kwargs.pop("tally", 0)
-        super().__init__(*args, **kwargs)
 
 class Buying(Memory):
     pass
@@ -89,6 +84,69 @@ class Hobbyist(CashBusiness):
 
     """
 
+    @staticmethod
+    @Business.handler.register(Selling)
+    def handle_selling(drama:Selling, self:Business, game):
+        focus = drama.memory[0]
+        try:
+            valuations = self.book[type(focus)]
+            offer = drama.memory[-1]
+        except KeyError:
+            # Not in book
+            print(
+                "{0.name} says, 'No thanks, "
+                "not at the moment'.".format(
+                    self.proprietor, focus
+                 )
+            )
+            try:
+                pick = random.choice(list(self.book.keys()))
+                need = " ".join(i.lower() for i in re.split(
+                "([A-Z][^A-Z]*)", pick.__name__) if i)
+            except IndexError:
+                print("'Thanks for coming over, {0.name}. Bye!'".format(
+                    game.businesses[0].proprietor
+                )
+            )
+            else:
+                print("'Got any {0}s?'".format(need))
+            game.drama = None
+        except Exception as e:
+            print(e)
+        else:
+            try:
+                if not self.book.approve(valuations, offer):
+                    valuation = self.book.consider(
+                        type(focus), offer, constraint=0
+                    )
+                    print(
+                        "'I can go to "
+                        "{0.currency}{0.value:.0f}'.".format(valuation)
+                    )
+                else:
+                    print(
+                        "'I'll agree on "
+                        "{0.currency}{0.value}'.".format(offer)
+                    )
+                    asset = Asset(focus, None, game.ts)
+                    picks = game.businesses[0].retrieve(asset)
+                    quantity = sum(i[1] for i in picks)
+                    price = quantity * offer.value
+                    self.store(
+                        Asset(focus, quantity, game.ts)
+                    )
+                    self.tally -= price
+                    game.businesses[0].tally += price
+                    game.drama = None
+            except (TypeError, NotImplementedError) as e:
+                # No offer yet
+                print(
+                    "{0.name} says: 'How much are you asking for "
+                    "a {1.label}?'".format(
+                        self.proprietor, focus
+                     )
+                )
+
     def __call__(self, game, loop=None):
         try:
             focus = game.drama.memory[0]
@@ -102,65 +160,7 @@ class Hobbyist(CashBusiness):
                     self.proprietor, greeting
                  )
             )
-        if isinstance(game.drama, Selling):
-            try:
-                valuations = self.book[type(focus)]
-                offer = game.drama.memory[-1]
-            except KeyError:
-                # Not in book
-                print(
-                    "{0.name} says, 'No thanks, "
-                    "not at the moment'.".format(
-                        self.proprietor, focus
-                     )
-                )
-                try:
-                    pick = random.choice(list(self.book.keys()))
-                    need = " ".join(i.lower() for i in re.split(
-                    "([A-Z][^A-Z]*)", pick.__name__) if i)
-                except IndexError:
-                    print("'Thanks for coming over, {0.name}. Bye!'".format(
-                        game.businesses[0].proprietor
-                    )
-                )
-                else:
-                    print("'Got any {0}s?'".format(need))
-                game.drama = None
-            except Exception as e:
-                print(e)
-            else:
-                try:
-                    if not self.book.approve(valuations, offer):
-                        valuation = self.book.consider(
-                            type(focus), offer, constraint=0
-                        )
-                        print(
-                            "'I can go to "
-                            "{0.currency}{0.value:.0f}'.".format(valuation)
-                        )
-                    else:
-                        print(
-                            "'I'll agree on "
-                            "{0.currency}{0.value}'.".format(offer)
-                        )
-                        asset = Asset(focus, None, game.ts)
-                        picks = game.businesses[0].retrieve(asset)
-                        quantity = sum(i[1] for i in picks)
-                        price = quantity * offer.value
-                        self.store(
-                            Asset(focus, quantity, game.ts)
-                        )
-                        self.tally -= price
-                        game.businesses[0].tally += price
-                        game.drama = None
-                except (TypeError, NotImplementedError) as e:
-                    # No offer yet
-                    print(
-                        "{0.name} says: 'How much are you asking for "
-                        "a {1.label}?'".format(
-                            self.proprietor, focus
-                         )
-                    )
+        Business.handler(game.drama, self, game)
 
 class Wholesale(CashBusiness):
     """
