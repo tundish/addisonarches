@@ -19,8 +19,6 @@
 from collections import namedtuple
 from enum import Enum
 
-from addisonarches.business import Asset
-from addisonarches.business import Business
 from addisonarches.business import Trader
 from addisonarches.compound import Compound
 
@@ -63,9 +61,7 @@ class HouseClearance(Trader):
     so he'd like to source cheap flat-pack ones also.
 
     """
-
-    def __call__(self, loop=None):
-        pass
+    pass
 
 class Hobbyist(Trader):
     """
@@ -73,40 +69,14 @@ class Hobbyist(Trader):
     pallets which he breaks down to build hutches.
 
     """
-    def __call__(self, game, loop=None):
-        try:
-            focus = game.drama.memory[0]
-        except (AttributeError, IndexError):
-            greeting = random.choice(
-                ["Hello, {0.name}".format(
-                    game.businesses[0].proprietor
-                ), "What can I do for you?"]
-            )
-            print("{0.name} says, '{1}'.".format(
-                    self.proprietor, greeting
-                 )
-            )
-        Business.handler(game.drama, self, game)
+    pass
 
 class Wholesale(Trader):
     """
     {proprietor.name} sells manufactured goods wholesale in quantity.
 
     """
-    def __call__(self, game, loop=None):
-        try:
-            focus = game.drama.memory[0]
-        except (AttributeError, IndexError):
-            greeting = random.choice(
-                ["Hello, {0.name}".format(
-                    game.businesses[0].proprietor
-                ), "What can I do for you?"]
-            )
-            print("{0.name} says, '{1}'.".format(
-                    self.proprietor, greeting
-                 )
-            )
-        Handler.dispatch(game.drama, self, game)
+    pass
 
 class Recycling(Trader):
     """
@@ -116,9 +86,7 @@ class Recycling(Trader):
     you if she trusts you.
 
     """
-
-    def __call__(self, loop=None):
-        pass
+    pass
 
 class MarketStall(Trader):
     """
@@ -126,9 +94,7 @@ class MarketStall(Trader):
     but only at a rock-bottom price.
 
     """
-
-    def __call__(self, loop=None):
-        pass
+    pass
 
 class Antiques(Trader):
     """
@@ -137,6 +103,4 @@ class Antiques(Trader):
     also buy picture frames if they're cheap and contemporary.
 
     """
-
-    def __call__(self, loop=None):
-        pass
+    pass

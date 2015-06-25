@@ -16,10 +16,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import Counter
 from collections import namedtuple
 from collections import OrderedDict
-from functools import singledispatch
 import random
 import re
 import warnings
@@ -53,9 +51,6 @@ class Business:
         self.inventories = OrderedDict([
             (i.name, Inventory(capacity=i.capacity))
              for i in locations])
-
-    def __call__(self, game, loop=None):
-        pass
 
     def deposit(self, locN, item, quantity, note=None):
         if self.inventories[locN].constraint > 1 or item is None:
