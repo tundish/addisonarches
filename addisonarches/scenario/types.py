@@ -168,6 +168,52 @@ class Wholesale(CashBusiness):
 
     """
 
+    @staticmethod
+    @Business.handler.register(Buying)
+    def handle_buying(drama:Buying, self:Business, game):
+        focus = drama.memory[0]
+        try:
+            offer = game.drama.memory[-1]
+            if not self.book.approve(self.book[type(focus)], offer):
+                valuation = self.book.consider(
+                    type(focus), offer, constraint=0
+                )
+                print(
+                    "'I can go to "
+                    "{0.currency}{0.value:.0f}'.".format(valuation)
+                )
+            else:
+                print(
+                    "'I'll agree on "
+                    "{0.currency}{0.value}'.".format(offer)
+                )
+                asset = Asset(focus, None, game.ts)
+                picks = self.retrieve(asset)
+                quantity = sum(i[1] for i in picks)
+                price = quantity * offer.value
+                game.businesses[0].store(
+                    Asset(focus, quantity, game.ts)
+                )
+                game.businesses[0].tally -= price
+                self.tally += price
+                game.drama = None
+        except (TypeError, NotImplementedError) as e:
+            # No offer yet
+            print(
+                "{0.name} says, 'I see you're "
+                "considering this fine {1.label}'.".format(
+                    self.proprietor, focus
+                 )
+            )
+            print(
+                "'We let those go for "
+                "{0.currency}{0.value:.0f}'.".format(
+                    max(self.book[type(focus)])
+                )
+            )
+        except Exception as e:
+            print(e)
+
     def __call__(self, game, loop=None):
         try:
             focus = game.drama.memory[0]
@@ -181,48 +227,7 @@ class Wholesale(CashBusiness):
                     self.proprietor, greeting
                  )
             )
-        if isinstance(game.drama, Buying):
-            try:
-                offer = game.drama.memory[-1]
-                if not self.book.approve(self.book[type(focus)], offer):
-                    valuation = self.book.consider(
-                        type(focus), offer, constraint=0
-                    )
-                    print(
-                        "'I can go to "
-                        "{0.currency}{0.value:.0f}'.".format(valuation)
-                    )
-                else:
-                    print(
-                        "'I'll agree on "
-                        "{0.currency}{0.value}'.".format(offer)
-                    )
-                    asset = Asset(focus, None, game.ts)
-                    picks = self.retrieve(asset)
-                    quantity = sum(i[1] for i in picks)
-                    price = quantity * offer.value
-                    game.businesses[0].store(
-                        Asset(focus, quantity, game.ts)
-                    )
-                    game.businesses[0].tally -= price
-                    self.tally += price
-                    game.drama = None
-            except (TypeError, NotImplementedError) as e:
-                # No offer yet
-                print(
-                    "{0.name} says, 'I see you're "
-                    "considering this fine {1.label}'.".format(
-                        self.proprietor, focus
-                     )
-                )
-                print(
-                    "'We let those go for "
-                    "{0.currency}{0.value:.0f}'.".format(
-                        max(self.book[type(focus)])
-                    )
-                )
-            except Exception as e:
-                print(e)
+        Business.handler(game.drama, self, game)
 
 class Recycling(CashBusiness):
     """
