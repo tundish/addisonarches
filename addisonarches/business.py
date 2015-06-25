@@ -20,21 +20,32 @@ from collections import Counter
 from collections import namedtuple
 from collections import OrderedDict
 from functools import singledispatch
+import random
+import re
 import warnings
 
+from addisonarches.compound import Memory
 from addisonarches.inventory import Inventory
+
+
+class Buying(Memory):
+    pass
+
+class Selling(Memory):
+    pass
 
 Asset = namedtuple(
     "Asset",
     ["commodity", "quantity", "acquired"]
 )
 
-class Business:
+class Handler:
 
-    @staticmethod
-    @singledispatch
-    def handler(obj, business, *args, **kwargs):
-        raise NotImplementedError
+    def handler(self, obj, *args, **kwargs):
+        method = "_handle_{}".format(type(obj).__name__.lower())
+        return getattr(self, method, None)
+
+class Business:
 
     def __init__(self, proprietor, book, locations):
         self.proprietor = proprietor
@@ -101,3 +112,111 @@ class CashBusiness(Business):
         self.tally = kwargs.pop("tally", 0)
         super().__init__(*args, **kwargs)
 
+
+class Trader(Handler, CashBusiness):
+
+    def _handle_buying(self, drama:Buying, game):
+        try:
+            focus = drama.memory[0]
+            offer = game.drama.memory[-1]
+            if not self.book.approve(self.book[type(focus)], offer):
+                valuation = self.book.consider(
+                    type(focus), offer, constraint=0
+                )
+                print(
+                    "'I can go to "
+                    "{0.currency}{0.value:.0f}'.".format(valuation)
+                )
+            else:
+                print(
+                    "'I'll agree on "
+                    "{0.currency}{0.value}'.".format(offer)
+                )
+                asset = Asset(focus, None, game.ts)
+                picks = self.retrieve(asset)
+                quantity = sum(i[1] for i in picks)
+                price = quantity * offer.value
+                game.businesses[0].store(
+                    Asset(focus, quantity, game.ts)
+                )
+                game.businesses[0].tally -= price
+                self.tally += price
+                game.drama = None
+        except (TypeError, NotImplementedError) as e:
+            # No offer yet
+            print(
+                "{0.name} says, 'I see you're "
+                "considering this fine {1.label}'.".format(
+                    self.proprietor, focus
+                 )
+            )
+            print(
+                "'We let those go for "
+                "{0.currency}{0.value:.0f}'.".format(
+                    max(self.book[type(focus)])
+                )
+            )
+        except Exception as e:
+            print(e)
+
+
+    def _handle_selling(self, drama:Selling, game):
+        try:
+            focus = drama.memory[0]
+            valuations = self.book[type(focus)]
+            offer = drama.memory[-1]
+        except KeyError:
+            # Not in book
+            print(
+                "{0.name} says, 'No thanks, "
+                "not at the moment'.".format(
+                    self.proprietor, focus
+                 )
+            )
+            try:
+                pick = random.choice(list(self.book.keys()))
+                need = " ".join(i.lower() for i in re.split(
+                "([A-Z][^A-Z]*)", pick.__name__) if i)
+            except IndexError:
+                print("'Thanks for coming over, {0.name}. Bye!'".format(
+                    game.businesses[0].proprietor
+                )
+            )
+            else:
+                print("'Got any {0}s?'".format(need))
+            game.drama = None
+        except Exception as e:
+            print(e)
+        else:
+            try:
+                if not self.book.approve(valuations, offer):
+                    valuation = self.book.consider(
+                        type(focus), offer, constraint=0
+                    )
+                    print(
+                        "'I can go to "
+                        "{0.currency}{0.value:.0f}'.".format(valuation)
+                    )
+                else:
+                    print(
+                        "'I'll agree on "
+                        "{0.currency}{0.value}'.".format(offer)
+                    )
+                    asset = Asset(focus, None, game.ts)
+                    picks = game.businesses[0].retrieve(asset)
+                    quantity = sum(i[1] for i in picks)
+                    price = quantity * offer.value
+                    self.store(
+                        Asset(focus, quantity, game.ts)
+                    )
+                    self.tally -= price
+                    game.businesses[0].tally += price
+                    game.drama = None
+            except (TypeError, NotImplementedError) as e:
+                # No offer yet
+                print(
+                    "{0.name} says: 'How much are you asking for "
+                    "a {1.label}?'".format(
+                        self.proprietor, focus
+                     )
+                )

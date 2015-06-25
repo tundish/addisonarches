@@ -18,21 +18,11 @@
 
 from collections import namedtuple
 from enum import Enum
-import random
-import re
 
 from addisonarches.business import Asset
 from addisonarches.business import Business
-from addisonarches.business import CashBusiness
+from addisonarches.business import Trader
 from addisonarches.compound import Compound
-from addisonarches.compound import Memory
-
-
-class Buying(Memory):
-    pass
-
-class Selling(Memory):
-    pass
 
 class Length(Enum):
     metre = 1
@@ -66,7 +56,7 @@ class ShipmentOfTables(Compound):
 Character = namedtuple("Character", ["uuid", "name"])
 Location = namedtuple("Location", ["name", "capacity"])
 
-class HouseClearance(CashBusiness):
+class HouseClearance(Trader):
     """
     {proprietor.name} sells second-hand household articles. People
     come to him for desks and tables, which he doesn't always have,
@@ -77,76 +67,12 @@ class HouseClearance(CashBusiness):
     def __call__(self, loop=None):
         pass
 
-class Hobbyist(CashBusiness):
+class Hobbyist(Trader):
     """
     {proprietor.name} breeds rabbits. He'll pay money for wooden
     pallets which he breaks down to build hutches.
 
     """
-
-    @staticmethod
-    @Business.handler.register(Selling)
-    def handle_selling(drama:Selling, self:Business, game):
-        focus = drama.memory[0]
-        try:
-            valuations = self.book[type(focus)]
-            offer = drama.memory[-1]
-        except KeyError:
-            # Not in book
-            print(
-                "{0.name} says, 'No thanks, "
-                "not at the moment'.".format(
-                    self.proprietor, focus
-                 )
-            )
-            try:
-                pick = random.choice(list(self.book.keys()))
-                need = " ".join(i.lower() for i in re.split(
-                "([A-Z][^A-Z]*)", pick.__name__) if i)
-            except IndexError:
-                print("'Thanks for coming over, {0.name}. Bye!'".format(
-                    game.businesses[0].proprietor
-                )
-            )
-            else:
-                print("'Got any {0}s?'".format(need))
-            game.drama = None
-        except Exception as e:
-            print(e)
-        else:
-            try:
-                if not self.book.approve(valuations, offer):
-                    valuation = self.book.consider(
-                        type(focus), offer, constraint=0
-                    )
-                    print(
-                        "'I can go to "
-                        "{0.currency}{0.value:.0f}'.".format(valuation)
-                    )
-                else:
-                    print(
-                        "'I'll agree on "
-                        "{0.currency}{0.value}'.".format(offer)
-                    )
-                    asset = Asset(focus, None, game.ts)
-                    picks = game.businesses[0].retrieve(asset)
-                    quantity = sum(i[1] for i in picks)
-                    price = quantity * offer.value
-                    self.store(
-                        Asset(focus, quantity, game.ts)
-                    )
-                    self.tally -= price
-                    game.businesses[0].tally += price
-                    game.drama = None
-            except (TypeError, NotImplementedError) as e:
-                # No offer yet
-                print(
-                    "{0.name} says: 'How much are you asking for "
-                    "a {1.label}?'".format(
-                        self.proprietor, focus
-                     )
-                )
-
     def __call__(self, game, loop=None):
         try:
             focus = game.drama.memory[0]
@@ -162,58 +88,11 @@ class Hobbyist(CashBusiness):
             )
         Business.handler(game.drama, self, game)
 
-class Wholesale(CashBusiness):
+class Wholesale(Trader):
     """
     {proprietor.name} sells manufactured goods wholesale in quantity.
 
     """
-
-    @staticmethod
-    @Business.handler.register(Buying)
-    def handle_buying(drama:Buying, self:Business, game):
-        focus = drama.memory[0]
-        try:
-            offer = game.drama.memory[-1]
-            if not self.book.approve(self.book[type(focus)], offer):
-                valuation = self.book.consider(
-                    type(focus), offer, constraint=0
-                )
-                print(
-                    "'I can go to "
-                    "{0.currency}{0.value:.0f}'.".format(valuation)
-                )
-            else:
-                print(
-                    "'I'll agree on "
-                    "{0.currency}{0.value}'.".format(offer)
-                )
-                asset = Asset(focus, None, game.ts)
-                picks = self.retrieve(asset)
-                quantity = sum(i[1] for i in picks)
-                price = quantity * offer.value
-                game.businesses[0].store(
-                    Asset(focus, quantity, game.ts)
-                )
-                game.businesses[0].tally -= price
-                self.tally += price
-                game.drama = None
-        except (TypeError, NotImplementedError) as e:
-            # No offer yet
-            print(
-                "{0.name} says, 'I see you're "
-                "considering this fine {1.label}'.".format(
-                    self.proprietor, focus
-                 )
-            )
-            print(
-                "'We let those go for "
-                "{0.currency}{0.value:.0f}'.".format(
-                    max(self.book[type(focus)])
-                )
-            )
-        except Exception as e:
-            print(e)
-
     def __call__(self, game, loop=None):
         try:
             focus = game.drama.memory[0]
@@ -227,9 +106,9 @@ class Wholesale(CashBusiness):
                     self.proprietor, greeting
                  )
             )
-        Business.handler(game.drama, self, game)
+        Handler.dispatch(game.drama, self, game)
 
-class Recycling(CashBusiness):
+class Recycling(Trader):
     """
     {proprietor.name} runs a scrap metal yard. She always needs
     Swarfega and blue roll. She has a limited capacity for storing
@@ -241,7 +120,7 @@ class Recycling(CashBusiness):
     def __call__(self, loop=None):
         pass
 
-class MarketStall(CashBusiness):
+class MarketStall(Trader):
     """
     {proprietor.name} has a stall on the market. He'll buy anything
     but only at a rock-bottom price.
@@ -251,7 +130,7 @@ class MarketStall(CashBusiness):
     def __call__(self, loop=None):
         pass
 
-class Antiques(CashBusiness):
+class Antiques(Trader):
     """
     {proprietor.name} runs an antique shop. She's always looking
     for fabrics which she cuts up and sells as rare designs. She'll

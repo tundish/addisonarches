@@ -27,12 +27,12 @@ import random
 import sys
 import uuid
 
+from addisonarches.business import Buying
+from addisonarches.business import CashBusiness
+from addisonarches.business import Selling
 import addisonarches.scenario
 from addisonarches.scenario import Location
-from addisonarches.scenario.types import Buying
-from addisonarches.scenario.types import CashBusiness
 from addisonarches.scenario.types import Character
-from addisonarches.scenario.types import Selling
 from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
 
@@ -124,7 +124,22 @@ class Console(cmd.Cmd):
 
     def postcmd(self, stop, line):
         "Potential 'game over' decisions."
-        self.game.here(game)
+        try:
+            handler = self.game.here.handler(game.drama)
+            handler(game.drama, game)
+        except AttributeError:
+            # Player business is not a Handler subclass
+            pass
+        except TypeError as e:
+            greeting = random.choice(
+                ["Hello, {0.name}".format(
+                    self.game.businesses[0].proprietor
+                ), "What can I do for you?"]
+            )
+            print("{0.name} says, '{1}'.".format(
+                    self.game.here.proprietor, greeting
+                 )
+            )
         try:
             self.preloop()
         except StopIteration:
