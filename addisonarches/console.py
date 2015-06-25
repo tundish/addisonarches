@@ -126,7 +126,7 @@ class Console(cmd.Cmd):
         "Potential 'game over' decisions."
         try:
             handler = self.game.here.handler(game.drama)
-            handler(game.drama, game)
+            reaction = handler(game.drama, game)
         except AttributeError:
             # Player business is not a Handler subclass
             pass
@@ -140,6 +140,9 @@ class Console(cmd.Cmd):
                     self.game.here.proprietor, greeting
                  )
             )
+        else:
+            for msg in reaction:
+                print(msg)
         try:
             self.preloop()
         except StopIteration:

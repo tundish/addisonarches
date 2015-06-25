@@ -118,12 +118,12 @@ class Trader(Handler, CashBusiness):
                 valuation = self.book.consider(
                     type(focus), offer, constraint=0
                 )
-                print(
+                yield(
                     "'I can go to "
                     "{0.currency}{0.value:.0f}'.".format(valuation)
                 )
             else:
-                print(
+                yield(
                     "'I'll agree on "
                     "{0.currency}{0.value}'.".format(offer)
                 )
@@ -139,20 +139,20 @@ class Trader(Handler, CashBusiness):
                 game.drama = None
         except (TypeError, NotImplementedError) as e:
             # No offer yet
-            print(
+            yield(
                 "{0.name} says, 'I see you're "
                 "considering this fine {1.label}'.".format(
                     self.proprietor, focus
                  )
             )
-            print(
+            yield(
                 "'We let those go for "
                 "{0.currency}{0.value:.0f}'.".format(
                     max(self.book[type(focus)])
                 )
             )
         except Exception as e:
-            print(e)
+            yield(e)
 
 
     def _handle_selling(self, drama:Selling, game):
@@ -162,7 +162,7 @@ class Trader(Handler, CashBusiness):
             offer = drama.memory[-1]
         except KeyError:
             # Not in book
-            print(
+            yield(
                 "{0.name} says, 'No thanks, "
                 "not at the moment'.".format(
                     self.proprietor, focus
@@ -173,27 +173,27 @@ class Trader(Handler, CashBusiness):
                 need = " ".join(i.lower() for i in re.split(
                 "([A-Z][^A-Z]*)", pick.__name__) if i)
             except IndexError:
-                print("'Thanks for coming over, {0.name}. Bye!'".format(
+                yield("'Thanks for coming over, {0.name}. Bye!'".format(
                     game.businesses[0].proprietor
                 )
             )
             else:
-                print("'Got any {0}s?'".format(need))
+                yield("'Got any {0}s?'".format(need))
             game.drama = None
         except Exception as e:
-            print(e)
+            yield(e)
         else:
             try:
                 if not self.book.approve(valuations, offer):
                     valuation = self.book.consider(
                         type(focus), offer, constraint=0
                     )
-                    print(
+                    yield(
                         "'I can go to "
                         "{0.currency}{0.value:.0f}'.".format(valuation)
                     )
                 else:
-                    print(
+                    yield(
                         "'I'll agree on "
                         "{0.currency}{0.value}'.".format(offer)
                     )
@@ -209,7 +209,7 @@ class Trader(Handler, CashBusiness):
                     game.drama = None
             except (TypeError, NotImplementedError) as e:
                 # No offer yet
-                print(
+                yield(
                     "{0.name} says: 'How much are you asking for "
                     "a {1.label}?'".format(
                         self.proprietor, focus
