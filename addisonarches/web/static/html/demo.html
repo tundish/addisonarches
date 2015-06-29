@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="/addisonarches/web/static/js/web-animations.min.js"></script>
+</head>
+<body>
+<div class="pulse" style="width:150px;">Quick, find a pulse!</div>
+<script>
+    var elem = document.querySelector('.pulse');
+    var animation = elem.animate([
+        {opacity: 0.5, transform: "scale(0.5)"},
+        {opacity: 1.0, transform: "scale(1)"}
+    ], {
+        direction: 'alternate',
+        duration: 500,
+        iterations: Infinity
+    });
+</script>
+</body>
