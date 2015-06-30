@@ -27,10 +27,17 @@ from addisonarches.elements import Parameter
 """
 http://www.w3.org/TR/web-animations/
 
-* Global clock is elapsed game time for player in milliseconds.
-* Consider turberfield.dynamics.simulation.Simulation as Animation 
+* Global clock is elapsed game time for player in milliseconds?
+* Global clock is number of page loads for player?
+* Consider turberfield.dynamics.simulation.Simulation as Animation?
+
+* CSS will-change property
+* -prefix-free.js
+
 """
 
+# TODO: separate module for timeline. Capture user visits as global
+# clock?
 
 class Timeline:
 
