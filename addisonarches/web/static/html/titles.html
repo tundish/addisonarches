@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8" />
+<title>Opening sequence</title>
+<script src="/addisonarches/web/static/js/prefixfree.min.js"></script>
+</head>
+<body class="loading">
+<div class="pulse" style="width:150px;">Quick, find a pulse!</div>
+<audio id="beats" src="/addisonarches/web/static/audio/beatloop-3x84bpm.wav" >
+<p>Your browser does not support the <code>audio</code> element.</p>
+</audio>
+<script type="text/javascript" src="/addisonarches/web/static/js/jquery-2.1.1.js"></script>
+<script type="text/javascript" src="/addisonarches/web/static/js/SeamlessLoop.js"></script>
+<script>
+    $(window).load(function(){
+        var soundtrack = new SeamlessLoop();
+        //check if the browser can play MP3's. If not, use ogg.
+        var audio  = document.createElement("audio"),
+        canPlayMP3 = (typeof audio.canPlayType === "function" &&
+                      audio.canPlayType("audio/mpeg") !== "");
+        if (canPlayMP3===true) {
+          soundtrack.addUri("/addisonarches/web/static/audio/beatloop-3x84bpm.wav", 5714.29, "beats");
+        } else {
+          soundtrack.addUri("/addisonarches/web/static/audio/beatloop-3x84bpm.wav", 5714.29, "beats");
+        }
+
+        function soundsLoaded() {
+          $("body").removeClass("loading").addClass("playing");
+          soundtrack.update("beats");
+        };
+
+        soundtrack.callback(soundsLoaded);
+        soundtrack.start("beats");
+
+    });
+</script>
+</body>
