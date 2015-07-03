@@ -2,7 +2,6 @@
 <html lang="en" class="no-js">
 <head>
 <meta charset="utf-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Opening sequence</title>
 <script src="/addisonarches/web/static/js/prefixfree.min.js"></script>
@@ -12,7 +11,7 @@
   padding: 0;
 }
 
-.pic-wrapper {
+.fig-wrapper {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -26,9 +25,6 @@ figure {
   width: 100%;
   height: 100%;
   opacity: 0;
-  /*animation*/
-  
-  animation: slideShow 18s linear infinite 0s;
 }
 
 figurecaption {
@@ -38,28 +34,32 @@ figurecaption {
   color: #fff;
 }
 
-.pic-1 {
+.scene-1 {
   opacity: 1;
   background: url(/addisonarches/web/static/img/carboot-3104x1984.jpg) no-repeat center center;
   background-size: cover;
+  animation: slideShow 18s linear infinite 0s;
 }
 
-.pic-2 {
+.locn-1 {
   animation-delay: 6s;
   background: url(/addisonarches/web/static/img/goldhawk-533x400.png) no-repeat center center;
   background-size: cover;
+  animation: slideShow 18s linear infinite 0s;
 }
 
-.pic-3 {
+.locn-2 {
   animation-delay: 12s;
   background: url(/addisonarches/web/static/img/arches-432x576.png) no-repeat center center;
   background-size: cover;
+  animation: slideShow 18s linear infinite 0s;
 }
 
 /* keyframes*/
 
 @keyframes 
-slideShow {  0% {
+slideShow {
+ 0% {
  opacity: 0;
  transform:scale(1);
 }
@@ -81,16 +81,14 @@ slideShow {  0% {
 </style>
 </head>
 <body class="loading">
-<div class="pic-wrapper">
-  <figure class="pic-1"></figure>
-  <figure class="pic-2"></figure>
-  <figure class="pic-3"></figure>
+<div class="fig-wrapper">
+  <figure class="scene-1"></figure>
+  <figure class="locn-2"></figure>
+  <figure class="locn-3"></figure>
 </div>
-<audio id="beats" src="/addisonarches/web/static/audio/beatloop-3x84bpm.wav" >
-<p>Your browser does not support the <code>audio</code> element.</p>
-</audio>
 <script type="text/javascript" src="/addisonarches/web/static/js/jquery-2.1.1.js"></script>
 <script type="text/javascript" src="/addisonarches/web/static/js/SeamlessLoop.js"></script>
+<!-- TODO: Button to mute audio -->
 <script>
     $(window).load(function(){
         var soundtrack = new SeamlessLoop();
