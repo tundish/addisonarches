@@ -38,24 +38,33 @@ figurecaption {
   opacity: 1;
   background: url(/addisonarches/web/static/img/carboot-3104x1984.jpg) no-repeat center center;
   background-size: cover;
-  animation: slideShow 18s linear infinite 0s;
+  animation: travel 6s linear infinite 0s;
 }
 
 .locn-1 {
   animation-delay: 6s;
   background: url(/addisonarches/web/static/img/goldhawk-533x400.png) no-repeat center center;
   background-size: cover;
-  animation: slideShow 18s linear infinite 0s;
 }
 
 .locn-2 {
   animation-delay: 12s;
   background: url(/addisonarches/web/static/img/arches-432x576.png) no-repeat center center;
   background-size: cover;
-  animation: slideShow 18s linear infinite 0s;
 }
 
-/* keyframes*/
+
+@keyframes 
+travel {
+ 0% {
+ opacity: 1;
+ transform:scale(20);
+}
+ 100% {
+ opacity: 1;
+ transform:scale(1);
+}
+}
 
 @keyframes 
 slideShow {
