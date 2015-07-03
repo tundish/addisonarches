@@ -37,7 +37,45 @@ h1 {
     opacity: 0;
     top: 500px;
     left: 600px;
-    animation: titles 10s linear 1 20s;
+    animation: titles 12s linear 1 18s;
+}
+
+p {
+    color: #777;
+    font-size: 2.8em;
+    opacity: 0;
+    width: 300px;
+    margin-left: 52px;
+    margin-top: 20px;
+    transform: rotate( 8deg );
+    animation: titles 3s linear 1 1.5s;
+}
+
+li {
+    list-style-type: none;
+}
+
+#byline {
+    font-size: 1.2em;
+    opacity: 0;
+    width: 300px;
+    margin-left: 450px;
+    margin-top: 300px;
+    animation: titles 4.5s linear 1 5s;
+}
+
+#strapline {
+    color: #777;
+    font-size: 0.9em;
+    opacity: 0;
+    margin-left: 110px;
+    margin-top: -340px;
+    transform: rotate( 10.5deg );
+    animation: titles 4s linear 1 10.5s;
+}
+
+#byline a {
+    color: #777;
 }
 
 @keyframes 
@@ -70,19 +108,19 @@ travel {
  opacity: 1;
  transform: scale(2) translate(-1000px, -900px);
 }
- 35% {
+ 30% {
  opacity: 1;
  transform: scale(2) translate(-1000px, -900px);
 }
- 40% {
+ 35% {
  opacity: 1;
  transform: scale(1.2) translate(-600px, -900px);
 }
- 65% {
+ 50% {
  opacity: 1;
  transform: scale(1.2) translate(-600px, -900px);
 }
- 70% {
+ 60% {
  opacity: 1;
  transform: scale(0.5) translate(-1600px, -1300px);
 }
@@ -100,6 +138,11 @@ travel {
 </div>
 <div class="txt-wrapper">
 <h1>Addison Arches</h1>
+<p>Thuswise Ltd presents...</p>
+<ul>
+<li id="byline">... designed and developed by <a href="https://github.com/tundish">tundish</a> ...</li>
+<li id="strapline">a web game of trade and adventure.</li>
+</ul>
 </div>
 </body>
 </html>
