@@ -37,6 +37,81 @@ __doc__ = """
 Runs the web interface for Addison Arches.
 """
 
+# prototyping
+from pprint import pprint
+
+class UnNamedPipeQueue:
+    """
+    :param path: supplies the path to the underlying POSIX named pipe.
+    :param history: If True, a pipe which already exists will be
+                    reused, and not removed after exiting the Queue.
+
+    This class can send messages without blocking your code::
+
+        pq = UnNamedPipeQueue.pipequeue(os.pipe())
+        pq.put_nowait((0, "First message."))
+        pq.close()
+
+    You can also use this class as a context manager.
+    Don't forget that
+    :py:meth:`get() <turberfield.utils.pipes.UnNamedPipeQueue.get>`
+    is a blocking operation::
+
+        with UnNamedPipeQueue(os.pipe()) as pq:
+            msg = pq.get()
+
+    """
+
+    @classmethod
+    def pipequeue(cls, *args, **kwargs):
+        """
+        This is a factory function which creates and initialises a
+        Queue. Your code should call 
+        :py:meth:`close() <turberfield.utils.pipes.UnNamedPipeQueue.close>`
+        on the queue when finished.
+        """
+        return cls(*args, **kwargs).__enter__()
+
+    def __init__(self, pipe, **kwargs):
+        self.pipe = pipe
+
+    def __enter__(self):
+        self._out = os.fdopen(self.pipe[0], 'r', buffering=1, encoding="utf-8")
+        self._in = os.fdopen(self.pipe[1], 'w', buffering=1, encoding="utf-8")
+
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
+
+    def put_nowait(self, msg):
+        """
+        Put an item into the queue without blocking.
+        """
+        try:
+            pprint(msg, stream=self._in, compact=True, width=sys.maxsize)
+        except TypeError:  # 'compact' is new in Python 3.4
+            pprint(msg, stream=self._in, width=sys.maxsize)
+        finally:
+            self._in.flush()
+
+    def get(self):
+        """
+        Remove and return an item from the queue. If queue is empty,
+        block until an item is available.
+        """
+        payload = self._out.readline().rstrip("\n")
+        return ast.literal_eval(payload)
+
+    def close(self):
+        """
+        Completes the use of the queue.
+        """
+        self._out.close()
+        self._in.close()
+
+
 bottle.TEMPLATE_PATH.append(
     pkg_resources.resource_filename("addisonarches.web", "templates")
 )
