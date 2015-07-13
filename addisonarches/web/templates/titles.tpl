@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/css/pure/pure-min.css" media="screen" />
 <link rel="stylesheet" href="/css/pure/grids-responsive-min.css" media="screen" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<script src="/addisonarches/web/static/js/prefixfree.min.js"></script>
+<script src="/js/prefixfree.min.js"></script>
 <style>
 * {
   margin: 0;
@@ -73,13 +73,36 @@ li {
     font-size: 0.9em;
     opacity: 0;
     margin-left: 110px;
-    margin-top: -320px;
+    margin-top: -340px;
     transform: rotate( 10.5deg );
     animation: titles 4s linear 1 10.5s;
 }
 
 #byline a {
     color: #777;
+}
+
+#play {
+    animation: controls 12s linear 1 18s;
+    animation-fill-mode: forwards;
+    float: left;
+    margin-left: 60px;
+    opacity: 0;
+    position: relative;
+    top: 560px;
+}
+
+@keyframes 
+controls {
+ 0% {
+ opacity: 0;
+}
+ 20% {
+ opacity: 1;
+}
+ 100% {
+ opacity: 1;
+}
 }
 
 @keyframes 
@@ -138,7 +161,7 @@ travel {
 </head>
 <body class="loading">
 <div class="img-wrapper">
-  <img class="scene-1" src="/addisonarches/web/static/img/carboot-3104x1984.jpg" />
+  <img class="scene-1" src="/img/carboot-3104x1984.jpg" />
 </div>
 <div class="txt-wrapper">
 <h1>Addison Arches</h1>
@@ -148,8 +171,9 @@ travel {
 <li id="strapline">a web game of trade and adventure.</li>
 </ul>
 </div>
-<script type="text/javascript" src="/addisonarches/web/static/js/jquery-2.1.1.js"></script>
-<script type="text/javascript" src="/addisonarches/web/static/js/SeamlessLoop.js"></script>
+<a id="play" class="pure-button pure-button-primary" href="/">Play</a>
+<script type="text/javascript" src="/js/jquery-2.1.1.js"></script>
+<script type="text/javascript" src="/js/SeamlessLoop.js"></script>
 <!-- TODO: Button to mute audio -->
 <script>
     $(window).load(function(){
@@ -159,9 +183,9 @@ travel {
         canPlayMP3 = (typeof audio.canPlayType === "function" &&
                       audio.canPlayType("audio/mpeg") !== "");
         if (canPlayMP3===true) {
-          soundtrack.addUri("/addisonarches/web/static/audio/beatloop-3x84bpm.wav", 5714.29, "beats");
+          soundtrack.addUri("/audio/beatloop-3x84bpm.wav", 5714.29, "beats");
         } else {
-          soundtrack.addUri("/addisonarches/web/static/audio/beatloop-3x84bpm.wav", 5714.29, "beats");
+          soundtrack.addUri("/audio/beatloop-3x84bpm.wav", 5714.29, "beats");
         }
 
         function soundsLoaded() {

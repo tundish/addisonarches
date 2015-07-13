@@ -67,12 +67,42 @@ def titles_get():
         
     }
 
+@app.route("/audio/<filepath:path>")
+def serve_audio(filepath):
+    log = logging.getLogger("addisonarches.web.serve_audio")
+    log.debug(filepath)
+    locn = pkg_resources.resource_filename(
+        "addisonarches.web", "static/audio"
+    )
+    return bottle.static_file(filepath, root=locn)
+
+
 @app.route("/css/<filepath:path>")
 def serve_css(filepath):
     log = logging.getLogger("addisonarches.web.serve_css")
     log.debug(filepath)
     locn = pkg_resources.resource_filename(
-        "linkbudget.web", "static/css"
+        "addisonarches.web", "static/css"
+    )
+    return bottle.static_file(filepath, root=locn)
+
+
+@app.route("/img/<filepath:path>")
+def serve_img(filepath):
+    log = logging.getLogger("addisonarches.web.serve_img")
+    log.debug(filepath)
+    locn = pkg_resources.resource_filename(
+        "addisonarches.web", "static/img"
+    )
+    return bottle.static_file(filepath, root=locn)
+
+
+@app.route("/js/<filepath:path>")
+def serve_js(filepath):
+    log = logging.getLogger("addisonarches.web.serve_js")
+    log.debug(filepath)
+    locn = pkg_resources.resource_filename(
+        "addisonarches.web", "static/js"
     )
     return bottle.static_file(filepath, root=locn)
 
