@@ -30,6 +30,7 @@ import uuid
 from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
 from addisonarches.business import Selling
+from addisonarches.game import Game
 import addisonarches.scenario
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
@@ -313,59 +314,6 @@ class Console(cmd.Cmd):
         End the game.
         """
         return True
-
-
-class Game:
-
-    def __init__(self, businesses):
-        self.businesses = businesses
-        self.location = self.home
-        self.interval = 30
-        self.stop = False
-        self.clock = (
-            t for t in (
-                datetime.datetime(year=2015, month=5, day=11) +
-                datetime.timedelta(seconds=i)
-                for i in itertools.islice(
-                    itertools.count(0, 30 * 60),
-                    7 * 24 * 60 // 30)
-                )
-            if 8 <= t.hour <= 19)
-        self.drama = None
-        self.ts = None
-
-    @property
-    def home(self):
-        return list(self.businesses[0].inventories.keys())[0]
-
-    @property
-    def destinations(self):
-        return [
-            nearby for nearby in self.here.inventories
-            if nearby != self.location
-        ] or [self.home] if self.location != self.home else [
-            list(b.inventories.keys())[0] for b in self.businesses[1:]
-        ]
-
-    @property
-    def here(self):
-        return next(
-            (b for b in self.businesses
-            if self.location in b.inventories),
-            None
-        )
-
-    @property
-    def routines(self):
-        return [self.clock_loop]
-
-    @asyncio.coroutine
-    def clock_loop(self, commands, executor, loop=None):
-        while not self.stop:
-            yield from asyncio.sleep(self.interval)
-            yield from commands.put("wait")
-            sys.stdout.write("\n")
-            sys.stdout.flush()
 
 
 if __name__ == "__main__":

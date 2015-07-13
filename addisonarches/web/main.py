@@ -18,16 +18,12 @@
 
 
 import argparse
+import asyncio
 from collections import OrderedDict
-import datetime
-import glob
-import json
+import concurrent.futures
 import logging
-import operator
 import os
-import os.path
 import sys
-import tempfile
 import time
 
 import bottle
@@ -35,8 +31,7 @@ from bottle import Bottle
 import pkg_resources
 
 from addisonarches import __version__
-
-DFLT_LOCN = os.path.expanduser(os.path.join("~", ".addisonarches"))
+import addisonarches.game
 
 __doc__ = """
 Runs the web interface for Addison Arches.
@@ -131,34 +126,22 @@ def main(args):
     bottle.TEMPLATES.clear()
     log.debug(bottle.TEMPLATE_PATH)
 
-    app.config.update({
-        "args": vars(args),
-    })
     log.info("Starting local server...")
-    bottle.run(app, host="localhost", port=8080)
+    loop = asyncio.get_event_loop()
+    fdR, fdW = os.pipe() # TODO: pass to game controller
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        future = executor.submit(
+            addisonarches.game.run,
+        )
 
-
-def parser(descr=__doc__):
-    rv = argparse.ArgumentParser(description=descr)
-    rv.add_argument(
-        "--version", action="store_true", default=False,
-        help="Print the current version number")
-    rv.add_argument(
-        "-v", "--verbose", required=False,
-        action="store_const", dest="log_level",
-        const=logging.DEBUG, default=logging.INFO,
-        help="Increase the verbosity of output")
-    rv.add_argument(
-        "--log", default=None, dest="log_path",
-        help="Set a file path for log output")
-    rv.add_argument(
-        "--output", default=DFLT_LOCN,
-        help="path to output directory [{}]".format(DFLT_LOCN))
-    return rv
+        app.config.update({
+            "args": args,
+        })
+        bottle.run(app, host="localhost", port=8080)
 
 
 def run():
-    p = parser()
+    p = addisonarches.game.parser(__doc__)
     args = p.parse_args()
     if args.version:
         sys.stdout.write(__version__ + "\n")
