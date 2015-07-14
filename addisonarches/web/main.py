@@ -47,9 +47,13 @@ bottle.TEMPLATE_PATH.append(
 
 app = Bottle()
 
+def authenticated_userid(request):
+    return "someone@somewhere.net"
+
 @app.route("/", "GET")
 def home_get():
     log = logging.getLogger("addisonarches.web.home")
+    userId = authenticated_userid(bottle.request)
     args = app.config.get("args")
     executor = app.config.get("executor")
     path = os.path.join(
