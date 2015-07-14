@@ -16,29 +16,39 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
+import os.path
+import tempfile
 import unittest
 
+from addisonarches.game import Game
+import addisonarches.scenario
+
 #prototyping
-from weakref import WeakKeyDictionary
+import pickle
 
-class PickledSequence:
-
-    def __init__(self, path):
-        self.data = WeakKeyDictionary()
-
-class RSONObject:
-    pass
-
-def game(path):
-    return type(
-        "Game",
-        (object,),
-        dict(
-            businesses = PickledSequence(path),
-        )
-    )
 
 class GameTests(unittest.TestCase):
 
-    def test_factory_function(self):
-        self.fail(game("foo"))
+    def setUp(self):
+        self.root = tempfile.TemporaryDirectory()
+        self.assertTrue(os.path.isdir(self.root.name))
+
+    def test_pickling_game(self):
+        with self.root as root:
+            path = os.path.join(root, "game.pkl")
+            game = Game(businesses=addisonarches.scenario.businesses)
+            with open(path, 'wb') as fObj:
+                pickle.dump(game, fObj, 4)
+                print(os.listdir(root))
+        
+    def test_pickling_businesses(self):
+        with self.root as root:
+            path = os.path.join(root, "businesses.pkl")
+            with open(path, 'wb') as fObj:
+                pickle.dump(addisonarches.scenario.businesses, fObj, 4)
+                print(os.listdir(root))
+        
+    def tearDown(self):
+        self.assertFalse(os.path.isdir(self.root.name))
+        self.root = None
+
