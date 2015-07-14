@@ -71,6 +71,7 @@ setup(
         "bottle>=0.12.7",
         "rson>=0.9",
         "tallywallet-common>=0.009.0",
+        "turberfield-utils>=0.011.0",
     ],
     tests_require=[
     ],
