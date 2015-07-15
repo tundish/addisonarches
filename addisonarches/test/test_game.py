@@ -17,46 +17,27 @@
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
 import os.path
+import pickle
 import tempfile
 import unittest
 
 from addisonarches.game import Game
+from addisonarches.game import Persistent
 import addisonarches.scenario
 
-#prototyping
-from collections import namedtuple
-import pickle
-import tempfile
 
-
-Path = namedtuple("Path", ["root", "home", "slot", "file"])
-
-def make_path(path:Path, prefix="tmp", suffix=""):
-    if path.slot is None:
-        dctry = os.path.join(path.root, path.home)
-        try:
-            os.mkdir(dctry)
-        except FileExistsError:
-            pass
-        if path.file is not None:
-            slot = tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=dctry)
-            return path._replace(slot=slot)
-        else:
-            return path
-    else:
-        return None
-
-class PathTests(unittest.TestCase):
+class PersistentTests(unittest.TestCase):
 
     user = "someone@somewhere.net"
 
     def make_home(self):
-        path = Path(self.root.name, PathTests.user, None, None)
-        return make_path(path)
+        path = Persistent.Path(self.root.name, PersistentTests.user, None, None)
+        return Persistent.make_path(path)
 
     def make_slot(self):
-        path = Path(self.root.name, PathTests.user, None, "business.pkl")
-        return make_path(path)
+        path = Persistent.Path(
+            self.root.name, PersistentTests.user, None, "business.pkl")
+        return Persistent.make_path(path)
 
     def setUp(self):
         self.root = tempfile.TemporaryDirectory()

@@ -19,13 +19,19 @@
 import argparse
 import ast
 import asyncio
+from collections import OrderedDict
+from collections import namedtuple
 import datetime
 import itertools
 import logging
 import os
 import os.path
+import pickle
 from pprint import pprint
 import sys
+import tempfile
+
+from turberfield.utils.expert import Expert
 
 DFLT_LOCN = os.path.expanduser(os.path.join("~", ".addisonarches"))
 
@@ -73,9 +79,50 @@ class UnNamedPipe:
             return self.pipe
 
 
-class Game:
+class Persistent(Expert):
 
-    def __init__(self, businesses):
+    Path = namedtuple("Path", ["root", "home", "slot", "file"])
+    Pickled = namedtuple("Pickled", ["name", "path"])
+
+    @staticmethod
+    def make_path(path:Path, prefix="tmp", suffix=""):
+        if path.slot is None:
+            dctry = os.path.join(path.root, path.home)
+            try:
+                os.mkdir(dctry)
+            except FileExistsError:
+                pass
+            if path.file is not None:
+                slot = tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=dctry)
+                return path._replace(slot=slot)
+            else:
+                return path
+        else:
+            return None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def declare(self, data, loop=None):
+        super().declare(self, data, loop)
+
+
+class Game(Persistent):
+
+    @staticmethod
+    def options(
+        user,
+        parent=os.path.expanduser(os.path.join("~", ".addisonarches"))
+    ):
+        return OrderedDict([
+            ("businesses.pkl", Persistent.Pickled(
+                "businesses",
+                Persistent.Path(parent, user, None, None)
+            )),
+        ])
+
+    def __init__(self, businesses, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.businesses = businesses
         self.location = self.home
         self.interval = 30
@@ -159,6 +206,7 @@ def run(game, args, pipe=None):
         for routine in routines
     ]
     loop.run_forever()
+
 def run():
     p = parser()
     args = p.parse_args()
