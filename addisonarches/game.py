@@ -22,6 +22,7 @@ import asyncio
 from collections import OrderedDict
 from collections import namedtuple
 import datetime
+from decimal import Decimal
 import itertools
 import logging
 import operator
@@ -31,8 +32,13 @@ import pickle
 from pprint import pprint
 import sys
 import tempfile
+import uuid
 
 from turberfield.utils.expert import Expert
+
+from addisonarches.business import CashBusiness
+from addisonarches.scenario import Location
+from addisonarches.scenario.types import Character
 
 DFLT_LOCN = os.path.expanduser(os.path.join("~", ".addisonarches"))
 
@@ -87,19 +93,17 @@ class Persistent(Expert):
 
     @staticmethod
     def make_path(path:Path, prefix="tmp", suffix=""):
-        if path.slot is None:
-            dctry = os.path.join(path.root, path.home)
-            try:
-                os.mkdir(dctry)
-            except FileExistsError:
-                pass
-            if path.file is not None:
+        dctry = os.path.join(path.root, path.home)
+        try:
+            os.mkdir(dctry)
+        except FileExistsError:
+            pass
+
+        if path.slot is None and path.file is not None:
                 slot = tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=dctry)
                 return path._replace(slot=os.path.basename(slot))
-            else:
-                return path
         else:
-            return None
+            return path
 
     @staticmethod
     def recent_slot(path:Path):
@@ -142,6 +146,7 @@ class Game(Persistent):
 
     def __init__(self, player, businesses, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.player = player
         self.businesses = businesses
         self.interval = 30
         self.stop = False
@@ -166,19 +171,19 @@ class Game(Persistent):
             None
         )
         if pickler is not None:
-            path = Persistent.recent_slot(
-                Persistent.make_path(pickler.path)
-            )._replace(file=pickler.path.file)
+            path = Persistent.make_path(
+                Persistent.recent_slot(pickler.path)._replace(file=pickler.path.file)
+            )
             if not os.path.isfile(os.path.join(*path)):
-                #proprietor = Character(uuid.uuid4().hex, name)
-                #locations = [Location("Addison Arches 18a", 100)]
+                proprietor = Character(uuid.uuid4().hex, self.player.name)
+                locations = [Location("Addison Arches 18a", 100)]
                 
-                #addisonarches.scenario.businesses.insert(
-                #    0, CashBusiness(proprietor, None, locations, tally=Decimal(1000)))
-                print(path)
+                self.businesses.insert(
+                    0, CashBusiness(proprietor, None, locations, tally=Decimal(1000)))
             else:
                 # TODO: load businesses from pickle file
                 pass
+
         self.location = self.home
 
     @property

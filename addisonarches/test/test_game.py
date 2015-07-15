@@ -130,6 +130,8 @@ class GameTests(unittest.TestCase):
                 pickle.dump(game, fObj, 4)
         
     def test_pickling_businesses(self):
+        path = Persistent.Path(self.root.name, GameTests.user, None, None)
+        Persistent.make_path(path)
         options = Game.options(
             Game.Player(GameTests.user, "Player 1"),
             parent=self.root.name
@@ -139,7 +141,10 @@ class GameTests(unittest.TestCase):
             addisonarches.scenario.businesses,
             **options
         )
+        nBusinesses = len(game.businesses)
         game.load()
+        self.assertEqual(nBusinesses + 1, len(game.businesses))  # Player added
+
         game.declare({"businesses": True})
         #with self.root as root:
         #    path = os.path.join(root, "businesses.pkl")
