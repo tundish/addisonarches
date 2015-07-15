@@ -166,11 +166,19 @@ class Game(Persistent):
             None
         )
         if pickler is not None:
-            path = Persistent.recent_slot(pickler.path)._replace(file=pickler.file)
-            print(path)
-            # Find recent slot
-            # Make slot path to businesses.pkl
-            # If no file, create character and insert into businesses
+            path = Persistent.recent_slot(
+                Persistent.make_path(pickler.path)
+            )._replace(file=pickler.path.file)
+            if not os.path.isfile(os.path.join(*path)):
+                #proprietor = Character(uuid.uuid4().hex, name)
+                #locations = [Location("Addison Arches 18a", 100)]
+                
+                #addisonarches.scenario.businesses.insert(
+                #    0, CashBusiness(proprietor, None, locations, tally=Decimal(1000)))
+                print(path)
+            else:
+                # TODO: load businesses from pickle file
+                pass
         self.location = self.home
 
     @property
