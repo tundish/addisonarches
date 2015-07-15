@@ -80,6 +80,8 @@ class PersistentTests(unittest.TestCase):
         self.assertTrue(path.home)
         self.assertTrue(path.slot)
         self.assertTrue(path.file)
+        self.assertNotIn(path.root, path.slot)
+        self.assertNotIn(path.root, path.file)
         self.assertTrue(
             os.path.isdir(os.path.join(*path[:-1]))
         )
@@ -97,6 +99,20 @@ class PersistentTests(unittest.TestCase):
             os.path.isdir(os.path.join(*path[:-1]))
         )
          
+    def test_no_recent_slot(self):
+        path = self.make_home()
+        path = Persistent.recent_slot(path)
+        self.assertIs(None, path.slot)
+        path = path._replace(file="objects.pkl")
+        path = Persistent.make_path(path)
+         
+    def test_recent_slot(self):
+        path = self.make_slot()
+        self.assertEqual(
+            path.slot,
+            Persistent.recent_slot(path).slot
+        )
+         
 class GameTests(unittest.TestCase):
 
     user = "someone@somewhere.net"
@@ -104,8 +120,6 @@ class GameTests(unittest.TestCase):
     def setUp(self):
         self.root = tempfile.TemporaryDirectory()
         self.assertTrue(os.path.isdir(self.root.name))
-        self.home = os.path.join(self.root.name, GameTests.user)
-        os.mkdir(self.home)
 
     @unittest.skip("Can't pickle <class 'generator'>")
     def test_pickling_game(self):
@@ -116,12 +130,15 @@ class GameTests(unittest.TestCase):
                 pickle.dump(game, fObj, 4)
         
     def test_pickling_businesses(self):
-        with self.root as root:
-            path = os.path.join(root, "businesses.pkl")
-            with open(path, 'wb') as fObj:
-                pickle.dump(addisonarches.scenario.businesses, fObj, 4)
+        options = Game.options(user=GameTests.user, parent=self.root)
+        print(options)
+        #with self.root as root:
+        #    path = os.path.join(root, "businesses.pkl")
+        #    with open(path, 'wb') as fObj:
+        #        pickle.dump(addisonarches.scenario.businesses, fObj, 4)
         
     def tearDown(self):
+        if os.path.isdir(self.root.name):
+            self.root.cleanup()
         self.assertFalse(os.path.isdir(self.root.name))
         self.root = None
-

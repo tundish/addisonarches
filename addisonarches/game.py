@@ -24,6 +24,7 @@ from collections import namedtuple
 import datetime
 import itertools
 import logging
+import operator
 import os
 import os.path
 import pickle
@@ -94,11 +95,21 @@ class Persistent(Expert):
                 pass
             if path.file is not None:
                 slot = tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=dctry)
-                return path._replace(slot=slot)
+                return path._replace(slot=os.path.basename(slot))
             else:
                 return path
         else:
             return None
+
+    @staticmethod
+    def recent_slot(path:Path):
+        slots = [i for i in os.listdir(os.path.join(path.root, path.home))
+                 if os.path.isdir(os.path.join(path.root, path.home, i))]
+        stats = [(os.path.getmtime(os.path.join(path.root, path.home, fP)), fP)
+                 for fP in slots]
+        stats.sort(key=operator.itemgetter(0), reverse=True)
+        return Persistent.Path(
+            path.root, path.home, next((i[1] for i in stats), None), None)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -112,12 +123,13 @@ class Game(Persistent):
     @staticmethod
     def options(
         user,
+        slot=None,
         parent=os.path.expanduser(os.path.join("~", ".addisonarches"))
     ):
         return OrderedDict([
             ("businesses.pkl", Persistent.Pickled(
                 "businesses",
-                Persistent.Path(parent, user, None, None)
+                Persistent.Path(parent, user, slot, None)
             )),
         ])
 
