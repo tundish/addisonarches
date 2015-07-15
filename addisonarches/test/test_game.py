@@ -130,8 +130,17 @@ class GameTests(unittest.TestCase):
                 pickle.dump(game, fObj, 4)
         
     def test_pickling_businesses(self):
-        options = Game.options(user=GameTests.user, parent=self.root)
-        print(options)
+        options = Game.options(
+            Game.Player(GameTests.user, "Player 1"),
+            parent=self.root.name
+        )
+        game = Game(
+            Game.Player(GameTests.user, "Player 1"),
+            addisonarches.scenario.businesses,
+            **options
+        )
+        game.load()
+        game.declare({"businesses": True})
         #with self.root as root:
         #    path = os.path.join(root, "businesses.pkl")
         #    with open(path, 'wb') as fObj:

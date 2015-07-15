@@ -115,28 +115,34 @@ class Persistent(Expert):
         super().__init__(*args, **kwargs)
 
     def declare(self, data, loop=None):
-        super().declare(self, data, loop)
+        super().declare(data, loop)
+        pickles = (i for i in self._services.values()
+                   if isinstance(i, Persistent.Pickled))
+        for p in pickles:
+            if data.get(p.name, False):
+                print(p.path)
 
 
 class Game(Persistent):
 
+    Player = namedtuple("Player", ["user", "name"])
+
     @staticmethod
     def options(
-        user,
+        player,
         slot=None,
         parent=os.path.expanduser(os.path.join("~", ".addisonarches"))
     ):
         return OrderedDict([
             ("businesses.pkl", Persistent.Pickled(
                 "businesses",
-                Persistent.Path(parent, user, slot, None)
+                Persistent.Path(parent, player.user, slot, "businesses.pkl")
             )),
         ])
 
-    def __init__(self, businesses, *args, **kwargs):
+    def __init__(self, player, businesses, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.businesses = businesses
-        self.location = self.home
         self.interval = 30
         self.stop = False
         self.clock = (
@@ -148,8 +154,24 @@ class Game(Persistent):
                     7 * 24 * 60 // 30)
                 )
             if 8 <= t.hour <= 19)
+        self.location = None
         self.drama = None
         self.ts = None
+
+    def load(self):
+        pickler = next(
+            (i for i in self._services.values()
+            if isinstance(i, Persistent.Pickled)
+            and i.name == "businesses"),
+            None
+        )
+        if pickler is not None:
+            path = Persistent.recent_slot(pickler.path)._replace(file=pickler.file)
+            print(path)
+            # Find recent slot
+            # Make slot path to businesses.pkl
+            # If no file, create character and insert into businesses
+        self.location = self.home
 
     @property
     def home(self):
