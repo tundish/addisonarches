@@ -210,12 +210,8 @@ class Game(Persistent):
             None
         )
 
-    @property
-    def routines(self):
-        return [self.clock_loop]
-
     @asyncio.coroutine
-    def clock_loop(self, commands, executor, loop=None):
+    def __call__(self, commands, executor, loop=None):
         while not self.stop:
             yield from asyncio.sleep(self.interval)
             yield from commands.put("wait")

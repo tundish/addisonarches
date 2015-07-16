@@ -129,8 +129,8 @@ class Console(cmd.Cmd):
     def postcmd(self, stop, line):
         "Potential 'game over' decisions."
         try:
-            handler = self.game.here.handler(game.drama)
-            reaction = handler(game.drama, game)
+            handler = self.game.here.handler(self.game.drama)
+            reaction = handler(self.game.drama, self.game)
         except AttributeError:
             # Player business is not a Handler subclass
             pass
@@ -335,13 +335,19 @@ def main(args):
     console = Console(game)
     loop = asyncio.get_event_loop()
     commands = asyncio.Queue(loop=loop)
-    routines = console.routines + game.routines
-    executor = concurrent.futures.ThreadPoolExecutor(len(routines))
+    executor = concurrent.futures.ThreadPoolExecutor(
+        max(4, len(console.routines) + 1)
+    )
     tasks = [
         asyncio.Task(routine(commands, executor, loop=loop))
-        for routine in routines
+        for routine in console.routines
     ]
-    loop.run_forever()
+    tasks.append(asyncio.Task(game(commands, executor, loop=loop)))
+    try:
+        loop.run_until_complete(asyncio.wait(asyncio.Task.all_tasks(loop)))
+    except concurrent.futures.CancelledError:
+        pass
+
     return 0
 
 def run():
