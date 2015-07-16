@@ -32,21 +32,6 @@ from addisonarches.valuation import ValueBook
 
 class ValueBookTests(unittest.TestCase):
 
-    def test_is_readonly(self):
-        book = ValueBook()
-        self.assertRaises(
-            NotImplementedError, book.setdefault, "commodity"
-        )
-        self.assertRaises(
-            NotImplementedError, book.update, {}
-        )
-        try:
-            book["commodity"] = None
-        except NotImplementedError:
-            pass
-        else:
-            self.fail()
-
     def test_valuation_from_finance_note(self):
         then = datetime.date(2015, 4, 1)
         note = Note(

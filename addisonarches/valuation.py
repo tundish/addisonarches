@@ -60,9 +60,6 @@ class ValueBook(dict):
                 currencies.pop()
             )
 
-    def __setitem__(self, key, value):
-        raise NotImplementedError
-
     def commit(self, commodity, obj:set([Ask, Bid, Note])):
         if isinstance(obj, Note):
             series = super().setdefault(

@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
+import glob
 import os.path
 import pickle
 import tempfile
@@ -121,14 +122,6 @@ class GameTests(unittest.TestCase):
         self.root = tempfile.TemporaryDirectory()
         self.assertTrue(os.path.isdir(self.root.name))
 
-    @unittest.skip("Can't pickle <class 'generator'>")
-    def test_pickling_game(self):
-        with self.root as root:
-            path = os.path.join(root, "game.pkl")
-            game = Game(businesses=addisonarches.scenario.businesses)
-            with open(path, 'wb') as fObj:
-                pickle.dump(game, fObj, 4)
-        
     def test_pickling_businesses(self):
         path = Persistent.Path(self.root.name, GameTests.user, None, None)
         Persistent.make_path(path)
@@ -145,11 +138,23 @@ class GameTests(unittest.TestCase):
         game.load()
         self.assertEqual(nBusinesses + 1, len(game.businesses))  # Player added
 
-        game.declare({"businesses": True})
-        #with self.root as root:
-        #    path = os.path.join(root, "businesses.pkl")
-        #    with open(path, 'wb') as fObj:
-        #        pickle.dump(addisonarches.scenario.businesses, fObj, 4)
+        game.declare({"businesses": False})
+        self.assertEqual(
+            0,
+            len(glob.glob(os.path.join(path.root, path.home, '*', "businesses.pkl")))
+        )
+
+        game.declare({"businesses": game.businesses})
+        pickled = glob.glob(os.path.join(path.root, path.home, '*', "businesses.pkl"))
+        self.assertEqual(1, len(pickled))
+
+        with open(pickled[0], "rb") as fObj:
+            businesses = pickle.load(fObj)
+        self.assertEqual(len(game.businesses), len(businesses))
+        self.assertEqual(
+            "Addison Arches 18a",
+            list(businesses[0].inventories.keys())[0]
+        )
         
     def tearDown(self):
         if os.path.isdir(self.root.name):

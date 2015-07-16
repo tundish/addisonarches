@@ -121,10 +121,12 @@ class Persistent(Expert):
     def declare(self, data, loop=None):
         super().declare(data, loop)
         pickles = (i for i in self._services.values()
-                   if isinstance(i, Persistent.Pickled))
+                   if isinstance(i, Persistent.Pickled)
+                   and data.get(i.name, False))
         for p in pickles:
-            if data.get(p.name, False):
-                print(p.path)
+            fP = os.path.join(*p.path)
+            with open(fP, "wb") as fObj:
+                pickle.dump(data[p.name], fObj, 4)
 
 
 class Game(Persistent):
@@ -164,16 +166,17 @@ class Game(Persistent):
         self.ts = None
 
     def load(self):
-        pickler = next(
-            (i for i in self._services.values()
-            if isinstance(i, Persistent.Pickled)
-            and i.name == "businesses"),
+        name, pickler = next(
+            ((k, v) for k, v in self._services.items()
+            if isinstance(v, Persistent.Pickled)
+            and v.name == "businesses"),
             None
         )
         if pickler is not None:
             path = Persistent.make_path(
                 Persistent.recent_slot(pickler.path)._replace(file=pickler.path.file)
             )
+            self._services[name] = self._services[name]._replace(path=path)
             if not os.path.isfile(os.path.join(*path)):
                 proprietor = Character(uuid.uuid4().hex, self.player.name)
                 locations = [Location("Addison Arches 18a", 100)]
