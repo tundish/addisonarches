@@ -240,36 +240,3 @@ def parser(descr=__doc__):
         "--output", default=DFLT_LOCN,
         help="path to output directory [{}]".format(DFLT_LOCN))
     return rv
-
-
-def run(game, args, pipe=None):
-    addisonarches.scenario.businesses.insert(
-        0, CashBusiness(proprietor, None, locations, tally=Decimal(1000)))
-    game = Game(businesses=addisonarches.scenario.businesses)
-    console = Console(game)
-    loop = asyncio.get_event_loop()
-    commands = asyncio.Queue(loop=loop)
-    routines = console.routines + game.routines
-    executor = concurrent.futures.ThreadPoolExecutor(len(routines))
-    tasks = [
-        asyncio.Task(routine(commands, executor, loop=loop))
-        for routine in routines
-    ]
-    loop.run_forever()
-
-def run():
-    p = parser()
-    args = p.parse_args()
-    if args.version:
-        sys.stdout.write(__version__ + "\n")
-        rv = 0
-    else:
-        try:
-            os.mkdir(args.output)
-        except OSError:
-            pass
-        rv = main(args)
-    sys.exit(rv)
-
-if __name__ == "__main__":
-    run()

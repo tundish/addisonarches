@@ -22,6 +22,7 @@ from collections import namedtuple
 import concurrent.futures
 import datetime
 from decimal import Decimal
+import getpass
 import itertools
 import random
 import sys
@@ -31,6 +32,8 @@ from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
 from addisonarches.business import Selling
 from addisonarches.game import Game
+from addisonarches.game import Persistent
+from addisonarches.game import parser
 import addisonarches.scenario
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
@@ -316,14 +319,19 @@ class Console(cmd.Cmd):
         return True
 
 
-if __name__ == "__main__":
+def main(args):
+    user = getpass.getuser()
     name = input("Please enter your name: ")
-    proprietor = Character(uuid.uuid4().hex, name)
-    locations = [Location("Addison Arches 18a", 100)]
-    
-    addisonarches.scenario.businesses.insert(
-        0, CashBusiness(proprietor, None, locations, tally=Decimal(1000)))
-    game = Game(businesses=addisonarches.scenario.businesses)
+    path = Persistent.Path(args.output, user, None, None)
+    Persistent.make_path(path)
+
+    options = Game.options(Game.Player(user, name), parent=args.output)
+    game = Game(
+        Game.Player(user, name),
+        addisonarches.scenario.businesses,
+        **options
+    )
+    game.load()
     console = Console(game)
     loop = asyncio.get_event_loop()
     commands = asyncio.Queue(loop=loop)
@@ -334,3 +342,17 @@ if __name__ == "__main__":
         for routine in routines
     ]
     loop.run_forever()
+    return 0
+
+def run():
+    p = parser()
+    args = p.parse_args()
+    if args.version:
+        sys.stdout.write(__version__ + "\n")
+        rv = 0
+    else:
+        rv = main(args)
+    sys.exit(rv)
+
+if __name__ == "__main__":
+    run()
