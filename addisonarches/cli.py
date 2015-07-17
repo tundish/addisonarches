@@ -70,7 +70,7 @@ def send(obj, stream=sys.stdout):
     finally:
         stream.flush()
 
-def get(stream):
+def receive(stream):
     payload = stream.readline().rstrip("\n")
     bits =  ast.literal_eval(payload)
     types = {i.__name__: i for i in (BlogPost,)}

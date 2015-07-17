@@ -111,8 +111,6 @@ def main(args):
             )
         )[0]
         loop.run_forever()
-        loop.close()
-        print("SErver exited with: {}".format(transport.get_returncode()))
     return rv
 
 
