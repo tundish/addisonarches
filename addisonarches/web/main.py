@@ -36,6 +36,7 @@ from turberfield.utils.expert import TypesEncoder
 from addisonarches import __version__
 from addisonarches.cli import add_common_options
 from addisonarches.cli import add_web_options
+from addisonarches.cli import send
 import addisonarches.game
 
 __doc__ = """
@@ -58,8 +59,7 @@ def home_get():
     userId = authenticated_userid(bottle.request)
     log.info(userId)
     args = app.config.get("args")
-    sys.stdout.write(str(vars(args)))
-    sys.stdout.flush()
+    send(args)
     path = os.path.join(
         app.config["args"].output, "player.rson"
     )

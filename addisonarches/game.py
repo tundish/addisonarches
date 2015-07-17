@@ -44,46 +44,6 @@ __doc__ = """
 Encapsulates the game world in Addison Arches.
 """
 
-
-class UnNamedPipe:
-
-    def __init__(self, pipe:tuple, **kwargs):
-        self.pipe = pipe
-        self._in = os.fdopen(self.pipe[1], 'w', buffering=1, encoding="utf-8")
-        self._out = os.fdopen(self.pipe[0], 'r', buffering=1, encoding="utf-8")
-
-    def put_nowait(self, msg):
-        """
-        Put an item into the queue without blocking.
-        """
-        try:
-            pprint(msg, stream=self._in, compact=True, width=sys.maxsize)
-        except TypeError:  # 'compact' is new in Python 3.4
-            pprint(msg, stream=self._in, width=sys.maxsize)
-        finally:
-            self._in.flush()
-
-    def get(self):
-        """
-        Remove and return an item from the queue. If queue is empty,
-        block until an item is available.
-        """
-        payload = self._out.readline().rstrip("\n")
-        return ast.literal_eval(payload)
-
-    def close(self):
-        """
-        Completes the use of the queue.
-        """
-        try:
-            self._in.close()
-            self._out.close()
-        except:
-            self.pipe = None
-        finally:
-            return self.pipe
-
-
 class Persistent(Expert):
 
     Path = namedtuple("Path", ["root", "home", "slot", "file"])

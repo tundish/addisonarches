@@ -17,8 +17,11 @@
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import ast
 import logging
 import os.path
+from pprint import pprint
+import sys
 
 
 DFLT_LOCN = os.path.expanduser(os.path.join("~", ".addisonarches"))
@@ -56,3 +59,20 @@ def add_web_options(parser):
         "--debug", action="store_true", default=False,
         help="Print wire-level messages for debugging")
     return parser
+
+def send(obj, stream=sys.stdout):
+    msg = vars(obj)
+    msg["_type"] = type(obj).__name__
+    try:
+        pprint(msg, stream=stream, compact=True, width=sys.maxsize)
+    except TypeError:  # 'compact' is new in Python 3.4
+        pprint(msg, stream=stream, width=sys.maxsize)
+    finally:
+        stream.flush()
+
+def get(stream):
+    payload = stream.readline().rstrip("\n")
+    bits =  ast.literal_eval(payload)
+    types = {i.__name__: i for i in (BlogPost,)}
+    return [types.get(i.pop("_type", None), dict)(**i) for i in things]
+
