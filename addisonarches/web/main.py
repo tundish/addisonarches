@@ -36,6 +36,8 @@ from turberfield.utils.expert import TypesEncoder
 from addisonarches import __version__
 import addisonarches.game
 
+DFLT_LOCN = os.path.expanduser(os.path.join("~", ".addisonarches"))
+
 __doc__ = """
 Runs the web interface for Addison Arches.
 """
@@ -54,8 +56,10 @@ def authenticated_userid(request):
 def home_get():
     log = logging.getLogger("addisonarches.web.home")
     userId = authenticated_userid(bottle.request)
+    log.info(userId)
     args = app.config.get("args")
-    executor = app.config.get("executor")
+    sys.stdout.write(str(vars(args)))
+    sys.stdout.flush()
     path = os.path.join(
         app.config["args"].output, "player.rson"
     )
@@ -152,6 +156,31 @@ def serve_js(filepath):
     return bottle.static_file(filepath, root=locn)
 
 
+def parser(descr=__doc__):
+    rv = argparse.ArgumentParser(description=descr)
+    rv.add_argument(
+        "--version", action="store_true", default=False,
+        help="Print the current version number")
+    rv.add_argument(
+        "-v", "--verbose", required=False,
+        action="store_const", dest="log_level",
+        const=logging.DEBUG, default=logging.INFO,
+        help="Increase the verbosity of output")
+    rv.add_argument(
+        "--log", default=None, dest="log_path",
+        help="Set a file path for log output")
+    rv.add_argument(
+        "--output", default=DFLT_LOCN,
+        help="path to output directory [{}]".format(DFLT_LOCN))
+    rv.add_argument(
+        "--host", default="localhost",
+        help="Set a host or address for the web connection")
+    rv.add_argument(
+        "--port", default=8080, type=int,
+        help="Set a port for the web connection")
+    return rv
+
+
 def main(args):
     log = logging.getLogger("addisonarches.web")
     log.setLevel(args.log_level)
@@ -177,32 +206,19 @@ def main(args):
     log.debug(bottle.TEMPLATE_PATH)
 
     log.info("Starting local server...")
-    loop = asyncio.get_event_loop()
-    queue = addisonarches.game.UnNamedPipe(os.pipe())
-    #game = addisonarches.game.Game()
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        #future = executor.submit(
-        #    addisonarches.game.run, game, args, pipe=queue.pipe
-        #)
-
-        app.config.update({
-            "args": args,
-            "executor": executor,
-        })
-        bottle.run(app, host="localhost", port=8080)
+    app.config.update({
+        "args": args,
+    })
+    bottle.run(app, host="localhost", port=8080)
 
 
 def run():
-    p = addisonarches.game.parser(__doc__)
+    p = parser(__doc__)
     args = p.parse_args()
     if args.version:
-        sys.stdout.write(__version__ + "\n")
+        sys.stderr.write(__version__ + "\n")
         rv = 0
     else:
-        try:
-            os.mkdir(args.output)
-        except OSError:
-            pass
         rv = main(args)
     sys.exit(rv)
 
