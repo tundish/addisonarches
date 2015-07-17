@@ -34,9 +34,9 @@ import pkg_resources
 from turberfield.utils.expert import TypesEncoder
 
 from addisonarches import __version__
+from addisonarches.cli import add_common_options
+from addisonarches.cli import add_web_options
 import addisonarches.game
-
-DFLT_LOCN = os.path.expanduser(os.path.join("~", ".addisonarches"))
 
 __doc__ = """
 Runs the web interface for Addison Arches.
@@ -156,31 +156,6 @@ def serve_js(filepath):
     return bottle.static_file(filepath, root=locn)
 
 
-def parser(descr=__doc__):
-    rv = argparse.ArgumentParser(description=descr)
-    rv.add_argument(
-        "--version", action="store_true", default=False,
-        help="Print the current version number")
-    rv.add_argument(
-        "-v", "--verbose", required=False,
-        action="store_const", dest="log_level",
-        const=logging.DEBUG, default=logging.INFO,
-        help="Increase the verbosity of output")
-    rv.add_argument(
-        "--log", default=None, dest="log_path",
-        help="Set a file path for log output")
-    rv.add_argument(
-        "--output", default=DFLT_LOCN,
-        help="path to output directory [{}]".format(DFLT_LOCN))
-    rv.add_argument(
-        "--host", default="localhost",
-        help="Set a host or address for the web connection")
-    rv.add_argument(
-        "--port", default=8080, type=int,
-        help="Set a port for the web connection")
-    return rv
-
-
 def main(args):
     log = logging.getLogger("addisonarches.web")
     log.setLevel(args.log_level)
@@ -209,11 +184,16 @@ def main(args):
     app.config.update({
         "args": args,
     })
-    bottle.run(app, host="localhost", port=8080)
+    bottle.run(app, host=args.host, port=args.port)
 
 
 def run():
-    p = parser(__doc__)
+    p = argparse.ArgumentParser(
+        __doc__,
+        fromfile_prefix_chars="@"
+    )
+    p = add_common_options(p)
+    p = add_web_options(p)
     args = p.parse_args()
     if args.version:
         sys.stderr.write(__version__ + "\n")

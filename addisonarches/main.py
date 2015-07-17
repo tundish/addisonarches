@@ -19,16 +19,15 @@
 
 import argparse
 import asyncio
-import contextlib
 import os
 import locale
 import logging
 import sys
 
+from addisonarches.cli import add_common_options
+from addisonarches.cli import add_web_options
 import addisonarches.console
 import addisonarches.web.main
-
-DFLT_LOCN = os.path.expanduser(os.path.join("~", ".addisonarches"))
 
 
 __doc__ = """
@@ -36,25 +35,11 @@ Main entry point for Addison Arches game.
 """
 
 def parsers(description=__doc__):
-    parser = argparse.ArgumentParser(
+    parser =  argparse.ArgumentParser(
         description,
         fromfile_prefix_chars="@"
     )
-    parser.add_argument(
-        "--version", action="store_true", default=False,
-        help="Print the current version number")
-    parser.add_argument(
-        "-v", "--verbose", required=False,
-        action="store_const", dest="log_level",
-        const=logging.DEBUG, default=logging.INFO,
-        help="Increase the verbosity of output")
-    parser.add_argument(
-        "--log", default=None, dest="log_path",
-        help="Set a file path for log output")
-    parser.add_argument(
-        "--output", default=DFLT_LOCN,
-        help="path to output directory [{}]".format(DFLT_LOCN))
-
+    parser = add_common_options(parser)
     subparsers = parser.add_subparsers(
         dest="command",
         help="Commands:",
@@ -75,21 +60,7 @@ def add_web_command_parser(subparsers):
         "web", help="Play the game over a web interface.",
         description="", epilog="other commands: console"
     )
-    rv.add_argument(
-        "--host", required=False,
-        help="Specify the name of the remote host")
-    rv.add_argument(
-        "--port", type=int, required=False,
-        help="Specify the port number to the host")
-    rv.add_argument(
-        "--user", required=False,
-        help="Specify the user login on the host")
-    rv.add_argument(
-        "--python", required=False,
-        help="Specify the Python executable on the remote host")
-    rv.add_argument(
-        "--debug", action="store_true", default=False,
-        help="Print wire-level messages for debugging")
+    rv = add_web_options(rv)
     rv.usage = rv.format_usage().replace("usage:", "").replace(
         "web", "\n\naddisonarches [OPTIONS] web")
     return rv
@@ -119,28 +90,29 @@ def subprocess_queue_factory(queue, loop):
     )
 
 def main(args):
+    rv = 0
     if args.command == "console":
         rv = addisonarches.console.main(args)
     elif args.command == "web":
-        rv = 0
         if os.name == "nt":
-            # On Windows, the ProactorEventLoop is necessary to listen on pipes
             loop = asyncio.ProactorEventLoop()
             asyncio.set_event_loop(loop)
         else:
             loop = asyncio.get_event_loop()
 
-        with contextlib.closing(loop):
-            # This will only connect to the process
-            transport = loop.run_until_complete(
-                loop.subprocess_exec(
-                    subprocess_queue_factory(None, loop),
-                    sys.executable,
-                    '-c', 'print(\'Hello async world!\')')
-            )[0]
-            # Wait until process has finished
-            loop.run_forever()
-            print('Program exited with: {}'.format(transport.get_returncode()))
+        queue = asyncio.Queue(loop=loop)
+        transport = loop.run_until_complete(
+            loop.subprocess_exec(
+                subprocess_queue_factory(queue, loop),
+                sys.executable,
+                "-m", "addisonarches.web.main",
+                *["--{}={}".format(i, getattr(args, i))
+                for i in  ("output", "host", "port")] 
+            )
+        )[0]
+        loop.run_forever()
+        loop.close()
+        print("SErver exited with: {}".format(transport.get_returncode()))
     return rv
 
 
