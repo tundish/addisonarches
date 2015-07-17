@@ -23,6 +23,7 @@ import os.path
 from pprint import pprint
 import sys
 
+from addisonarches.game import Game
 
 DFLT_LOCN = os.path.expanduser(os.path.join("~", ".addisonarches"))
 DFLT_PORT = 8080
@@ -61,7 +62,7 @@ def add_web_options(parser):
     return parser
 
 def send(obj, stream=sys.stdout):
-    msg = vars(obj)
+    msg = dict(vars(obj).items())
     msg["_type"] = type(obj).__name__
     try:
         pprint(msg, stream=stream, compact=True, width=sys.maxsize)
@@ -69,10 +70,10 @@ def send(obj, stream=sys.stdout):
         pprint(msg, stream=stream, width=sys.maxsize)
     finally:
         stream.flush()
+    return stream
 
-def receive(stream):
-    payload = stream.readline().rstrip("\n")
-    bits =  ast.literal_eval(payload)
-    types = {i.__name__: i for i in (BlogPost,)}
-    return [types.get(i.pop("_type", None), dict)(**i) for i in things]
+def receive(data):
+    types = {i.__name__: i for i in (Game.Player,)}
+    payload = ast.literal_eval(data.decode("utf-8").rstrip("\n"))
+    return types.get(payload.pop("_type", None), dict)(**payload)
 
