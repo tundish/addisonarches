@@ -16,7 +16,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
 import ast
 import asyncio
 from collections import OrderedDict
@@ -40,7 +39,6 @@ from addisonarches.business import CashBusiness
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 
-DFLT_LOCN = os.path.expanduser(os.path.join("~", ".addisonarches"))
 
 __doc__ = """
 Encapsulates the game world in Addison Arches.
@@ -217,22 +215,3 @@ class Game(Persistent):
             yield from commands.put("wait")
             sys.stdout.write("\n")
             sys.stdout.flush()
-
-
-def parser(descr=__doc__):
-    rv = argparse.ArgumentParser(description=descr)
-    rv.add_argument(
-        "--version", action="store_true", default=False,
-        help="Print the current version number")
-    rv.add_argument(
-        "-v", "--verbose", required=False,
-        action="store_const", dest="log_level",
-        const=logging.DEBUG, default=logging.INFO,
-        help="Increase the verbosity of output")
-    rv.add_argument(
-        "--log", default=None, dest="log_path",
-        help="Set a file path for log output")
-    rv.add_argument(
-        "--output", default=DFLT_LOCN,
-        help="path to output directory [{}]".format(DFLT_LOCN))
-    return rv

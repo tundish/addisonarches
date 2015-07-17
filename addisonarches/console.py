@@ -33,7 +33,6 @@ from addisonarches.business import CashBusiness
 from addisonarches.business import Selling
 from addisonarches.game import Game
 from addisonarches.game import Persistent
-from addisonarches.game import parser
 import addisonarches.scenario
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
@@ -349,16 +348,3 @@ def main(args):
         pass
 
     return 0
-
-def run():
-    p = parser()
-    args = p.parse_args()
-    if args.version:
-        sys.stdout.write(__version__ + "\n")
-        rv = 0
-    else:
-        rv = main(args)
-    sys.exit(rv)
-
-if __name__ == "__main__":
-    run()
