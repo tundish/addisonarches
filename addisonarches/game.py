@@ -213,15 +213,16 @@ class Game(Persistent):
                 Persistent.recent_slot(pickler.path)._replace(file=pickler.path.file)
             )
             self._services[name] = self._services[name]._replace(path=path)
-            if not os.path.isfile(os.path.join(*path)):
+            fP = os.path.join(*path)
+            if not os.path.isfile(fP):
                 proprietor = Character(uuid.uuid4().hex, self.player.name)
                 locations = [Location("Addison Arches 18a", 100)]
                 
                 self.businesses.insert(
                     0, CashBusiness(proprietor, None, locations, tally=Decimal(1000)))
             else:
-                # TODO: load businesses from pickle file
-                pass
+                with open(fP, "rb") as fObj:
+                    self.businesses = pickle.load(fObj)
 
             self.path = path._replace(file=None)
 
@@ -273,7 +274,6 @@ class Game(Persistent):
                     businesses=self.businesses
                 )
             )
-            #self.ts = next(self.clock)
 
     @asyncio.coroutine
     def watch(self, q, **kwargs):

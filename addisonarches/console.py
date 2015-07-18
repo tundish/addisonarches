@@ -51,10 +51,13 @@ from addisonarches.valuation import Bid
 
 class Console(cmd.Cmd):
 
-    def __init__(self, game, *args, **kwargs):
+    def __init__(self, game, commands, queue, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.game = game
+        self.commands = commands
+        self.queue = queue
         self.prompt = "Type 'help' for commands > "
+        self.ts = None
 
     @staticmethod
     def get_command(prompt):
@@ -70,7 +73,7 @@ class Console(cmd.Cmd):
         return [self.command_loop, self.input_loop]
 
     @asyncio.coroutine
-    def input_loop(self, commands, executor, loop=None):
+    def input_loop(self, executor, loop=None):
         line = ""
         while not line.lower().startswith("quit"):
             try:
@@ -85,16 +88,16 @@ class Console(cmd.Cmd):
             except asyncio.TimeoutError:
                 pass
                 
-            yield from commands.put(line)
+            yield from self.commands.put(line)
  
     @asyncio.coroutine
-    def command_loop(self, commands, executor, loop=None):
+    def command_loop(self, executor, loop=None):
         line = ""
         self.preloop()
         while not line.lower().startswith("quit"):
             sys.stdout.write(self.prompt)
             sys.stdout.flush()
-            line = yield from commands.get()
+            line = yield from self.commands.get()
             try:
                 line = self.precmd(line)
                 stop = self.onecmd(line)
@@ -158,6 +161,7 @@ class Console(cmd.Cmd):
             with open(path, 'r') as content:
                 data = reversed(rson2objs(content.read(), types=(Clock.Tick,)))
                 tick = next((i for i in data if isinstance(i, Clock.Tick)), None)
+                self.ts = tick.ts
                 t = datetime.datetime.strptime(tick.value, "%Y-%m-%d %H:%M:%S")
                 self.prompt = "{:%A %H:%M} > ".format(t)
         except Exception as e:
@@ -354,12 +358,12 @@ def main(args):
     options = Clock.options(parent=args.output)
     clock = Clock(**options)
 
-    console = Console(game)
+    console = Console(game, commands, queue)
     executor = concurrent.futures.ThreadPoolExecutor(
         max(4, len(console.routines) + 1)
     )
     tasks = [
-        asyncio.Task(routine(commands, executor, loop=loop))
+        asyncio.Task(routine(executor, loop=loop))
         for routine in console.routines
     ]
     tasks.append(asyncio.Task(clock(loop=loop)))
