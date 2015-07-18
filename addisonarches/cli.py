@@ -23,6 +23,8 @@ import os.path
 from pprint import pprint
 import sys
 
+import rson
+
 from addisonarches.game import Game
 
 DFLT_LOCN = os.path.expanduser(os.path.join("~", ".addisonarches"))
@@ -77,3 +79,12 @@ def receive(data):
     payload = ast.literal_eval(data.decode("utf-8").rstrip("\n"))
     return types.get(payload.pop("_type", None), dict)(**payload)
 
+
+def rson2objs(text, types):
+    """
+    Read an RSON string and return a sequence of data objects.
+    """
+    which = {i.__name__: i for i in types}
+    things = rson.loads(text)
+    things = things if isinstance(things, list) else [things]
+    return [which.get(i.pop("_type", None), dict)(**i) for i in things]

@@ -116,24 +116,25 @@ class Clock(Persistent):
 
     @asyncio.coroutine
     def __call__(self, loop=None):
+        ts = next(self.sequence)
         while not self.stop:
             self.declare(
                 dict(
                     tick=False,
-                    ts=self.ts,
+                    ts=ts,
                     sequence=self.sequence
                 )
             )
             yield from asyncio.sleep(self.interval)
             try:
-                self.ts = next(self.sequence)
+                ts = next(self.sequence)
             except StopIteration:
                 self.stop = True
             finally:
                 self.declare(
                     dict(
                         tick=True,
-                        ts=self.ts,
+                        ts=ts,
                         sequence=self.sequence
                     )
                 )
@@ -222,7 +223,7 @@ class Game(Persistent):
     @asyncio.coroutine
     def __call__(self, loop=None):
         return
-        while not self.stop:
+        while False:
             # TODO: refactor to a Clock class
             # 1. declare Locations
             #print("Here's where you can go:")

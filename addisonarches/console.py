@@ -31,6 +31,7 @@ import uuid
 from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
 from addisonarches.business import Selling
+from addisonarches.cli import rson2objs
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
@@ -69,7 +70,8 @@ class Console(cmd.Cmd):
 
     @asyncio.coroutine
     def input_loop(self, commands, executor, loop=None):
-        while not self.game.stop:
+        line = ""
+        while not line.lower().startswith("quit"):
             try:
                 line = yield from asyncio.wait_for(
                     loop.run_in_executor(
@@ -86,8 +88,9 @@ class Console(cmd.Cmd):
  
     @asyncio.coroutine
     def command_loop(self, commands, executor, loop=None):
+        line = ""
         self.preloop()
-        while not self.game.stop:
+        while not line.lower().startswith("quit"):
             sys.stdout.write(self.prompt)
             sys.stdout.flush()
             line = yield from commands.get()
@@ -154,6 +157,24 @@ class Console(cmd.Cmd):
             )
         except StopIteration:
             stop = True
+
+        #try:
+        #    with open(path, 'r') as content:
+        #        data = rson2objs(content.read(), types=(Placement,))
+        #        placement = next(i for i in data if i.actor[2] == user)
+        #        rv["info"]["actor"] = placement.actor[0]
+        #        stage = app.config["sites"][placement.stage]
+        #        actors = [
+        #            i.actor for i in data
+        #            if i.stage == placement.stage
+        #       ]
+        #        actors.remove(placement.actor)
+        #        rv["info"]["location"] = stage.label
+        #        rv["items"].extend(actors)
+        #except Exception as e:
+        #    log.exception(e)
+        #finally:
+        #    return rv
 
         self.game.stop = stop
         return stop
