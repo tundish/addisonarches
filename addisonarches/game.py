@@ -105,6 +105,7 @@ class Clock(Persistent):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.interval = 30
         self.sequence = (
             t for t in (
                 datetime.datetime(year=2015, month=5, day=11) +
@@ -114,14 +115,17 @@ class Clock(Persistent):
                     7 * 24 * 60 // 30)
                 )
             if 8 <= t.hour <= 19)
+        self.stop = False
 
     @asyncio.coroutine
     def __call__(self, commands, executor, loop=None):
         while not self.stop:
             yield from asyncio.sleep(self.interval)
-            yield from commands.put("wait")
-            sys.stdout.write("\n")
-            sys.stdout.flush()
+            try:
+                self.ts = next(self.clock)
+                # TODO: declare
+            except StopIteration:
+                self.stop = True
 
 
 class Game(Persistent):
@@ -146,8 +150,8 @@ class Game(Persistent):
         super().__init__(*args, **kwargs)
         self.player = player
         self.businesses = businesses
-        self.interval = 30
-        self.stop = False
+        self.interval = 30  # Clock
+        self.stop = False   # Clock
         self.clock = (
             t for t in (
                 datetime.datetime(year=2015, month=5, day=11) +
@@ -159,7 +163,7 @@ class Game(Persistent):
             if 8 <= t.hour <= 19)
         self.location = None
         self.drama = None
-        self.ts = None
+        self.ts = None  # Clock
 
     def load(self):
         name, pickler = next(
@@ -224,9 +228,7 @@ class Game(Persistent):
             #       ].contents.items()
             #       if v and getattr(k, "components", None))
             yield from asyncio.sleep(self.interval)
-            yield from commands.put("wait")
-            sys.stdout.write("\n")
-            sys.stdout.flush()
+            self.ts = next(self.clock)
 
     @asyncio.coroutine
     def watch(self, q, **kwargs):

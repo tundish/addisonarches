@@ -40,6 +40,12 @@ from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
 
 
+# TODO: Coroutine to check game status, update prompt of necessary,
+# then
+#           sys.stdout.write("\n")
+#           sys.stdout.flush()
+
+
 class Console(cmd.Cmd):
 
     def __init__(self, game, *args, **kwargs):
@@ -90,30 +96,25 @@ class Console(cmd.Cmd):
                 self.game.stop = self.postcmd(stop, line)
             except Exception as e:
                 print(e)
-            try:
-                self.game.ts = next(self.game.clock)
-                self.prompt = "{:%A %H:%M} > ".format(
-                    self.game.ts
-                )
-            except StopIteration:
-                self.game.stop = True
-            else:
-                print("You're at {}.".format(self.game.location))
-                mood = (self.game.drama.__class__.__name__.lower()
-                        if self.game.drama is not None
-                        else random.choice(
-                            ["hopeful", "optimistic", "relaxed"]
-                        ))
-                print("You're in a {} mood.".format(mood))
-                print("You've got £{0.tally:.2f} in the kitty.".format(
-                    self.game.businesses[0]
-                ))
-                if self.game.here != self.game.businesses[0]:
-                    print("{0.name} is nearby.".format(
-                            self.game.here.proprietor
+
+            print("You're at {}.".format(self.game.location))
+            mood = (self.game.drama.__class__.__name__.lower()
+                    if self.game.drama is not None
+                    else random.choice(
+                        ["hopeful", "optimistic", "relaxed"]
                     ))
-                else:
-                    print("Earache and fisticuffs? Take them elsewhere.")
+            print("You're in a {} mood.".format(mood))
+            print("You've got £{0.tally:.2f} in the kitty.".format(
+                self.game.businesses[0]
+            ))
+
+            if self.game.here != self.game.businesses[0]:
+                print("{0.name} is nearby.".format(
+                        self.game.here.proprietor
+                ))
+            else:
+                print("Earache and fisticuffs? Take them elsewhere.")
+
         else:
             self.postloop()
             sys.stdout.write("Press return.")
@@ -147,9 +148,13 @@ class Console(cmd.Cmd):
             for msg in reaction:
                 print(msg)
         try:
-            self.preloop()
+            self.prompt = "{:%A %H:%M} > ".format(
+                self.game.ts
+            )
         except StopIteration:
             stop = True
+
+        self.game.stop = stop
         return stop
 
     def do_buy(self, arg):
@@ -241,6 +246,7 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             self.game.location = self.game.destinations[int(line)]
+        self.game.ts = next(self.game.clock)
 
     def do_look(self, arg):
         """
