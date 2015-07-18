@@ -97,6 +97,7 @@ class Game(Persistent):
         slot=None,
         parent=os.path.expanduser(os.path.join("~", ".addisonarches"))
     ):
+        # No need for HATEOAS until knockout.js
         return OrderedDict([
             ("businesses.pkl", Persistent.Pickled(
                 "businesses",
@@ -171,7 +172,30 @@ class Game(Persistent):
     @asyncio.coroutine
     def __call__(self, commands, executor, loop=None):
         while not self.stop:
+            # TODO: refactor to a Clock class
+            # 1. declare Locations
+            #print("Here's where you can go:")
+            #print(*["{0:01}: {1}".format(n, i)
+            #        for n, i in enumerate(self.game.destinations)],
+            #        sep="\n")
+            #sys.stdout.write("\n")
+            # 2. Declare splittables
+            #   view = (
+            #       (k, v)
+            #       for k, v in self.game.here.inventories[
+            #           self.game.location
+            #       ].contents.items()
+            #       if v and getattr(k, "components", None))
             yield from asyncio.sleep(self.interval)
             yield from commands.put("wait")
             sys.stdout.write("\n")
             sys.stdout.flush()
+
+    @asyncio.coroutine
+    def watch(self, q, **kwargs):
+        loop = kwargs.pop("loop", None)
+        msg = object()
+        while msg is not None:
+            data = yield from q.get()
+        #elif line.isdigit():
+        #    self.game.location = self.game.destinations[int(line)]
