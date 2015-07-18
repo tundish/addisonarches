@@ -187,6 +187,7 @@ class Game(Persistent):
     def __init__(self, player, businesses, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.player = player
+        self.path = None
         self.businesses = businesses
         self.clock = (
             t for t in (
@@ -221,6 +222,8 @@ class Game(Persistent):
             else:
                 # TODO: load businesses from pickle file
                 pass
+
+            self.path = path._replace(file=None)
 
         self.location = self.home
         return self

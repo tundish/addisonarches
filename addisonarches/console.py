@@ -152,31 +152,16 @@ class Console(cmd.Cmd):
         else:
             for msg in reaction:
                 print(msg)
-        #try:
-        #    self.prompt = "{:%A %H:%M} > ".format(
-        #        self.game.ts
-        #    )
-        #except StopIteration:
-        #    stop = True
 
-        path = os.path.join(".", "progress.rson")
-        #try:
-        #    with open(path, 'r') as content:
-        #        data = rson2objs(content.read(), types=(Placement,))
-        #        placement = next(i for i in data if i.actor[2] == user)
-        #        rv["info"]["actor"] = placement.actor[0]
-        #        stage = app.config["sites"][placement.stage]
-        #        actors = [
-        #            i.actor for i in data
-        #            if i.stage == placement.stage
-        #       ]
-        #        actors.remove(placement.actor)
-        #        rv["info"]["location"] = stage.label
-        #        rv["items"].extend(actors)
-        #except Exception as e:
-        #    log.exception(e)
-        #finally:
-        #    return rv
+        path = os.path.join(*self.game.path._replace(file="progress.rson"))
+        try:
+            with open(path, 'r') as content:
+                data = reversed(rson2objs(content.read(), types=(Clock.Tick,)))
+                tick = next((i for i in data if isinstance(i, Clock.Tick)), None)
+                t = datetime.datetime.strptime(tick.value, "%Y-%m-%d %H:%M:%S")
+                self.prompt = "{:%A %H:%M} > ".format(t)
+        except Exception as e:
+            print(e)
 
         self.game.stop = stop
         return stop
