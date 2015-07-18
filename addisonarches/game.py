@@ -91,16 +91,13 @@ class Clock(Persistent):
 
     @staticmethod
     def options(
-        player,
-        slot=None,
         parent=os.path.expanduser(os.path.join("~", ".addisonarches"))
     ):
         # No need for HATEOAS until knockout.js
         return OrderedDict([
-            ("active", Expert.Event("active")),
-            ("inactive", Expert.Event("inactive")),
+            ("tick", Expert.Event("tick")),
             ("sequence", Expert.Attribute("sequence")),
-            ("tick", Expert.Attribute("tick")),
+            ("ts", Expert.Attribute("ts")),
         ])
 
     def __init__(self, *args, **kwargs):
@@ -118,14 +115,28 @@ class Clock(Persistent):
         self.stop = False
 
     @asyncio.coroutine
-    def __call__(self, commands, executor, loop=None):
+    def __call__(self, loop=None):
         while not self.stop:
+            self.declare(
+                dict(
+                    tick=False,
+                    ts=self.ts,
+                    sequence=self.sequence
+                )
+            )
             yield from asyncio.sleep(self.interval)
             try:
-                self.ts = next(self.clock)
-                # TODO: declare
+                self.ts = next(self.sequence)
             except StopIteration:
                 self.stop = True
+            finally:
+                self.declare(
+                    dict(
+                        tick=True,
+                        ts=self.ts,
+                        sequence=self.sequence
+                    )
+                )
 
 
 class Game(Persistent):
@@ -150,8 +161,6 @@ class Game(Persistent):
         super().__init__(*args, **kwargs)
         self.player = player
         self.businesses = businesses
-        self.interval = 30  # Clock
-        self.stop = False   # Clock
         self.clock = (
             t for t in (
                 datetime.datetime(year=2015, month=5, day=11) +
@@ -163,7 +172,6 @@ class Game(Persistent):
             if 8 <= t.hour <= 19)
         self.location = None
         self.drama = None
-        self.ts = None  # Clock
 
     def load(self):
         name, pickler = next(
@@ -188,6 +196,7 @@ class Game(Persistent):
                 pass
 
         self.location = self.home
+        return self
 
     @property
     def home(self):
@@ -211,7 +220,8 @@ class Game(Persistent):
         )
 
     @asyncio.coroutine
-    def __call__(self, commands, executor, loop=None):
+    def __call__(self, loop=None):
+        return
         while not self.stop:
             # TODO: refactor to a Clock class
             # 1. declare Locations
@@ -236,5 +246,6 @@ class Game(Persistent):
         msg = object()
         while msg is not None:
             data = yield from q.get()
+            print(data)
         #elif line.isdigit():
         #    self.game.location = self.game.destinations[int(line)]

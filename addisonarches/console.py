@@ -31,6 +31,7 @@ import uuid
 from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
 from addisonarches.business import Selling
+from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
 import addisonarches.scenario
@@ -330,16 +331,22 @@ def main(args):
     path = Persistent.Path(args.output, user, None, None)
     Persistent.make_path(path)
 
+    loop = asyncio.get_event_loop()
+    commands = asyncio.Queue(loop=loop)
+    queue = asyncio.Queue(loop=loop)
+
     options = Game.options(Game.Player(user, name), parent=args.output)
     game = Game(
         Game.Player(user, name),
         addisonarches.scenario.businesses,
+        queue,
         **options
-    )
-    game.load()
+    ).load()
+
+    options = Clock.options(parent=args.output)
+    clock = Clock(**options)
+
     console = Console(game)
-    loop = asyncio.get_event_loop()
-    commands = asyncio.Queue(loop=loop)
     executor = concurrent.futures.ThreadPoolExecutor(
         max(4, len(console.routines) + 1)
     )
@@ -347,7 +354,8 @@ def main(args):
         asyncio.Task(routine(commands, executor, loop=loop))
         for routine in console.routines
     ]
-    tasks.append(asyncio.Task(game(commands, executor, loop=loop)))
+    tasks.append(asyncio.Task(game(loop=loop)))
+    tasks.append(asyncio.Task(clock(loop=loop)))
     try:
         loop.run_until_complete(asyncio.wait(asyncio.Task.all_tasks(loop)))
     except concurrent.futures.CancelledError:
