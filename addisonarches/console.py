@@ -24,6 +24,7 @@ import datetime
 from decimal import Decimal
 import getpass
 import itertools
+import os.path
 import random
 import sys
 import uuid
@@ -151,13 +152,14 @@ class Console(cmd.Cmd):
         else:
             for msg in reaction:
                 print(msg)
-        try:
-            self.prompt = "{:%A %H:%M} > ".format(
-                self.game.ts
-            )
-        except StopIteration:
-            stop = True
+        #try:
+        #    self.prompt = "{:%A %H:%M} > ".format(
+        #        self.game.ts
+        #    )
+        #except StopIteration:
+        #    stop = True
 
+        path = os.path.join(".", "progress.rson")
         #try:
         #    with open(path, 'r') as content:
         #        data = rson2objs(content.read(), types=(Placement,))
@@ -268,7 +270,7 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             self.game.location = self.game.destinations[int(line)]
-        self.game.ts = next(self.game.clock)
+        #self.game.ts = next(self.game.clock)
 
     def do_look(self, arg):
         """
@@ -375,8 +377,8 @@ def main(args):
         asyncio.Task(routine(commands, executor, loop=loop))
         for routine in console.routines
     ]
-    tasks.append(asyncio.Task(game(loop=loop)))
     tasks.append(asyncio.Task(clock(loop=loop)))
+    tasks.append(asyncio.Task(game(loop=loop)))
     try:
         loop.run_until_complete(asyncio.wait(asyncio.Task.all_tasks(loop)))
     except concurrent.futures.CancelledError:

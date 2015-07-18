@@ -23,6 +23,7 @@ from collections import namedtuple
 import datetime
 from decimal import Decimal
 import itertools
+import json
 import logging
 import operator
 import os
@@ -31,9 +32,11 @@ import pickle
 from pprint import pprint
 import sys
 import tempfile
+import time
 import uuid
 
 from turberfield.utils.expert import Expert
+from turberfield.utils.expert import TypesEncoder
 
 from addisonarches.business import CashBusiness
 from addisonarches.scenario import Location
@@ -48,6 +51,7 @@ class Persistent(Expert):
 
     Path = namedtuple("Path", ["root", "home", "slot", "file"])
     Pickled = namedtuple("Pickled", ["name", "path"])
+    RSON = namedtuple("RSON", ["name", "attr", "path"])
 
     @staticmethod
     def make_path(path:Path, prefix="tmp", suffix=""):
@@ -78,6 +82,21 @@ class Persistent(Expert):
 
     def declare(self, data, loop=None):
         super().declare(data, loop)
+        events = (i for i in self._services.values()
+                   if isinstance(i, Persistent.RSON))
+        for each in events:
+            path = Persistent.make_path(
+                Persistent.recent_slot(each.path)._replace(file=each.path.file)
+            )
+            fP = os.path.join(*path)
+            with Expert.declaration(fP) as output:
+                output.write(
+                    "\n".join(json.dumps(
+                        dict(_type=type(i).__name__, **vars(i)),
+                        output, cls=TypesEncoder, indent=0
+                        )
+                        for i in data.get(each.attr, []))
+                )
         pickles = (i for i in self._services.values()
                    if isinstance(i, Persistent.Pickled)
                    and data.get(i.name, False))
@@ -89,6 +108,8 @@ class Persistent(Expert):
 
 class Clock(Persistent):
 
+    Tick = namedtuple("Tick", ["ts", "value"])
+
     @staticmethod
     def options(
         parent=os.path.expanduser(os.path.join("~", ".addisonarches"))
@@ -97,7 +118,7 @@ class Clock(Persistent):
         return OrderedDict([
             ("tick", Expert.Event("tick")),
             ("sequence", Expert.Attribute("sequence")),
-            ("ts", Expert.Attribute("ts")),
+            ("value", Expert.Attribute("value")),
         ])
 
     def __init__(self, *args, **kwargs):
@@ -116,12 +137,12 @@ class Clock(Persistent):
 
     @asyncio.coroutine
     def __call__(self, loop=None):
-        ts = next(self.sequence)
+        val = next(self.sequence)
         while not self.stop:
             self.declare(
                 dict(
                     tick=False,
-                    ts=ts,
+                    value=val,
                     sequence=self.sequence
                 )
             )
@@ -134,7 +155,7 @@ class Clock(Persistent):
                 self.declare(
                     dict(
                         tick=True,
-                        ts=ts,
+                        value=val,
                         sequence=self.sequence
                     )
                 )
@@ -152,6 +173,11 @@ class Game(Persistent):
     ):
         # No need for HATEOAS until knockout.js
         return OrderedDict([
+            ("progress.rson", Persistent.RSON(
+                "progress.rson",
+                "progress",
+                Persistent.Path(parent, player.user, slot, "progress.rson")
+            )),
             ("businesses.pkl", Persistent.Pickled(
                 "businesses",
                 Persistent.Path(parent, player.user, slot, "businesses.pkl")
@@ -222,8 +248,7 @@ class Game(Persistent):
 
     @asyncio.coroutine
     def __call__(self, loop=None):
-        return
-        while False:
+        while True:
             # TODO: refactor to a Clock class
             # 1. declare Locations
             #print("Here's where you can go:")
@@ -238,8 +263,14 @@ class Game(Persistent):
             #           self.game.location
             #       ].contents.items()
             #       if v and getattr(k, "components", None))
-            yield from asyncio.sleep(self.interval)
-            self.ts = next(self.clock)
+            yield from Clock.public.tick.wait()
+            self.declare(
+                dict(
+                    progress=[Clock.Tick(time.time(), Clock.public.value)],
+                    businesses=self.businesses
+                )
+            )
+            #self.ts = next(self.clock)
 
     @asyncio.coroutine
     def watch(self, q, **kwargs):
