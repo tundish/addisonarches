@@ -87,6 +87,43 @@ class Persistent(Expert):
                 pickle.dump(data[p.name], fObj, 4)
 
 
+class Clock(Persistent):
+
+    @staticmethod
+    def options(
+        player,
+        slot=None,
+        parent=os.path.expanduser(os.path.join("~", ".addisonarches"))
+    ):
+        # No need for HATEOAS until knockout.js
+        return OrderedDict([
+            ("active", Expert.Event("active")),
+            ("inactive", Expert.Event("inactive")),
+            ("sequence", Expert.Attribute("sequence")),
+            ("tick", Expert.Attribute("tick")),
+        ])
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sequence = (
+            t for t in (
+                datetime.datetime(year=2015, month=5, day=11) +
+                datetime.timedelta(seconds=i)
+                for i in itertools.islice(
+                    itertools.count(0, 30 * 60),
+                    7 * 24 * 60 // 30)
+                )
+            if 8 <= t.hour <= 19)
+
+    @asyncio.coroutine
+    def __call__(self, commands, executor, loop=None):
+        while not self.stop:
+            yield from asyncio.sleep(self.interval)
+            yield from commands.put("wait")
+            sys.stdout.write("\n")
+            sys.stdout.flush()
+
+
 class Game(Persistent):
 
     Player = namedtuple("Player", ["user", "name"])
