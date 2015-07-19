@@ -164,6 +164,7 @@ class Clock(Persistent):
 class Game(Persistent):
 
     Player = namedtuple("Player", ["user", "name"])
+    Via = namedtuple("Via", ["id", "name", "tip"])
 
     @staticmethod
     def options(
@@ -267,13 +268,18 @@ class Game(Persistent):
             #           self.game.location
             #       ].contents.items()
             #       if v and getattr(k, "components", None))
-            yield from Clock.public.tick.wait()
+            progress = [
+                Game.Via(n, i, None) for n, i in enumerate(self.destinations)
+            ] + [
+                Clock.Tick(time.time(), Clock.public.value)
+            ]
             self.declare(
                 dict(
-                    progress=[Clock.Tick(time.time(), Clock.public.value)],
+                    progress=progress,
                     businesses=self.businesses
                 )
             )
+            yield from Clock.public.tick.wait()
 
     @asyncio.coroutine
     def watch(self, q, **kwargs):

@@ -251,15 +251,21 @@ class Console(cmd.Cmd):
             > go 3
         """
         line = arg.strip()
+        try:
+            path = os.path.join(*self.game.path._replace(file="progress.rson"))
+            with open(path, 'r') as content:
+                data = rson2objs(content.read(), types=(Clock.Tick, Game.Via))
+                exits = [i for i in data if isinstance(i, Game.Via)]
+        except Exception as e:
+            print(e)
+
         if not line:
             print("Here's where you can go:")
-            print(*["{0:01}: {1}".format(n, i)
-                    for n, i in enumerate(self.game.destinations)],
+            print(*["{0:01}: {1}".format(i.id, i.name) for i in exits],
                     sep="\n")
             sys.stdout.write("\n")
         elif line.isdigit():
-            self.game.location = self.game.destinations[int(line)]
-        #self.game.ts = next(self.game.clock)
+            self.game.location = exits[int(line)].name
 
     def do_look(self, arg):
         """
