@@ -18,6 +18,7 @@
 
 import asyncio
 import cmd
+from collections import defaultdict
 from collections import namedtuple
 import concurrent.futures
 import datetime
@@ -48,6 +49,20 @@ from addisonarches.valuation import Bid
 #           sys.stdout.write("\n")
 #           sys.stdout.flush()
 
+
+def get_progress(path, types=(Clock.Tick, Location, Game.Via)):
+    path = os.path.join(*path._replace(file="progress.rson"))
+    rv = defaultdict(list)
+    try:
+        with open(path, 'r') as content:
+            data = rson2objs(content.read(), types)
+    except Exception as e:
+        print(e)
+
+    for obj in data:
+        rv[type(obj)].append(obj)
+
+    return rv
 
 class Console(cmd.Cmd):
 
@@ -107,20 +122,9 @@ class Console(cmd.Cmd):
                 print(e)
 
             yield from asyncio.sleep(0)
-            path = os.path.join(*self.game.path._replace(file="progress.rson"))
-            try:
-                with open(path, 'r') as content:
-                    data = rson2objs(content.read(), types=(Location, Game.Via))
-                    locn = next(i for i in data if isinstance(i, Location))
-            except AttributeError:
-                # No location
-                pass
-            except StopIteration:
-                # No speech available
-                pass
-            except Exception as e:
-                print(e)
 
+            progress = get_progress(self.game.path)
+            locn = next(iter(progress[Location]), None)
             print("You're at {}.".format(getattr(locn, "name", "?")))
 
             mood = (self.game.drama.__class__.__name__.lower()
@@ -271,21 +275,15 @@ class Console(cmd.Cmd):
             > go 3
         """
         line = arg.strip()
-        try:
-            path = os.path.join(*self.game.path._replace(file="progress.rson"))
-            with open(path, 'r') as content:
-                data = rson2objs(content.read(), types=(Clock.Tick, Game.Via))
-                exits = [i for i in data if isinstance(i, Game.Via)]
-        except Exception as e:
-            print(e)
+        progress = get_progress(self.game.path)
 
         if not line:
             print("Here's where you can go:")
-            print(*["{0:01}: {1}".format(i.id, i.name) for i in exits],
+            print(*["{0:01}: {1}".format(i.id, i.name) for i in progress[Game.Via]],
                     sep="\n")
             sys.stdout.write("\n")
         elif line.isdigit():
-            self.queue.put_nowait(exits[int(line)])
+            self.queue.put_nowait(progress[Game.Via][int(line)])
 
     def do_look(self, arg):
         """
