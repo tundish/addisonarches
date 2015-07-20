@@ -93,6 +93,7 @@ class Console(cmd.Cmd):
     @asyncio.coroutine
     def command_loop(self, executor, loop=None):
         line = ""
+        locn = None
         self.preloop()
         while not line.lower().startswith("quit"):
             sys.stdout.write(self.prompt)
@@ -105,18 +106,23 @@ class Console(cmd.Cmd):
             except Exception as e:
                 print(e)
 
+            yield from asyncio.sleep(0)
             path = os.path.join(*self.game.path._replace(file="progress.rson"))
             try:
                 with open(path, 'r') as content:
                     data = rson2objs(content.read(), types=(Location, Game.Via))
-                    tick = next(i for i in data if isinstance(i, Clock.Tick))
+                    locn = next(i for i in data if isinstance(i, Location))
+            except AttributeError:
+                # No location
+                pass
             except StopIteration:
-                # No tick available
+                # No speech available
                 pass
             except Exception as e:
                 print(e)
 
-            print("You're at {}.".format(self.game.location))
+            print("You're at {}.".format(getattr(locn, "name", "?")))
+
             mood = (self.game.drama.__class__.__name__.lower()
                     if self.game.drama is not None
                     else random.choice(
