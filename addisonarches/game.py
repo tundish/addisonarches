@@ -286,7 +286,18 @@ class Game(Persistent):
         loop = kwargs.pop("loop", None)
         msg = object()
         while msg is not None:
-            data = yield from q.get()
-            print(data)
-        #elif line.isdigit():
-        #    self.game.location = self.game.destinations[int(line)]
+            msg = yield from q.get()
+            if isinstance(msg, Game.Via):
+                try: 
+                    if self.destinations[msg.id] == msg.name:
+                        self.location = msg.name
+                        progress = [
+                            Game.Via(n, i, None) for n, i in enumerate(self.destinations)
+                        ] + [
+                            Location(self.location, self.here.inventories[self.location].capacity)
+                        ]
+                        self.declare(dict(progress=progress))
+                    else:
+                        self._log.warning(msg)
+                except Exception as e:
+                    self._log.error(e)

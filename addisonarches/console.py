@@ -105,6 +105,17 @@ class Console(cmd.Cmd):
             except Exception as e:
                 print(e)
 
+            path = os.path.join(*self.game.path._replace(file="progress.rson"))
+            try:
+                with open(path, 'r') as content:
+                    data = rson2objs(content.read(), types=(Location, Game.Via))
+                    tick = next(i for i in data if isinstance(i, Clock.Tick))
+            except StopIteration:
+                # No tick available
+                pass
+            except Exception as e:
+                print(e)
+
             print("You're at {}.".format(self.game.location))
             mood = (self.game.drama.__class__.__name__.lower()
                     if self.game.drama is not None
@@ -160,10 +171,13 @@ class Console(cmd.Cmd):
         try:
             with open(path, 'r') as content:
                 data = reversed(rson2objs(content.read(), types=(Clock.Tick,)))
-                tick = next((i for i in data if isinstance(i, Clock.Tick)), None)
+                tick = next(i for i in data if isinstance(i, Clock.Tick))
                 self.ts = tick.ts
                 t = datetime.datetime.strptime(tick.value, "%Y-%m-%d %H:%M:%S")
                 self.prompt = "{:%A %H:%M} > ".format(t)
+        except StopIteration:
+            # No tick available
+            pass
         except Exception as e:
             print(e)
 
@@ -265,7 +279,7 @@ class Console(cmd.Cmd):
                     sep="\n")
             sys.stdout.write("\n")
         elif line.isdigit():
-            self.game.location = exits[int(line)].name
+            self.queue.put_nowait(exits[int(line)])
 
     def do_look(self, arg):
         """
