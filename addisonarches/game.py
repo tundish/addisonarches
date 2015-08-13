@@ -56,10 +56,7 @@ class Persistent(Expert):
     @staticmethod
     def make_path(path:Path, prefix="tmp", suffix=""):
         dctry = os.path.join(path.root, path.home)
-        try:
-            os.mkdir(dctry)
-        except FileExistsError:
-            pass
+        os.makedirs(dctry, exist_ok=True)
 
         if path.slot is None and path.file is not None:
                 slot = tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=dctry)
