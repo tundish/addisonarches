@@ -72,7 +72,7 @@ class Persistent(Expert):
                  for fP in slots]
         stats.sort(key=operator.itemgetter(0), reverse=True)
         return Persistent.Path(
-            path.root, path.home, next((i[1] for i in stats), None), None)
+            path.root, path.home, next((i[1] for i in stats), None), path.file)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

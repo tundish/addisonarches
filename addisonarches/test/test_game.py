@@ -22,6 +22,7 @@ import tempfile
 import unittest
 import uuid
 
+from addisonarches.cli import rson2objs
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
@@ -62,6 +63,13 @@ class GameTests(unittest.TestCase):
 
         @asyncio.coroutine
         def stimulus(tasks, q, loop=None):
+            game = next(i for i in tasks if isinstance(i, Game))
+            service = game._services["progress.rson"]
+            path = os.path.join(*Persistent.recent_slot(service.path))
+            with open(path, 'r') as content:
+                data = rson2objs(content.read(), (Game.Via,))
+                print(data)
+
             # Collision id, actor, stage
             obj = (id(None), uuid.uuid4().hex, uuid.uuid4().hex)
             yield from q.put(obj)
