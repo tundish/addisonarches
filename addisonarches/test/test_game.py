@@ -20,6 +20,7 @@ import asyncio
 import os.path
 import tempfile
 import unittest
+import uuid
 
 from addisonarches.game import Clock
 from addisonarches.game import Game
@@ -31,7 +32,7 @@ class GameTests(unittest.TestCase):
     user = "someone@somewhere.net"
 
     @staticmethod
-    def create_experts(parent, loop=None):
+    def create_experts(parent, qIn, loop=None):
         options = Game.options(
             Game.Player(GameTests.user, "Player 1"),
             parent=parent
@@ -39,6 +40,7 @@ class GameTests(unittest.TestCase):
         game = Game(
             Game.Player(GameTests.user, "Player 1"),
             addisonarches.scenario.businesses,
+            qIn, 
             loop=loop,
             **options
         )
@@ -57,10 +59,7 @@ class GameTests(unittest.TestCase):
         Persistent.make_path(path)
 
     def test_go(self):
-        #tasks = [
-        #    asyncio.Task(clock(loop=loop)),
-        #    asyncio.Task(game(loop=loop)),
-        #]
+
         @asyncio.coroutine
         def stimulus(q):
             # Collision id, actor, stage
@@ -70,9 +69,9 @@ class GameTests(unittest.TestCase):
 
         q = asyncio.Queue(loop=self.loop)
         clock, game = GameTests.create_experts(
-            self.root.name, loop=self.loop)
+            self.root.name, q, loop=self.loop)
         self.loop.run_until_complete(asyncio.wait(
-            [stimulus(q), clock, game],
+            [clock(loop=self.loop), game(loop=self.loop), stimulus(q)],
             loop=self.loop, timeout=1
         ))
 

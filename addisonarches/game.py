@@ -141,9 +141,10 @@ class Clock(Persistent):
                     tick=False,
                     value=val,
                     sequence=self.sequence
-                )
+                ),
+                loop=loop
             )
-            yield from asyncio.sleep(self.interval)
+            yield from asyncio.sleep(self.interval, loop=loop)
             try:
                 ts = next(self.sequence)
             except StopIteration:
@@ -154,7 +155,8 @@ class Clock(Persistent):
                         tick=True,
                         value=val,
                         sequence=self.sequence
-                    )
+                    ),
+                    loop=loop
                 )
 
 
@@ -274,7 +276,8 @@ class Game(Persistent):
                 dict(
                     progress=progress,
                     businesses=self.businesses
-                )
+                ),
+                loop=loop
             )
             yield from Clock.public.tick.wait()
 
