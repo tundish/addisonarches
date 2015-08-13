@@ -114,6 +114,7 @@ class Clock(Persistent):
         # No need for HATEOAS until knockout.js
         return OrderedDict([
             ("tick", Expert.Event("tick")),
+            ("running", Expert.Attribute("running")),
             ("sequence", Expert.Attribute("sequence")),
             ("value", Expert.Attribute("value")),
         ])
@@ -135,16 +136,22 @@ class Clock(Persistent):
     @asyncio.coroutine
     def __call__(self, loop=None):
         val = next(self.sequence)
-        while not self.stop:
+        while True:
             self.declare(
                 dict(
                     tick=False,
                     value=val,
+                    running=(not self.stop),
                     sequence=self.sequence
                 ),
                 loop=loop
             )
-            yield from asyncio.sleep(self.interval, loop=loop)
+
+            if self.stop:
+                break
+            else:
+                yield from asyncio.sleep(self.interval, loop=loop)
+
             try:
                 ts = next(self.sequence)
             except StopIteration:
@@ -154,7 +161,8 @@ class Clock(Persistent):
                     dict(
                         tick=True,
                         value=val,
-                        sequence=self.sequence
+                        running=(not self.stop),
+                        sequence=self.sequence,
                     ),
                     loop=loop
                 )
@@ -252,7 +260,10 @@ class Game(Persistent):
 
     @asyncio.coroutine
     def __call__(self, loop=None):
-        while True:
+        while not Clock.public.running:
+            yield from asyncio.sleep(0, loop=loop)
+
+        while Clock.public.running:
             # TODO: refactor to a Clock class
             # 1. declare Locations
             #print("Here's where you can go:")

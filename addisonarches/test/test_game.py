@@ -61,22 +61,39 @@ class GameTests(unittest.TestCase):
     def test_go(self):
 
         @asyncio.coroutine
-        def stimulus(q):
+        def stimulus(tasks, q, loop=None):
             # Collision id, actor, stage
             obj = (id(None), uuid.uuid4().hex, uuid.uuid4().hex)
             yield from q.put(obj)
             yield from q.put(None)
+            for task in tasks.values():
+                task.cancel()
 
         q = asyncio.Queue(loop=self.loop)
-        clock, game = GameTests.create_experts(
-            self.root.name, q, loop=self.loop)
-        self.loop.run_until_complete(asyncio.wait(
-            [clock(loop=self.loop), game(loop=self.loop), stimulus(q)],
-            loop=self.loop, timeout=1
-        ))
+        tasks = {
+            expert: asyncio.Task(expert(loop=self.loop), loop=self.loop)
+            for expert in GameTests.create_experts(
+                self.root.name, q, loop=self.loop
+            )
+        }
+        tasks["stimulus"] = asyncio.Task(
+            stimulus(tasks, q, loop=self.loop),
+            loop=self.loop
+        )
+
+        self.loop.run_until_complete(
+            asyncio.wait(
+                asyncio.Task.all_tasks(loop=self.loop),
+                loop=self.loop,
+                timeout=1
+            )
+        )
 
     def tearDown(self):
+        self.loop.close()
         if os.path.isdir(self.root.name):
             self.root.cleanup()
         self.assertFalse(os.path.isdir(self.root.name))
         self.root = None
+        Clock.public = None
+        Game.public = None
