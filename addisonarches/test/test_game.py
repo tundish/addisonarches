@@ -23,6 +23,7 @@ import unittest
 import uuid
 
 from addisonarches.cli import rson2objs
+from addisonarches.cli import group_by_type
 from addisonarches.cli import query_object_chain
 from addisonarches.game import Clock
 from addisonarches.game import Game
@@ -71,22 +72,22 @@ class GameTests(unittest.TestCase):
             path = os.path.join(*Persistent.recent_slot(service.path))
             with open(path, 'r') as content:
                 data = rson2objs(content.read(), (Clock.Tick, Location, Game.Via,))
-                vias = [i for i in data if isinstance(i, Game.Via)]
+                objs = group_by_type(data)
 
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
             self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
-            self.assertEqual(6, len(vias))
+            self.assertEqual(6, len(objs[Game.Via]))
 
             # Go to Kinh Ship Bulk Buy
-            yield from q.put(vias[1])
+            yield from q.put(objs[Game.Via][1])
             yield from asyncio.sleep(0, loop=loop)
             with open(path, 'r') as content:
                 data = rson2objs(content.read(), (Clock.Tick, Location, Game.Via,))
-                vias = [i for i in data if isinstance(i, Game.Via)]
+                objs = group_by_type(data)
 
             self.assertTrue("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
             #self.assertTrue(query_object_chain(data, "ts").value.endswith("08:30:00"))
-            self.assertEqual(1, len(vias))
+            self.assertEqual(1, len(objs[Game.Via]))
             yield from q.put(None)
             for task in tasks.values():
                 task.cancel()

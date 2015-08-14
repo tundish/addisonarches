@@ -18,6 +18,7 @@
 
 
 import ast
+import itertools
 import logging
 import os.path
 from pprint import pprint
@@ -89,6 +90,8 @@ def rson2objs(text, types):
     things = things if isinstance(things, list) else [things]
     return [which.get(i.pop("_type", None), dict)(**i) for i in things]
 
+def group_by_type(items):
+    return {k: list(v) for k, v in itertools.groupby(items, key=type)}
 
 def query_object_chain(items, key, value=None, group="", obj=None):
     """
