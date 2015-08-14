@@ -23,10 +23,13 @@ import unittest
 import uuid
 
 from addisonarches.cli import rson2objs
+from addisonarches.cli import query_object_chain
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
 import addisonarches.scenario
+from addisonarches.scenario import Location
+from addisonarches.scenario.types import Character
 
 class GameTests(unittest.TestCase):
 
@@ -67,12 +70,23 @@ class GameTests(unittest.TestCase):
             service = game._services["progress.rson"]
             path = os.path.join(*Persistent.recent_slot(service.path))
             with open(path, 'r') as content:
-                data = rson2objs(content.read(), (Game.Via,))
-                print(data)
+                data = rson2objs(content.read(), (Clock.Tick, Location, Game.Via,))
+                vias = [i for i in data if isinstance(i, Game.Via)]
 
-            # Collision id, actor, stage
-            obj = (id(None), uuid.uuid4().hex, uuid.uuid4().hex)
-            yield from q.put(obj)
+            self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
+            self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
+            self.assertEqual(6, len(vias))
+
+            # Go to Kinh Ship Bulk Buy
+            yield from q.put(vias[1])
+            yield from asyncio.sleep(0, loop=loop)
+            with open(path, 'r') as content:
+                data = rson2objs(content.read(), (Clock.Tick, Location, Game.Via,))
+                vias = [i for i in data if isinstance(i, Game.Via)]
+
+            self.assertTrue("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
+            #self.assertTrue(query_object_chain(data, "ts").value.endswith("08:30:00"))
+            self.assertEqual(1, len(vias))
             yield from q.put(None)
             for task in tasks.values():
                 task.cancel()

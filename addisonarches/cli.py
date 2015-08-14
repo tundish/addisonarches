@@ -88,3 +88,36 @@ def rson2objs(text, types):
     things = rson.loads(text)
     things = things if isinstance(things, list) else [things]
     return [which.get(i.pop("_type", None), dict)(**i) for i in things]
+
+
+def query_object_chain(items, key, value=None, group="", obj=None):
+    """
+    Search a sequence of items for attribute values or find defaults from
+    previous ones.
+
+    """
+    if obj is None:
+        chain = reversed(items)
+    else:
+        chain = (
+            obj,
+            next((i for i in items if isinstance(i, type(obj))), None)
+        )
+    if not group:
+        return next(
+            (item
+            for item in chain
+            if value is None and hasattr(item, key)
+            or value is not None and getattr(item, key, None) == value),
+            None
+        )
+    else:
+        return next(
+            (item
+            for item in chain
+            for p in getattr(item, group, [])
+            if value is None and hasattr(item, key)
+            or value is not None and getattr(p, key, None) == value),
+            None
+        )
+
