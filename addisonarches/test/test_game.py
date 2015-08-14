@@ -86,7 +86,7 @@ class GameTests(unittest.TestCase):
                 objs = group_by_type(data)
 
             self.assertTrue("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
-            #self.assertTrue(query_object_chain(data, "ts").value.endswith("08:30:00"))
+            self.assertTrue(query_object_chain(data, "ts").value.endswith("08:30:00"))
             self.assertEqual(1, len(objs[Game.Via]))
             yield from q.put(None)
             for task in tasks.values():

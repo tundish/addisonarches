@@ -281,6 +281,7 @@ class Game(Persistent):
             progress = [
                 Game.Via(n, i, None) for n, i in enumerate(self.destinations)
             ] + [
+                Location(self.location, self.here.inventories[self.location].capacity),
                 Clock.Tick(time.time(), Clock.public.value)
             ]
             self.declare(
@@ -301,11 +302,13 @@ class Game(Persistent):
             if isinstance(msg, Game.Via):
                 try: 
                     if self.destinations[msg.id] == msg.name:
+                        # TODO: Advance clock?
                         self.location = msg.name
                         progress = [
                             Game.Via(n, i, None) for n, i in enumerate(self.destinations)
                         ] + [
-                            Location(self.location, self.here.inventories[self.location].capacity)
+                            Location(self.location, self.here.inventories[self.location].capacity),
+                            Clock.Tick(time.time(), Clock.public.value)
                         ]
                         self.declare(dict(progress=progress))
                     else:
