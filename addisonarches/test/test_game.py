@@ -65,6 +65,29 @@ class GameTests(unittest.TestCase):
         path = Persistent.Path(self.root.name, GameTests.user, None, None)
         Persistent.make_path(path)
 
+    def run_async(self, coro):
+        q = asyncio.Queue(loop=self.loop)
+        clock, game = GameTests.create_experts(
+            self.root.name, q, loop=self.loop
+        )
+        tasks = [
+            asyncio.Task(clock(loop=self.loop), loop=self.loop),
+            asyncio.Task(game(loop=self.loop), loop=self.loop)
+        ]
+        stim = asyncio.Task(
+            coro(game, asyncio.Task.all_tasks(loop=self.loop), q, loop=self.loop),
+            loop=self.loop
+        )
+
+        self.loop.run_until_complete(
+            asyncio.wait(
+                asyncio.Task.all_tasks(loop=self.loop),
+                loop=self.loop,
+                return_when=asyncio.FIRST_EXCEPTION,
+                timeout=1
+            )
+        )
+
     def test_go(self):
 
         @asyncio.coroutine
@@ -94,27 +117,7 @@ class GameTests(unittest.TestCase):
             for task in tasks:
                 task.cancel()
 
-        q = asyncio.Queue(loop=self.loop)
-        clock, game = GameTests.create_experts(
-            self.root.name, q, loop=self.loop
-        )
-        tasks = [
-            asyncio.Task(clock(loop=self.loop), loop=self.loop),
-            asyncio.Task(game(loop=self.loop), loop=self.loop)
-        ]
-        stim = asyncio.Task(
-            stimulus(game, asyncio.Task.all_tasks(loop=self.loop), q, loop=self.loop),
-            loop=self.loop
-        )
-
-        self.loop.run_until_complete(
-            asyncio.wait(
-                asyncio.Task.all_tasks(loop=self.loop),
-                loop=self.loop,
-                return_when=asyncio.FIRST_EXCEPTION,
-                timeout=1
-            )
-        )
+        self.run_async(stimulus)
 
     def tearDown(self):
         self.loop.close()
