@@ -135,38 +135,31 @@ class Clock(Persistent):
 
     @asyncio.coroutine
     def __call__(self, loop=None):
-        val = next(self.sequence)
         while True:
-            self.declare(
-                dict(
-                    tick=False,
-                    value=val,
-                    running=(not self.stop),
-                    sequence=self.sequence
-                ),
-                loop=loop
-            )
+            self.advance(loop)
 
             if self.stop:
                 break
             else:
                 yield from asyncio.sleep(self.interval, loop=loop)
 
-            try:
-                ts = next(self.sequence)
-            except StopIteration:
-                self.stop = True
-            finally:
-                self.declare(
-                    dict(
-                        tick=True,
-                        value=val,
-                        running=(not self.stop),
-                        sequence=self.sequence,
-                    ),
-                    loop=loop
-                )
-
+    def advance(self, loop=None):
+        try:
+            val = next(self.sequence)
+        except StopIteration:
+            self.stop = True
+        else:
+            tick = False if Clock.public.tick is None else not Clock.public.tick.is_set()
+            self.declare(
+                dict(
+                    tick=tick,
+                    value=val,
+                    running=(not self.stop),
+                    sequence=self.sequence,
+                ),
+                loop=loop
+            )
+            return val
 
 class Game(Persistent):
 
@@ -192,20 +185,12 @@ class Game(Persistent):
             )),
         ])
 
-    def __init__(self, player, businesses, *args, **kwargs):
+    def __init__(self, player, businesses, clock=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.clock = clock
         self.player = player
         self.path = None
         self.businesses = businesses
-        self.clock = (
-            t for t in (
-                datetime.datetime(year=2015, month=5, day=11) +
-                datetime.timedelta(seconds=i)
-                for i in itertools.islice(
-                    itertools.count(0, 30 * 60),
-                    7 * 24 * 60 // 30)
-                )
-            if 8 <= t.hour <= 19)
         self.location = None
         self.drama = None
 
@@ -302,13 +287,18 @@ class Game(Persistent):
             if isinstance(msg, Game.Via):
                 try: 
                     if self.destinations[msg.id] == msg.name:
-                        # TODO: Advance clock?
+
+                        try:
+                            val = self.clock.advance(loop=loop)
+                        except AttributeError:
+                            val = None
+
                         self.location = msg.name
                         progress = [
                             Game.Via(n, i, None) for n, i in enumerate(self.destinations)
                         ] + [
                             Location(self.location, self.here.inventories[self.location].capacity),
-                            Clock.Tick(time.time(), Clock.public.value)
+                            Clock.Tick(time.time(), val)
                         ]
                         self.declare(dict(progress=progress))
                     else:

@@ -38,6 +38,9 @@ class GameTests(unittest.TestCase):
 
     @staticmethod
     def create_experts(parent, qIn, loop=None):
+        options = Clock.options(parent=parent)
+        clock = Clock(loop=loop, **options)
+
         options = Game.options(
             Game.Player(GameTests.user, "Player 1"),
             parent=parent
@@ -45,14 +48,13 @@ class GameTests(unittest.TestCase):
         game = Game(
             Game.Player(GameTests.user, "Player 1"),
             addisonarches.scenario.businesses,
+            clock,
             qIn, 
             loop=loop,
             **options
         )
         game.load()
 
-        options = Clock.options(parent=parent)
-        clock = Clock(loop=loop, **options)
         return (clock, game)
 
     def setUp(self):
@@ -66,8 +68,7 @@ class GameTests(unittest.TestCase):
     def test_go(self):
 
         @asyncio.coroutine
-        def stimulus(tasks, q, loop=None):
-            game = next(i for i in tasks if isinstance(i, Game))
+        def stimulus(game, tasks, q, loop=None):
             service = game._services["progress.rson"]
             path = os.path.join(*Persistent.recent_slot(service.path))
             with open(path, 'r') as content:
@@ -85,28 +86,30 @@ class GameTests(unittest.TestCase):
                 data = rson2objs(content.read(), (Clock.Tick, Location, Game.Via,))
                 objs = group_by_type(data)
 
-            self.assertTrue("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
+            self.assertEqual("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:30:00"))
             self.assertEqual(1, len(objs[Game.Via]))
             yield from q.put(None)
-            for task in tasks.values():
+            yield from asyncio.sleep(0, loop=loop)
+            for task in tasks:
                 task.cancel()
 
         q = asyncio.Queue(loop=self.loop)
-        tasks = {
-            expert: asyncio.Task(expert(loop=self.loop), loop=self.loop)
-            for expert in GameTests.create_experts(
-                self.root.name, q, loop=self.loop
-            )
-        }
-        tasks["stimulus"] = asyncio.Task(
-            stimulus(tasks, q, loop=self.loop),
+        clock, game = GameTests.create_experts(
+            self.root.name, q, loop=self.loop
+        )
+        tasks = [
+            asyncio.Task(clock(loop=self.loop), loop=self.loop),
+            asyncio.Task(game(loop=self.loop), loop=self.loop)
+        ]
+        stim = asyncio.Task(
+            stimulus(game, asyncio.Task.all_tasks(loop=self.loop), q, loop=self.loop),
             loop=self.loop
         )
 
         self.loop.run_until_complete(
-            asyncio.wait(
-                asyncio.Task.all_tasks(loop=self.loop),
+            asyncio.wait_for(
+                stim,
                 loop=self.loop,
                 timeout=1
             )
