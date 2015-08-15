@@ -81,7 +81,8 @@ class GameTests(unittest.TestCase):
 
             # Go to Kinh Ship Bulk Buy
             yield from q.put(objs[Game.Via][1])
-            yield from asyncio.sleep(0, loop=loop)
+            for _ in range(len(tasks)):
+                yield from asyncio.sleep(0, loop=loop)
             with open(path, 'r') as content:
                 data = rson2objs(content.read(), (Clock.Tick, Location, Game.Via,))
                 objs = group_by_type(data)
@@ -90,7 +91,6 @@ class GameTests(unittest.TestCase):
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:30:00"))
             self.assertEqual(1, len(objs[Game.Via]))
             yield from q.put(None)
-            yield from asyncio.sleep(0, loop=loop)
             for task in tasks:
                 task.cancel()
 
@@ -108,9 +108,10 @@ class GameTests(unittest.TestCase):
         )
 
         self.loop.run_until_complete(
-            asyncio.wait_for(
-                stim,
+            asyncio.wait(
+                asyncio.Task.all_tasks(loop=self.loop),
                 loop=self.loop,
+                return_when=asyncio.FIRST_EXCEPTION,
                 timeout=1
             )
         )

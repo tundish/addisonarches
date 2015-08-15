@@ -113,7 +113,8 @@ class Clock(Persistent):
     ):
         # No need for HATEOAS until knockout.js
         return OrderedDict([
-            ("tick", Expert.Event("tick")),
+            ("active", Expert.Event("active")),
+            ("inactive", Expert.Event("inactive")),
             ("running", Expert.Attribute("running")),
             ("sequence", Expert.Attribute("sequence")),
             ("value", Expert.Attribute("value")),
@@ -136,7 +137,7 @@ class Clock(Persistent):
     @asyncio.coroutine
     def __call__(self, loop=None):
         while True:
-            self.advance(loop)
+            yield from self.advance(loop)
 
             if self.stop:
                 break
@@ -149,17 +150,28 @@ class Clock(Persistent):
         except StopIteration:
             self.stop = True
         else:
-            tick = False if Clock.public.tick is None else not Clock.public.tick.is_set()
             self.declare(
                 dict(
-                    tick=tick,
+                    active=True,
+                    inactive=False,
                     value=val,
                     running=(not self.stop),
                     sequence=self.sequence,
                 ),
                 loop=loop
             )
-            return val
+            yield from asyncio.sleep(0, loop=loop)
+            
+            self.declare(
+                dict(
+                    active=False,
+                    inactive=True,
+                    value=val,
+                    running=(not self.stop),
+                    sequence=self.sequence,
+                ),
+                loop=loop
+            )
 
 class Game(Persistent):
 
@@ -243,40 +255,37 @@ class Game(Persistent):
             None
         )
 
+    @property
+    def progress(self):
+        # TODO: Declare splittables
+        #   view = (
+        #       (k, v)
+        #       for k, v in self.here.inventories[
+        #           self.location
+        #       ].contents.items()
+        #       if v and getattr(k, "components", None))
+        return [
+            Game.Via(n, i, None) for n, i in enumerate(self.destinations)
+        ] + [
+            Location(self.location, self.here.inventories[self.location].capacity),
+            Clock.Tick(time.time(), Clock.public.value)
+        ]
+
     @asyncio.coroutine
     def __call__(self, loop=None):
         while not Clock.public.running:
             yield from asyncio.sleep(0, loop=loop)
 
         while Clock.public.running:
-            # TODO: refactor to a Clock class
-            # 1. declare Locations
-            #print("Here's where you can go:")
-            #print(*["{0:01}: {1}".format(n, i)
-            #        for n, i in enumerate(self.game.destinations)],
-            #        sep="\n")
-            #sys.stdout.write("\n")
-            # 2. Declare splittables
-            #   view = (
-            #       (k, v)
-            #       for k, v in self.game.here.inventories[
-            #           self.game.location
-            #       ].contents.items()
-            #       if v and getattr(k, "components", None))
-            progress = [
-                Game.Via(n, i, None) for n, i in enumerate(self.destinations)
-            ] + [
-                Location(self.location, self.here.inventories[self.location].capacity),
-                Clock.Tick(time.time(), Clock.public.value)
-            ]
+            yield from Clock.public.active.wait()
             self.declare(
                 dict(
-                    progress=progress,
+                    progress=self.progress,
                     businesses=self.businesses
                 ),
                 loop=loop
             )
-            yield from Clock.public.tick.wait()
+            yield from Clock.public.inactive.wait()
 
     @asyncio.coroutine
     def watch(self, q, **kwargs):
@@ -288,19 +297,10 @@ class Game(Persistent):
                 try: 
                     if self.destinations[msg.id] == msg.name:
 
-                        try:
-                            val = self.clock.advance(loop=loop)
-                        except AttributeError:
-                            val = None
+                        yield from self.clock.advance(loop=loop)
 
                         self.location = msg.name
-                        progress = [
-                            Game.Via(n, i, None) for n, i in enumerate(self.destinations)
-                        ] + [
-                            Location(self.location, self.here.inventories[self.location].capacity),
-                            Clock.Tick(time.time(), val)
-                        ]
-                        self.declare(dict(progress=progress))
+                        self.declare(dict(progress=self.progress))
                     else:
                         self._log.warning(msg)
                 except Exception as e:
