@@ -32,6 +32,18 @@ import addisonarches.scenario
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 
+
+def get_objects(expert, name="progress.rson"):
+    service = expert._services[name]
+    path = os.path.join(*Persistent.recent_slot(service.path))
+    with open(path, 'r') as content:
+        data = rson2objs(
+            content.read(),
+            (Clock.Tick, Location, Game.Via,)
+        )
+    return data
+
+
 class GameTests(unittest.TestCase):
 
     user = "someone@somewhere.net"
@@ -80,24 +92,42 @@ class GameTests(unittest.TestCase):
         )
 
         self.loop.run_until_complete(
-            asyncio.wait(
-                asyncio.Task.all_tasks(loop=self.loop),
+            asyncio.wait_for(
+                asyncio.gather(
+                    *asyncio.Task.all_tasks(loop=self.loop),
+                    loop=self.loop,
+                    return_exceptions=False
+                ),
                 loop=self.loop,
-                return_when=asyncio.FIRST_EXCEPTION,
                 timeout=1
             )
         )
+
+    def test_look(self):
+
+        @asyncio.coroutine
+        def stimulus(game, tasks, q, loop=None):
+            data = get_objects(game, "progress.rson")
+            objs = group_by_type(data)
+            self.assertEqual(1, len(objs[Location]))
+            self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
+            self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
+            self.assertEqual(1, len(objs[Clock.Tick]))
+            self.assertEqual(6, len(objs[Game.Via]))
+            self.assertEqual(0, len(objs[Game.Location]))
+
+            yield from q.put(None)
+            for task in tasks:
+                task.cancel()
+
+        self.run_async(stimulus)
 
     def test_go(self):
 
         @asyncio.coroutine
         def stimulus(game, tasks, q, loop=None):
-            service = game._services["progress.rson"]
-            path = os.path.join(*Persistent.recent_slot(service.path))
-            with open(path, 'r') as content:
-                data = rson2objs(content.read(), (Clock.Tick, Location, Game.Via,))
-                objs = group_by_type(data)
-
+            data = get_objects(game, "progress.rson")
+            objs = group_by_type(data)
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
             self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
             self.assertEqual(6, len(objs[Game.Via]))
@@ -106,9 +136,8 @@ class GameTests(unittest.TestCase):
             yield from q.put(objs[Game.Via][1])
             for _ in range(len(tasks)):
                 yield from asyncio.sleep(0, loop=loop)
-            with open(path, 'r') as content:
-                data = rson2objs(content.read(), (Clock.Tick, Location, Game.Via,))
-                objs = group_by_type(data)
+            data = get_objects(game, "progress.rson")
+            objs = group_by_type(data)
 
             self.assertEqual("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:30:00"))
