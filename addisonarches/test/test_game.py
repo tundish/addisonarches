@@ -74,7 +74,7 @@ class GameTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.asyncioDebug = os.environ.get("PYTHONASYNCIODEBUG", None)
-        #os.environ["PYTHONASYNCIODEBUG"] = str(True)
+        os.environ["PYTHONASYNCIODEBUG"] = str(True)
 
     @classmethod
     def tearDownClass(cls):
