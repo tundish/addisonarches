@@ -17,9 +17,10 @@
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
 import asyncio
-import functools
+import concurrent.futures
 import logging
 import os.path
+import sys
 import tempfile
 import unittest
 import uuid
@@ -73,11 +74,13 @@ class GameTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        logging.getLogger("asyncio").setLevel(logging.DEBUG)
         cls.asyncioDebug = os.environ.get("PYTHONASYNCIODEBUG", None)
         os.environ["PYTHONASYNCIODEBUG"] = str(True)
 
     @classmethod
     def tearDownClass(cls):
+        logging.getLogger("asyncio").setLevel(logging.INFO)
         if "PYTHONASYNCIODEBUG" in os.environ:
             if cls.asyncioDebug is None:
                 os.environ.pop("PYTHONASYNCIODEBUG")
@@ -85,39 +88,37 @@ class GameTests(unittest.TestCase):
                 os.environ["PYTHONASYNCIODEBUG"] = cls.asyncioDebug
 
     def setUp(self):
-        logging.getLogger("asyncio").setLevel(logging.DEBUG)
         self.root = tempfile.TemporaryDirectory()
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(None)
 
         path = Persistent.Path(self.root.name, GameTests.user, None, None)
         Persistent.make_path(path)
+        #print(path)
+
+    def tearDown(self):
+        self.loop.close()
+        if os.path.isdir(self.root.name):
+            self.root.cleanup()
+        self.assertFalse(os.path.isdir(self.root.name))
+        self.root = None
+        Clock.public = None
+        Game.public = None
 
     def run_test_async(self, coro):
 
-        def run_then_cancel(coro, loop=None):
-            """
-            Wraps the test coroutine in code which cleans up other game
-            tasks afterwards.
+        self.assertTrue(self.loop)
 
-            Returns a coroutine.
-            """
+        def run_then_cancel(tasks, coro, game, q, loop):
+            yield from asyncio.sleep(0, loop=loop)
 
-            tasks = asyncio.Task.all_tasks(loop)
-
-            @functools.wraps(coro)
-            @asyncio.coroutine
-            def inner(game, q, loop=loop):
-                try:
-                    yield from coro(game, q, loop)
-                except AssertionError as e:
-                    pass  # Test failures retrieved from finished coroutine
-                finally:
-                    yield from q.put(None)
-                    yield from asyncio.sleep(0, loop=loop)
-                    for task in tasks:
-                        task.cancel()
-            return inner
+            try:
+                yield from coro(game, q, loop)
+            finally:
+                yield from q.put(None)
+                yield from asyncio.sleep(0, loop=loop)
+                for task in tasks:
+                    task.cancel()
 
         q = asyncio.Queue(loop=self.loop)
         clock, game = GameTests.create_experts(
@@ -128,8 +129,9 @@ class GameTests(unittest.TestCase):
             asyncio.Task(game(loop=self.loop), loop=self.loop)
         ]
 
+        tasks = asyncio.Task.all_tasks(self.loop)
         test = asyncio.Task(
-            run_then_cancel(coro, loop=self.loop)(game, q, loop=self.loop),
+            run_then_cancel(tasks, coro, game, q, loop=self.loop),
             loop=self.loop
         )
         done, pending = self.loop.run_until_complete(
@@ -139,30 +141,30 @@ class GameTests(unittest.TestCase):
                 timeout=1
             )
         )
-        self.assertFalse(pending)
-        fail = next((i.exception for i in done), None)
-        if fail is not None:
-            raise fail
-        return (done, pending)
+        e = test.exception()
+        if e is not None:
+            if isinstance(e, UserWarning):
+                print(e, file=sys.stderr)
+            else:
+                raise e
 
-    @unittest.expectedFailure
     def test_run_async_masks_no_failures(self):
         """
         Provoke failure and check it's detected from a wrapped coroutine.
 
         """
         @asyncio.coroutine
-        def stimulus(game, tasks, q, loop=None):
+        def stimulus(game, q, loop=None):
             data = get_objects(game, "progress.rson")
             objs = group_by_type(data)
             self.assertEqual(0, len(objs[Location]))
 
-        done, pending = self.run_test_async(stimulus)
+        self.assertRaises(AssertionError, self.run_test_async, stimulus)
 
     def tost_look(self):
 
         @asyncio.coroutine
-        def stimulus(game, tasks, q, loop=None):
+        def stimulus(game, q, loop=None):
             data = get_objects(game, "progress.rson")
             objs = group_by_type(data)
             self.assertEqual(1, len(objs[Location]))
@@ -173,13 +175,11 @@ class GameTests(unittest.TestCase):
             self.assertEqual(0, len(objs[Location]))
 
         done, pending = self.run_test_async(stimulus)
-        print(done)
-        print(pending)
 
     def tost_go(self):
 
         @asyncio.coroutine
-        def stimulus(game, tasks, q, loop=None):
+        def stimulus(game, q, loop=None):
             data = get_objects(game, "progress.rson")
             objs = group_by_type(data)
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
@@ -202,11 +202,3 @@ class GameTests(unittest.TestCase):
 
         self.run_async(stimulus)
 
-    def tearDown(self):
-        self.loop.close()
-        if os.path.isdir(self.root.name):
-            self.root.cleanup()
-        self.assertFalse(os.path.isdir(self.root.name))
-        self.root = None
-        Clock.public = None
-        Game.public = None
