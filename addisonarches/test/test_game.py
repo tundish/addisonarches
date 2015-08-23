@@ -147,6 +147,8 @@ class GameTests(unittest.TestCase):
                 print(e, file=sys.stderr)
             else:
                 raise e
+        else:
+            return (done, pending)
 
     def test_run_async_masks_no_failures(self):
         """
@@ -161,7 +163,7 @@ class GameTests(unittest.TestCase):
 
         self.assertRaises(AssertionError, self.run_test_async, stimulus)
 
-    def tost_look(self):
+    def test_look(self):
 
         @asyncio.coroutine
         def stimulus(game, q, loop=None):
@@ -172,11 +174,10 @@ class GameTests(unittest.TestCase):
             self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
             self.assertEqual(1, len(objs[Clock.Tick]))
             self.assertEqual(6, len(objs[Game.Via]))
-            self.assertEqual(0, len(objs[Location]))
 
         done, pending = self.run_test_async(stimulus)
 
-    def tost_go(self):
+    def test_go(self):
 
         @asyncio.coroutine
         def stimulus(game, q, loop=None):
@@ -188,17 +189,14 @@ class GameTests(unittest.TestCase):
 
             # Go to Kinh Ship Bulk Buy
             yield from q.put(objs[Game.Via][1])
-            for _ in range(len(tasks)):
-                yield from asyncio.sleep(0, loop=loop)
+            yield from asyncio.sleep(0, loop=loop)
+            yield from asyncio.sleep(0, loop=loop)
             data = get_objects(game, "progress.rson")
             objs = group_by_type(data)
 
             self.assertEqual("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:30:00"))
             self.assertEqual(1, len(objs[Game.Via]))
-            yield from q.put(None)
-            for task in tasks:
-                task.cancel()
 
-        self.run_async(stimulus)
+        done, pending = self.run_test_async(stimulus)
 
