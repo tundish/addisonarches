@@ -110,6 +110,8 @@ class GameTests(unittest.TestCase):
             def inner(game, q, loop=loop):
                 try:
                     yield from coro(game, q, loop)
+                except AssertionError as e:
+                    pass  # Test failures retrieved from finished coroutine
                 finally:
                     yield from q.put(None)
                     yield from asyncio.sleep(0, loop=loop)
@@ -137,6 +139,10 @@ class GameTests(unittest.TestCase):
                 timeout=1
             )
         )
+        self.assertFalse(pending)
+        fail = next((i.exception for i in done), None)
+        if fail is not None:
+            raise fail
         return (done, pending)
 
     @unittest.expectedFailure
