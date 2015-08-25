@@ -62,7 +62,7 @@ class GameTests(unittest.TestCase):
         )
         game = Game(
             Game.Player(GameTests.user, "Player 1"),
-            addisonarches.scenario.businesses,
+            addisonarches.scenario.businesses[:],
             clock,
             qIn, 
             loop=loop,
