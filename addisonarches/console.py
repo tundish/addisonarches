@@ -33,13 +33,14 @@ import uuid
 from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
 from addisonarches.business import Selling
-from addisonarches.cli import rson2objs
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
 import addisonarches.scenario
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
+from addisonarches.utils import get_objects
+from addisonarches.utils import group_by_type
 from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
 
@@ -123,7 +124,9 @@ class Console(cmd.Cmd):
 
             yield from asyncio.sleep(0)
 
-            progress = get_progress(self.game.path)
+            #progress = get_progress(self.game.path)
+            data = get_objects(self.game)
+            progress = group_by_type(data)
             locn = next(iter(progress[Location]), None)
             print("You're at {}.".format(getattr(locn, "name", "?")))
 
@@ -177,20 +180,12 @@ class Console(cmd.Cmd):
             for msg in reaction:
                 print(msg)
 
-        path = os.path.join(*self.game.path._replace(file="progress.rson"))
-        try:
-            with open(path, 'r') as content:
-                data = reversed(rson2objs(content.read(), types=(Clock.Tick,)))
-                tick = next(i for i in data if isinstance(i, Clock.Tick))
-                self.ts = tick.ts
-                t = datetime.datetime.strptime(tick.value, "%Y-%m-%d %H:%M:%S")
-                self.prompt = "{:%A %H:%M} > ".format(t)
-        except StopIteration:
-            # No tick available
-            pass
-        except Exception as e:
-            print(e)
-
+        data = get_objects(self.game, "progress.rson")
+        objs = group_by_type(data)
+        tick = next(iter(objs[Clock.Tick]), None)
+        self.ts = tick.ts
+        t = datetime.datetime.strptime(tick.value, "%Y-%m-%d %H:%M:%S")
+        self.prompt = "{:%A %H:%M} > ".format(t)
         self.game.stop = stop
         return stop
 
@@ -275,7 +270,8 @@ class Console(cmd.Cmd):
             > go 3
         """
         line = arg.strip()
-        progress = get_progress(self.game.path)
+        data = get_objects(self.game)
+        progress = group_by_type(data)
 
         if not line:
             print("Here's where you can go:")

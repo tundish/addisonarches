@@ -36,8 +36,8 @@ from turberfield.utils.expert import TypesEncoder
 from addisonarches import __version__
 from addisonarches.cli import add_common_options
 from addisonarches.cli import add_web_options
-from addisonarches.cli import send
 import addisonarches.game
+from addisonarches.utils import send
 
 __doc__ = """
 Runs the web interface for Addison Arches.
