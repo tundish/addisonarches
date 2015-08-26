@@ -40,6 +40,7 @@ from turberfield.utils.expert import Expert
 from turberfield.utils.expert import TypesEncoder
 
 from addisonarches.business import CashBusiness
+from addisonarches.business import Trader
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 from addisonarches.scenario.types import Commodity
@@ -287,16 +288,26 @@ class Game(Persistent):
             for k, v in self.here.inventories[self.location].contents.items()
             if v and not getattr(k, "components", None)
         ])
+
         if self.here != self.businesses[0]:
             rv.append(self.here.proprietor)
+
         try:
             handler = self.here.handler(self.drama)
             reaction = handler(self.drama, self)
             rv.extend(list(reaction))
-        except (AttributeError, TypeError):
+        except AttributeError:
             # Player business is not a Handler subclass
             pass
-        print(rv)
+        except TypeError:
+            rv.append(Trader.Patter(
+                self.here.proprietor,
+                random.choice(
+                    ["Hello, {0.name}".format(
+                        self.businesses[0].proprietor
+                    ), "What can I do for you?"]
+                )
+            ))
         return rv
 
     @asyncio.coroutine

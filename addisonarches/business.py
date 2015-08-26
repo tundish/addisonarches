@@ -120,15 +120,15 @@ class Trader(Handler, CashBusiness):
                 valuation = self.book.consider(
                     type(focus), offer, constraint=0
                 )
-                yield(
+                yield Patter(self.proprietor, (
                     "'I can go to "
                     "{0.currency}{0.value:.0f}'.".format(valuation)
-                )
+                ))
             else:
-                yield(
+                yield Patter(self.proprietor, (
                     "'I'll agree on "
                     "{0.currency}{0.value}'.".format(offer)
-                )
+                ))
                 asset = Asset(focus, None, game.ts)
                 picks = self.retrieve(asset)
                 quantity = sum(i[1] for i in picks)
@@ -141,18 +141,18 @@ class Trader(Handler, CashBusiness):
                 game.drama = None
         except (TypeError, NotImplementedError) as e:
             # No offer yet
-            yield(
+            yield Patter(self.proprietor, (
                 "{0.name} says, 'I see you're "
                 "considering this fine {1.label}'.".format(
                     self.proprietor, focus
                  )
-            )
-            yield(
+            ))
+            yield Patter(self.proprietor, (
                 "'We let those go for "
                 "{0.currency}{0.value:.0f}'.".format(
                     max(self.book[type(focus)])
                 )
-            )
+            ))
         except Exception as e:
             yield(e)
 
@@ -164,23 +164,25 @@ class Trader(Handler, CashBusiness):
             offer = drama.memory[-1]
         except KeyError:
             # Not in book
-            yield(
+            yield Patter(self.proprietor, (
                 "{0.name} says, 'No thanks, "
                 "not at the moment'.".format(
                     self.proprietor, focus
                  )
-            )
+            ))
             try:
                 pick = random.choice(list(self.book.keys()))
                 need = " ".join(i.lower() for i in re.split(
                 "([A-Z][^A-Z]*)", pick.__name__) if i)
             except IndexError:
-                yield("'Thanks for coming over, {0.name}. Bye!'".format(
-                    game.businesses[0].proprietor
+                yield Patter(
+                    self.proprietor,
+                    "'Thanks for coming over, {0.name}. Bye!'".format(
+                        game.businesses[0].proprietor
+                    )
                 )
-            )
             else:
-                yield("'Got any {0}s?'".format(need))
+                yield Patter(self.proprietor, "'Got any {0}s?'".format(need))
             game.drama = None
         except Exception as e:
             yield(e)
@@ -190,15 +192,15 @@ class Trader(Handler, CashBusiness):
                     valuation = self.book.consider(
                         type(focus), offer, constraint=0
                     )
-                    yield(
+                    yield Patter(self.proprietor, (
                         "'I can go to "
                         "{0.currency}{0.value:.0f}'.".format(valuation)
-                    )
+                    ))
                 else:
-                    yield(
+                    yield Patter(self.proprietor, (
                         "'I'll agree on "
                         "{0.currency}{0.value}'.".format(offer)
-                    )
+                    ))
                     asset = Asset(focus, None, game.ts)
                     picks = game.businesses[0].retrieve(asset)
                     quantity = sum(i[1] for i in picks)
@@ -211,9 +213,9 @@ class Trader(Handler, CashBusiness):
                     game.drama = None
             except (TypeError, NotImplementedError) as e:
                 # No offer yet
-                yield(
+                yield Patter(self.proprietor, (
                     "{0.name} says: 'How much are you asking for "
                     "a {1.label}?'".format(
                         self.proprietor, focus
                      )
-                )
+                ))

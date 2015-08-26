@@ -45,7 +45,7 @@ def get_objects(expert, name="progress.rson"):
             content.read(), (
                 Character, Clock.Tick, 
                 Game.Drama, Game.Item, Game.Player, Game.Tally, Game.Via,
-                Location
+                Location, Trader.Patter,
                 )
         )
     return data
@@ -183,6 +183,9 @@ class GameTests(unittest.TestCase):
 
             self.assertEqual(1, len(objs[Game.Drama]))
             self.assertEqual(1, len(objs[Game.Tally]))
+
+            self.assertEqual(0, len(objs[Character]))
+            self.assertEqual(0, len(objs[Trader.Patter]))
 
         done, pending = self.run_test_async(stimulus)
 
