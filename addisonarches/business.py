@@ -110,6 +110,8 @@ class CashBusiness(Business):
 
 class Trader(Handler, CashBusiness):
 
+    Patter = namedtuple("Patter", ["text"])
+
     def _handle_buying(self, drama:Buying, game):
         try:
             focus = drama.memory[0]

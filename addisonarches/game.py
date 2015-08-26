@@ -265,19 +265,20 @@ class Game(Persistent):
         #       ].contents.items()
         #       if v and getattr(k, "components", None))
         # TODO: Declare dialogue
-        try:
-            handler = self.here.handler(self.drama)
-            reaction = handler(self.drama, self)
-            print(reaction)
-        except (AttributeError, TypeError):
-            # Player business is not a Handler subclass
-            pass
-        return [
+        rv = [
             Game.Via(n, i, None) for n, i in enumerate(self.destinations)
         ] + [
             Location(self.location, self.here.inventories[self.location].capacity),
             Clock.Tick(time.time(), Clock.public.value)
         ]
+        try:
+            handler = self.here.handler(self.drama)
+            reaction = handler(self.drama, self)
+            rv.extend(list(reaction))
+        except (AttributeError, TypeError):
+            # Player business is not a Handler subclass
+            pass
+        return rv
 
     @asyncio.coroutine
     def __call__(self, loop=None):
