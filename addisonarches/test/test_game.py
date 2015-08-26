@@ -26,29 +26,16 @@ import unittest
 import uuid
 
 from addisonarches.business import Trader
-from addisonarches.cli import rson2objs
-from addisonarches.cli import group_by_type
-from addisonarches.cli import query_object_chain
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
-import addisonarches.scenario
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
-
-
-def get_objects(expert, name="progress.rson"):
-    service = expert._services[name]
-    path = os.path.join(*Persistent.recent_slot(service.path))
-    with open(path, 'r') as content:
-        data = rson2objs(
-            content.read(), (
-                Character, Clock.Tick, 
-                Game.Drama, Game.Item, Game.Player, Game.Tally, Game.Via,
-                Location, Trader.Patter,
-                )
-        )
-    return data
+from addisonarches.utils import get_objects
+from addisonarches.utils import group_by_type
+from addisonarches.utils import query_object_chain
+from addisonarches.utils import rson2objs
+import addisonarches.scenario
 
 
 class GameTests(unittest.TestCase):
