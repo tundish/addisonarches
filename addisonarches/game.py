@@ -42,6 +42,7 @@ from turberfield.utils.expert import TypesEncoder
 from addisonarches.business import CashBusiness
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
+from addisonarches.scenario.types import Commodity
 
 
 __doc__ = """
@@ -176,9 +177,10 @@ class Clock(Persistent):
 
 class Game(Persistent):
 
-    Drama = namedtuple("Drama", ["name", "mood"])
+    Drama = namedtuple("Drama", ["type", "mood"])
+    Item = namedtuple("Item", ["type", "label", "description"])
     Player = namedtuple("Player", ["user", "name"])
-    Tally = namedtuple("Tally", ["actor", "value"])
+    Tally = namedtuple("Tally", ["actor", "name", "value", "units"])
     Via = namedtuple("Via", ["id", "name", "tip"])
 
     @staticmethod
@@ -260,29 +262,33 @@ class Game(Persistent):
 
     @property
     def progress(self):
-        # TODO: Declare Actor
-        # TODO: Declare Tally
-        # TODO: Declare splittables
-        #   view = (
-        #       (k, v)
-        #       for k, v in self.here.inventories[
-        #           self.location
-        #       ].contents.items()
-        #       if v and getattr(k, "components", None))
-        # TODO: Declare dialogue
         rv = [
-            Game.Via(n, i, None) for n, i in enumerate(self.destinations)
-        ] + [
-            Location(self.location, self.here.inventories[self.location].capacity),
             Clock.Tick(time.time(), Clock.public.value),
+            Location(self.location, self.here.inventories[self.location].capacity),
+            Game.Tally(None, "cash", self.businesses[0].tally, "\xa3"),
             Game.Drama(
                 self.drama.__class__.__name__,
                 self.drama.__class__.__name__.lower()
                 if self.drama is not None
                 else random.choice(
                     ["hopeful", "optimistic", "relaxed"]
-                ))
+                )
+            )
+        ] + [
+            Game.Via(n, i, None) for n, i in enumerate(self.destinations)
         ]
+        rv.extend([
+            Game.Item("Compound", k.label, k.description) 
+            for k, v in self.here.inventories[self.location].contents.items()
+            if v and getattr(k, "components", None)
+        ])
+        rv.extend([
+            Game.Item("Commodity", k.label, k.description) 
+            for k, v in self.here.inventories[self.location].contents.items()
+            if v and not getattr(k, "components", None)
+        ])
+        if self.here != self.businesses[0]:
+            rv.append(self.here.proprietor)
         try:
             handler = self.here.handler(self.drama)
             reaction = handler(self.drama, self)
@@ -290,6 +296,7 @@ class Game(Persistent):
         except (AttributeError, TypeError):
             # Player business is not a Handler subclass
             pass
+        print(rv)
         return rv
 
     @asyncio.coroutine

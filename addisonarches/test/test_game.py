@@ -25,6 +25,7 @@ import tempfile
 import unittest
 import uuid
 
+from addisonarches.business import Trader
 from addisonarches.cli import rson2objs
 from addisonarches.cli import group_by_type
 from addisonarches.cli import query_object_chain
@@ -41,8 +42,11 @@ def get_objects(expert, name="progress.rson"):
     path = os.path.join(*Persistent.recent_slot(service.path))
     with open(path, 'r') as content:
         data = rson2objs(
-            content.read(),
-            (Clock.Tick, Location, Game.Via,)
+            content.read(), (
+                Character, Clock.Tick, 
+                Game.Drama, Game.Item, Game.Player, Game.Tally, Game.Via,
+                Location
+                )
         )
     return data
 
@@ -169,11 +173,16 @@ class GameTests(unittest.TestCase):
         def stimulus(game, q, loop=None):
             data = get_objects(game, "progress.rson")
             objs = group_by_type(data)
-            self.assertEqual(1, len(objs[Location]))
-            self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
-            self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
-            self.assertEqual(1, len(objs[Clock.Tick]))
             self.assertEqual(6, len(objs[Game.Via]))
+
+            self.assertEqual(1, len(objs[Location]))
+            self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
+
+            self.assertEqual(1, len(objs[Clock.Tick]))
+            self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
+
+            self.assertEqual(1, len(objs[Game.Drama]))
+            self.assertEqual(1, len(objs[Game.Tally]))
 
         done, pending = self.run_test_async(stimulus)
 
@@ -197,6 +206,9 @@ class GameTests(unittest.TestCase):
             self.assertEqual("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:30:00"))
             self.assertEqual(1, len(objs[Game.Via]))
+            self.assertEqual(1, len(objs[Character]))
+            self.assertEqual(1, len(objs[Game.Item]))
+            self.assertEqual(1, len(objs[Trader.Patter]))
 
         done, pending = self.run_test_async(stimulus)
 

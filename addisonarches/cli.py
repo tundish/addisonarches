@@ -18,6 +18,7 @@
 
 
 import ast
+from collections import defaultdict
 import itertools
 import logging
 import os.path
@@ -91,7 +92,9 @@ def rson2objs(text, types):
     return [which.get(i.pop("_type", None), dict)(**i) for i in things]
 
 def group_by_type(items):
-    return {k: list(v) for k, v in itertools.groupby(items, key=type)}
+    return defaultdict(list,
+        {k: list(v) for k, v in itertools.groupby(items, key=type)}
+    )
 
 def query_object_chain(items, key, value=None, group="", obj=None):
     """
