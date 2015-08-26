@@ -110,7 +110,7 @@ class CashBusiness(Business):
 
 class Trader(Handler, CashBusiness):
 
-    Patter = namedtuple("Patter", ["text"])
+    Patter = namedtuple("Patter", ["actor", "text"])
 
     def _handle_buying(self, drama:Buying, game):
         try:

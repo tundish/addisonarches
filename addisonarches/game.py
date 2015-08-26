@@ -30,6 +30,7 @@ import os
 import os.path
 import pickle
 from pprint import pprint
+import random
 import sys
 import tempfile
 import time
@@ -175,7 +176,9 @@ class Clock(Persistent):
 
 class Game(Persistent):
 
+    Drama = namedtuple("Drama", ["name", "mood"])
     Player = namedtuple("Player", ["user", "name"])
+    Tally = namedtuple("Tally", ["actor", "value"])
     Via = namedtuple("Via", ["id", "name", "tip"])
 
     @staticmethod
@@ -257,6 +260,8 @@ class Game(Persistent):
 
     @property
     def progress(self):
+        # TODO: Declare Actor
+        # TODO: Declare Tally
         # TODO: Declare splittables
         #   view = (
         #       (k, v)
@@ -269,7 +274,14 @@ class Game(Persistent):
             Game.Via(n, i, None) for n, i in enumerate(self.destinations)
         ] + [
             Location(self.location, self.here.inventories[self.location].capacity),
-            Clock.Tick(time.time(), Clock.public.value)
+            Clock.Tick(time.time(), Clock.public.value),
+            Game.Drama(
+                self.drama.__class__.__name__,
+                self.drama.__class__.__name__.lower()
+                if self.drama is not None
+                else random.choice(
+                    ["hopeful", "optimistic", "relaxed"]
+                ))
         ]
         try:
             handler = self.here.handler(self.drama)
