@@ -41,6 +41,7 @@ from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 from addisonarches.utils import get_objects
 from addisonarches.utils import group_by_type
+from addisonarches.utils import query_object_chain
 from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
 
@@ -124,21 +125,16 @@ class Console(cmd.Cmd):
 
             yield from asyncio.sleep(0)
 
-            #progress = get_progress(self.game.path)
             data = get_objects(self.game)
             progress = group_by_type(data)
             locn = next(iter(progress[Location]), None)
             print("You're at {}.".format(getattr(locn, "name", "?")))
 
-            mood = (self.game.drama.__class__.__name__.lower()
-                    if self.game.drama is not None
-                    else random.choice(
-                        ["hopeful", "optimistic", "relaxed"]
-                    ))
-            print("You're in a {} mood.".format(mood))
-            print("You've got £{0.tally:.2f} in the kitty.".format(
-                self.game.businesses[0]
-            ))
+            drama = next(iter(progress[Game.Drama]), None)
+            print("You're in a {0.mood} mood.".format(drama))
+
+            tally = query_object_chain(data, "name", "cash")
+            print("You've got £{0.value:.2f} in the kitty.".format(tally))
 
             if self.game.here != self.game.businesses[0]:
                 print("{0.name} is nearby.".format(
@@ -370,7 +366,7 @@ def main(args):
     options = Game.options(Game.Player(user, name), parent=args.output)
     game = Game(
         Game.Player(user, name),
-        addisonarches.scenario.businesses,
+        addisonarches.scenario.businesses[:],
         queue,
         **options
     ).load()

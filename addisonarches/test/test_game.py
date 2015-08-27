@@ -19,6 +19,7 @@
 import asyncio
 import concurrent.futures
 import logging
+import numbers
 import os.path
 import sys
 import tempfile
@@ -170,6 +171,7 @@ class GameTests(unittest.TestCase):
 
             self.assertEqual(1, len(objs[Game.Drama]))
             self.assertEqual(1, len(objs[Game.Tally]))
+            self.assertIsInstance(objs[Game.Tally][0].value, numbers.Number)
 
             self.assertEqual(0, len(objs[Character]))
             self.assertEqual(0, len(objs[Trader.Patter]))
