@@ -134,7 +134,7 @@ class Console(cmd.Cmd):
             print("You're in a {0.mood} mood.".format(drama))
 
             tally = query_object_chain(data, "name", "cash")
-            print("You've got £{0.value:.2f} in the kitty.".format(tally))
+            print("You've got {0.units}{0.value:.2f} in the kitty.".format(tally))
 
             if self.game.here != self.game.businesses[0]:
                 print("{0.name} is nearby.".format(

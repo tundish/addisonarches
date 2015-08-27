@@ -230,7 +230,7 @@ class Game(Persistent):
                 locations = [Location("Addison Arches 18a", 100)]
                 
                 self.businesses.insert(
-                    0, CashBusiness(proprietor, None, locations, tally=Decimal(1000)))
+                    0, CashBusiness(proprietor, None, locations, tally=1000))
             else:
                 with open(fP, "rb") as fObj:
                     self.businesses = pickle.load(fObj)
