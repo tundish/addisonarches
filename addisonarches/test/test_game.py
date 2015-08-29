@@ -86,7 +86,6 @@ class GameTests(unittest.TestCase):
 
         path = Persistent.Path(self.root.name, GameTests.user, None, None)
         Persistent.make_path(path)
-        #print(path)
 
     def tearDown(self):
         self.loop.close()
