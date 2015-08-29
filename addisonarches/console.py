@@ -123,7 +123,8 @@ class Console(cmd.Cmd):
             except Exception as e:
                 print(e)
 
-            yield from asyncio.sleep(0)
+            yield from asyncio.sleep(0, loop)
+            yield from asyncio.sleep(0, loop)
 
             data = get_objects(self.game)
             progress = group_by_type(data)
@@ -134,7 +135,7 @@ class Console(cmd.Cmd):
             print("You're in a {0.mood} mood.".format(drama))
 
             tally = query_object_chain(data, "name", "cash")
-            print("You've got {0.units}{0.value:.2f} in the kitty.".format(tally))
+            print("You've got {0.units}{0.value} in the kitty.".format(tally))
 
             if self.game.here != self.game.businesses[0]:
                 print("{0.name} is nearby.".format(
@@ -275,7 +276,8 @@ class Console(cmd.Cmd):
                     sep="\n")
             sys.stdout.write("\n")
         elif line.isdigit():
-            self.queue.put_nowait(progress[Game.Via][int(line)])
+            via = progress[Game.Via][int(line)]
+            self.queue.put_nowait(via)
 
     def do_look(self, arg):
         """
@@ -363,16 +365,18 @@ def main(args):
     commands = asyncio.Queue(loop=loop)
     queue = asyncio.Queue(loop=loop)
 
+    options = Clock.options(parent=args.output)
+    clock = Clock(loop=loop, **options)
+
     options = Game.options(Game.Player(user, name), parent=args.output)
     game = Game(
         Game.Player(user, name),
         addisonarches.scenario.businesses[:],
+        clock,
         queue,
+        loop=loop,
         **options
     ).load()
-
-    options = Clock.options(parent=args.output)
-    clock = Clock(**options)
 
     console = Console(game, commands, queue)
     executor = concurrent.futures.ThreadPoolExecutor(
