@@ -18,6 +18,7 @@
 
 import asyncio
 import cmd
+from collections import Counter
 from collections import defaultdict
 from collections import namedtuple
 import concurrent.futures
@@ -294,21 +295,25 @@ class Console(cmd.Cmd):
             (more details may follow)
         """
         line = arg.strip()
-        view = self.game.here.inventories[self.game.location].contents.items()
+        data = get_objects(self.game)
+        progress = group_by_type(data)
+        totals = Counter(progress[Game.Item])
+        menu = list(set(progress[Game.Item]))
+
         if not line:
             print("Here's what you can see:")
             print(
-                *["{0:01}: {1.label} ({2})".format(n, k, v)
-                for n, (k, v) in enumerate(view) if v],
+                *["{0:01}: {1.label} ({2})".format(n, i, totals[i])
+                for n, i in enumerate(menu) if totals[i]],
                 sep="\n")
             sys.stdout.write("\n")
         elif line.isdigit():
             prefix = random.choice([
             "Dunno about the", "No details on the", "Just",
             ])
-            k, v = list(view)[int(line)]
-            print(k.description or "{prefix} {0}{1}.".format(
-                k.label.lower(), ("s" if v > 1 else ""), prefix=prefix
+            item = menu[int(line)]
+            print(item.description or "{prefix} {0}{1}.".format(
+                item.label.lower(), ("s" if totals[item] > 1 else ""), prefix=prefix
             ))
 
     def do_split(self, arg):
