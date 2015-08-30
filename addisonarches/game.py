@@ -38,6 +38,7 @@ import uuid
 from turberfield.utils.expert import Expert
 from turberfield.utils.expert import TypesEncoder
 
+from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
 from addisonarches.business import Trader
 from addisonarches.scenario import Location
@@ -339,7 +340,20 @@ class Game(Persistent):
         msg = object()
         while msg is not None:
             msg = yield from q.get()
-            if isinstance(msg, Game.Via):
+            if isinstance(msg, Game.Item):
+                try:
+                    item = next(
+                        i for i in
+                        self.businesses[msg.owner].inventories[msg.location].contents
+                        if i.label == msg.label and i.description == msg.description
+                    )
+                except (KeyError, StopIteration) as e:
+                    self._log.warning(msg)
+                else:
+                    self.drama = Buying(iterable=[item])
+                    yield from asyncio.sleep(0, loop)
+
+            elif isinstance(msg, Game.Via):
                 try: 
                     if self.destinations[msg.id] == msg.name:
 

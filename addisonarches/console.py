@@ -31,7 +31,6 @@ import random
 import sys
 import uuid
 
-from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
 from addisonarches.business import Selling
 from addisonarches.game import Clock
@@ -200,18 +199,23 @@ class Console(cmd.Cmd):
             > buy 3
         """
         line = arg.strip()
-        view = self.game.here.inventories[self.game.location].contents.items()
+        #view = self.game.here.inventories[self.game.location].contents.items()
+        data = get_objects(self.game)
+        progress = group_by_type(data)
+        totals = Counter(progress[Game.Item])
+        menu = list(set(progress[Game.Item]))
+
         if not line:
             print("Here's what you can buy:")
             print(
-                *["{0:01}: {1.label} ({2})".format(n, k, v)
-                for n, (k, v) in enumerate(view)],
+                *["{0:01}: {1.label} ({2})".format(n, i, totals[i])
+                for n, i in enumerate(menu) if totals[i]],
                 sep="\n")
             sys.stdout.write("\n")
         elif line.isdigit():
-            k, v = list(view)[int(line)]
+            item = menu[int(line)]
+            self.queue.put_nowait(item)
             # TODO: send a buying message to Game
-            self.game.drama = Buying(iterable=[k])
         
     def do_ask(self, arg):
         """
