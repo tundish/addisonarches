@@ -198,7 +198,7 @@ class GameTests(unittest.TestCase):
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:30:00"))
             self.assertEqual(1, len(objs[Game.Via]))
             self.assertEqual(1, len(objs[Character]))
-            self.assertEqual(1, len(objs[Game.Item]))
+            self.assertEqual(3, len(objs[Game.Item]))
             self.assertEqual(1, len(objs[Trader.Patter]))
 
         done, pending = self.run_test_async(stimulus)

@@ -29,7 +29,6 @@ import operator
 import os
 import os.path
 import pickle
-from pprint import pprint
 import random
 import sys
 import tempfile
@@ -283,17 +282,18 @@ class Game(Persistent):
         ] + [
             Game.Via(n, i, None) for n, i in enumerate(self.destinations)
         ]
-
         iBusiness = self.businesses.index(self.here)
         rv.extend([
             Game.Item("Compound", k.label, k.description, self.location, iBusiness) 
             for k, v in self.here.inventories[self.location].contents.items()
-            if v and getattr(k, "components", None)
+            for i in range(v)
+            if getattr(k, "components", None)
         ])
         rv.extend([
             Game.Item("Commodity", k.label, k.description, self.location, iBusiness) 
             for k, v in self.here.inventories[self.location].contents.items()
-            if v and not getattr(k, "components", None)
+            for i in range(v)
+            if not getattr(k, "components", None)
         ])
 
         if self.here != self.businesses[0]:
