@@ -174,8 +174,10 @@ class Console(cmd.Cmd):
                  )
             )
         else:
-            for msg in reaction:
-                print(msg)
+            for n, msg in enumerate(reaction):
+                if not n:
+                    print("{0.actor.name} says,".format(msg), end=" ")
+                print(msg.text)
 
         data = get_objects(self.game, "progress.rson")
         objs = group_by_type(data)
@@ -207,6 +209,7 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             k, v = list(view)[int(line)]
+            # TODO: send a buying message to Game
             self.game.drama = Buying(iterable=[k])
         
     def do_ask(self, arg):
@@ -338,6 +341,7 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             k, v = list(view)[int(line)]
+            # TODO: split becomes a method of Business
             inv = self.game.here.inventories[self.game.location]
             inv.contents[k] -= 1
             inv.contents.update(k.components)

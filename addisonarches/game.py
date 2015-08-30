@@ -179,7 +179,7 @@ class Clock(Persistent):
 class Game(Persistent):
 
     Drama = namedtuple("Drama", ["type", "mood"])
-    Item = namedtuple("Item", ["type", "label", "description"])
+    Item = namedtuple("Item", ["type", "label", "description", "location", "owner"])
     Player = namedtuple("Player", ["user", "name"])
     Tally = namedtuple("Tally", ["actor", "name", "value", "units"])
     Via = namedtuple("Via", ["id", "name", "tip"])
@@ -192,6 +192,11 @@ class Game(Persistent):
     ):
         # No need for HATEOAS until knockout.js
         return OrderedDict([
+            ("inventory.rson", Persistent.RSON(
+                "inventory.rson",
+                "inventory",
+                Persistent.Path(parent, player.user, slot, "inventory.rson")
+            )),
             ("progress.rson", Persistent.RSON(
                 "progress.rson",
                 "progress",
@@ -278,13 +283,15 @@ class Game(Persistent):
         ] + [
             Game.Via(n, i, None) for n, i in enumerate(self.destinations)
         ]
+
+        iBusiness = self.businesses.index(self.here)
         rv.extend([
-            Game.Item("Compound", k.label, k.description) 
+            Game.Item("Compound", k.label, k.description, self.location, iBusiness) 
             for k, v in self.here.inventories[self.location].contents.items()
             if v and getattr(k, "components", None)
         ])
         rv.extend([
-            Game.Item("Commodity", k.label, k.description) 
+            Game.Item("Commodity", k.label, k.description, self.location, iBusiness) 
             for k, v in self.here.inventories[self.location].contents.items()
             if v and not getattr(k, "components", None)
         ])
