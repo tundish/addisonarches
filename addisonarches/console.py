@@ -158,7 +158,7 @@ class Console(cmd.Cmd):
     def postcmd(self, stop, line):
         "Potential 'game over' decisions."
         try:
-            handler = self.game.here.handler(self.game.drama)
+            handler = self.game.here.handler(self.game.drama, ts=self.ts)
             reaction = handler(self.game.drama, self.game)
         except AttributeError:
             # Player business is not a Handler subclass
@@ -225,7 +225,7 @@ class Console(cmd.Cmd):
         """
         line = arg.strip()
         if line.isdigit():
-            offer = Ask(self.game.ts, int(line), "£")
+            offer = Ask(self.ts, int(line), "£")
             self.game.drama.memory.append(offer)
         
     def do_bid(self, arg):
@@ -236,7 +236,7 @@ class Console(cmd.Cmd):
         """
         line = arg.strip()
         if line.isdigit():
-            offer = Bid(self.game.ts, int(line), "£")
+            offer = Bid(self.ts, int(line), "£")
             self.game.drama.memory.append(offer)
         
     def do_sell(self, arg):

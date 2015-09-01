@@ -341,6 +341,7 @@ class Game(Persistent):
         while msg is not None:
             msg = yield from q.get()
             if isinstance(msg, Game.Item):
+                # TODO: owner of item determines buy/sell context
                 try:
                     item = next(
                         i for i in

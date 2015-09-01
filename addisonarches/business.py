@@ -112,7 +112,7 @@ class Trader(Handler, CashBusiness):
 
     Patter = namedtuple("Patter", ["actor", "text"])
 
-    def _handle_buying(self, drama:Buying, game):
+    def _handle_buying(self, drama:Buying, game, ts=None):
         try:
             focus = drama.memory[0]
             offer = game.drama.memory[-1]
@@ -129,12 +129,12 @@ class Trader(Handler, CashBusiness):
                     "'I'll agree on "
                     "{0.currency}{0.value}'.".format(offer)
                 ))
-                asset = Asset(focus, None, game.ts)
+                asset = Asset(focus, None, ts)
                 picks = self.retrieve(asset)
                 quantity = sum(i[1] for i in picks)
                 price = quantity * offer.value
                 game.businesses[0].store(
-                    Asset(focus, quantity, game.ts)
+                    Asset(focus, quantity, ts)
                 )
                 game.businesses[0].tally -= price
                 self.tally += price
@@ -152,10 +152,11 @@ class Trader(Handler, CashBusiness):
                 )
             ))
         except Exception as e:
+            print(e)
             yield(e)
 
 
-    def _handle_selling(self, drama:Selling, game):
+    def _handle_selling(self, drama:Selling, game, ts=None):
         try:
             focus = drama.memory[0]
             valuations = self.book[type(focus)]
@@ -199,12 +200,12 @@ class Trader(Handler, CashBusiness):
                         "'I'll agree on "
                         "{0.currency}{0.value}'.".format(offer)
                     ))
-                    asset = Asset(focus, None, game.ts)
+                    asset = Asset(focus, None, ts)
                     picks = game.businesses[0].retrieve(asset)
                     quantity = sum(i[1] for i in picks)
                     price = quantity * offer.value
                     self.store(
-                        Asset(focus, quantity, game.ts)
+                        Asset(focus, quantity, ts)
                     )
                     self.tally -= price
                     game.businesses[0].tally += price
