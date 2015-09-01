@@ -351,7 +351,7 @@ class Game(Persistent):
                     self._log.warning(msg)
                 else:
                     self.drama = Buying(iterable=[item])
-                    yield from asyncio.sleep(0, loop)
+                    yield from asyncio.sleep(0, loop=loop)
 
             elif isinstance(msg, Game.Via):
                 try: 

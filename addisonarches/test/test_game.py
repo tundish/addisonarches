@@ -220,15 +220,18 @@ class GameTests(unittest.TestCase):
             yield from asyncio.sleep(0, loop=loop)
             data = get_objects(game, "progress.rson")
             objs = group_by_type(data)
+            drama = objs[Game.Drama][0]
+            self.assertEqual(type(None).__name__, drama.type)
 
             self.assertEqual("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
 
             focus = objs[Game.Item][0]
             yield from q.put(focus)
             yield from asyncio.sleep(0, loop=loop)
-            #yield from asyncio.sleep(0, loop=loop)
             data = get_objects(game, "progress.rson")
             objs = group_by_type(data)
-            print(objs)
+
+            drama = objs[Game.Drama][0]
+            self.assertEqual("buying", drama.mood)
 
         done, pending = self.run_test_async(stimulus)
