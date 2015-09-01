@@ -233,5 +233,6 @@ class GameTests(unittest.TestCase):
 
             drama = objs[Game.Drama][0]
             self.assertEqual("buying", drama.mood)
+            self.assertIsInstance(game.drama, Buying)
 
         done, pending = self.run_test_async(stimulus)

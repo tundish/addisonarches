@@ -351,6 +351,7 @@ class Game(Persistent):
                     self._log.warning(msg)
                 else:
                     self.drama = Buying(iterable=[item])
+                    self.declare(dict(progress=self.progress))
                     yield from asyncio.sleep(0, loop=loop)
 
             elif isinstance(msg, Game.Via):
