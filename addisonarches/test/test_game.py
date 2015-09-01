@@ -26,6 +26,7 @@ import tempfile
 import unittest
 import uuid
 
+from addisonarches.business import Buying
 from addisonarches.business import Trader
 from addisonarches.game import Clock
 from addisonarches.game import Game
@@ -203,3 +204,31 @@ class GameTests(unittest.TestCase):
 
         done, pending = self.run_test_async(stimulus)
 
+    def test_buy(self):
+
+        @asyncio.coroutine
+        def stimulus(game, q, loop=None):
+            data = get_objects(game, "progress.rson")
+            objs = group_by_type(data)
+            self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
+            self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
+            self.assertEqual(6, len(objs[Game.Via]))
+
+            # Go to Kinh Ship Bulk Buy
+            yield from q.put(objs[Game.Via][1])
+            yield from asyncio.sleep(0, loop=loop)
+            yield from asyncio.sleep(0, loop=loop)
+            data = get_objects(game, "progress.rson")
+            objs = group_by_type(data)
+
+            self.assertEqual("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
+
+            focus = objs[Game.Item][0]
+            yield from q.put(focus)
+            yield from asyncio.sleep(0, loop=loop)
+            #yield from asyncio.sleep(0, loop=loop)
+            data = get_objects(game, "progress.rson")
+            objs = group_by_type(data)
+            print(objs)
+
+        done, pending = self.run_test_async(stimulus)
