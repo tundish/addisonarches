@@ -21,6 +21,7 @@ import argparse
 import asyncio
 from collections import OrderedDict
 import concurrent.futures
+import functools
 import json
 import logging
 import os
@@ -29,6 +30,7 @@ import time
 
 import aiohttp.web
 import pkg_resources
+import pyratemp
 
 from turberfield.utils.expert import TypesEncoder
 
@@ -47,6 +49,31 @@ Runs the web interface for Addison Arches.
 #    pkg_resources.resource_filename("addisonarches.web", "templates")
 #)
 
+def get_params(terminal, link=None, section=None):
+    if link is None and section is None:
+        return pkg_resources.resource_string(
+            "addisonarches.web",
+            "rson/{}.rson".format(terminal)
+        )
+    else:
+        return pkg_resources.resource_string(
+            "addisonarches.web",
+            "rson/{}_{}_{}.rson".format(terminal, link, section)
+        )
+
+class TemplateLoader(pyratemp.LoaderFile):
+
+    def __init__(self, *args, encoding="utf=8", **kwargs):
+        path = pkg_resources.resource_filename("addisonarches.web", "templates")
+        super().__init__(path, encoding, **kwargs)
+
+    @functools.lru_cache(maxsize=16)
+    def load(self, name):
+        return pkg_resources.resource_string(
+            "addisonarches.web",
+            "templates/{}".format(name)
+        ).decode(self.encoding)
+
 def authenticated_userid(request):
     return "someone@somewhere.net"
 
@@ -54,6 +81,7 @@ class Transitions:
 
     @asyncio.coroutine
     def hello(self, request):
+        t = pyratemp.Template(filename="titles.prt", loader_class=TemplateLoader)
         return aiohttp.web.Response(body=b"Hello, world")
 
 #@app.route("/", "GET")
