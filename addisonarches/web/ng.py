@@ -50,9 +50,11 @@ Runs the web interface for Addison Arches.
 def authenticated_userid(request):
     return "someone@somewhere.net"
 
-@asyncio.coroutine
-def hello(request):
-    return aiohttp.web.Response(body=b"Hello, world")
+class Transitions:
+
+    @asyncio.coroutine
+    def hello(self, request):
+        return aiohttp.web.Response(body=b"Hello, world")
 
 #@app.route("/", "GET")
 def home_get():
@@ -177,8 +179,9 @@ def main(args):
     ch.setFormatter(formatter)
     log.addHandler(ch)
 
+    transitions = Transitions()
     app = aiohttp.web.Application()
-    app.router.add_route('GET', '/', hello)
+    app.router.add_route('GET', '/', transitions.hello, name="hello")
 
     loop = asyncio.get_event_loop()
     handler = app.make_handler()
