@@ -82,7 +82,7 @@ class Transitions:
     @asyncio.coroutine
     def hello(self, request):
         t = pyratemp.Template(filename="titles.prt", loader_class=TemplateLoader)
-        return aiohttp.web.Response(body=b"Hello, world")
+        return aiohttp.web.Response(content_type="text/html", text=t())
 
 #@app.route("/", "GET")
 def home_get():

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>{{info.get("title", "Addison Arches")}}</title>
+<link rel="stylesheet" href="/css/pure/base-min.css" />
+<link rel="stylesheet" href="/css/pure/pure-min.css" media="screen" />
+<link rel="stylesheet" href="/css/pure/grids-responsive-min.css" media="screen" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="/js/prefixfree.min.js"></script>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+
+.img-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.scene-1 {
+    animation: travel 30s linear 1 0s;
+    animation-fill-mode: forwards;
+    background-color: #333;
+    opacity: 1;
+}
+
+.txt-wrapper {
+    color: #eee;
+    font-family: sans-serif;
+    padding: 0.5em;
+    position: absolute;
+}
+
+h1 {
+    opacity: 0;
+    top: 500px;
+    left: 600px;
+    animation: titles 12s linear 1 18s;
+}
+
+p {
+    color: #777;
+    font-size: 2.4em;
+    font-weight: lighter;
+    opacity: 0;
+    width: 300px;
+    margin-left: 52px;
+    margin-top: 20px;
+    transform: rotate( 8deg );
+    animation: titles 3s linear 1 1.5s;
+}
+
+li {
+    list-style-type: none;
+}
+
+#byline {
+    font-size: 1.2em;
+    opacity: 0;
+    width: 300px;
+    margin-left: 450px;
+    margin-top: 300px;
+    animation: titles 4.5s linear 1 5s;
+}
+
+#strapline {
+    color: #777;
+    font-size: 0.9em;
+    opacity: 0;
+    margin-left: 110px;
+    margin-top: -340px;
+    transform: rotate( 10.5deg );
+    animation: titles 4s linear 1 10.5s;
+}
+
+#byline a {
+    color: #777;
+}
+
+#play {
+    animation: controls 12s linear 1 18s;
+    animation-fill-mode: forwards;
+    float: left;
+    margin-left: 60px;
+    opacity: 0;
+    position: relative;
+    top: 560px;
+}
+
+@keyframes 
+controls {
+ 0% {
+ opacity: 0;
+}
+ 20% {
+ opacity: 1;
+}
+ 100% {
+ opacity: 1;
+}
+}
+
+@keyframes 
+titles {
+ 0% {
+ opacity: 0;
+}
+ 20% {
+ opacity: 1;
+}
+ 80% {
+ opacity: 1;
+}
+ 100% {
+ opacity: 0;
+}
+}
+
+@keyframes 
+travel {
+ 0% {
+ opacity: 1;
+ transform: scale(1.6) translate(-1200px, -570px);
+}
+ 15% {
+ opacity: 1;
+ transform: scale(1.6) translate(-1200px, -570px);
+}
+ 20% {
+ opacity: 1;
+ transform: scale(2) translate(-1000px, -900px);
+}
+ 30% {
+ opacity: 1;
+ transform: scale(2) translate(-1000px, -900px);
+}
+ 35% {
+ opacity: 1;
+ transform: scale(1.2) translate(-600px, -900px);
+}
+ 50% {
+ opacity: 1;
+ transform: scale(1.2) translate(-600px, -900px);
+}
+ 60% {
+ opacity: 1;
+ transform: scale(0.5) translate(-1600px, -1300px);
+}
+ 100% {
+ opacity: 1;
+ transform: scale(0.5) translate(-1600px, -1300px);
+}
+}
+
+</style>
+</head>
+<body class="loading">
+<div class="img-wrapper">
+  <img class="scene-1" src="/img/carboot-3104x1984.jpg" />
+</div>
+<div class="txt-wrapper">
+<h1>Addison Arches</h1>
+<p>Thuswise Ltd presents</p>
+<ul>
+<li id="byline">designed and developed by <a href="https://github.com/tundish">tundish</a></li>
+<li id="strapline">a web game of trade and adventure.</li>
+</ul>
+</div>
+<a id="play" class="pure-button pure-button-primary" href="/">Play</a>
+<script type="text/javascript" src="/js/jquery-2.1.1.js"></script>
+<script type="text/javascript" src="/js/SeamlessLoop.js"></script>
+<!-- TODO: Button to mute audio -->
+<script>
+    $(window).load(function(){
+        var soundtrack = new SeamlessLoop();
+        //check if the browser can play MP3's. If not, use ogg.
+        var audio  = document.createElement("audio"),
+        canPlayMP3 = (typeof audio.canPlayType === "function" &&
+                      audio.canPlayType("audio/mpeg") !== "");
+        if (canPlayMP3===true) {
+          soundtrack.addUri("/audio/beatloop-3x84bpm.wav", 5714.29, "beats");
+        } else {
+          soundtrack.addUri("/audio/beatloop-3x84bpm.wav", 5714.29, "beats");
+        }
+
+        function soundsLoaded() {
+          $("body").removeClass("loading").addClass("playing");
+          soundtrack.update("beats");
+        };
+
+        soundtrack.callback(soundsLoaded);
+        soundtrack.start("beats");
+        soundtrack.update("beats");
+
+    });
+</script>
+</body>
+</html>
