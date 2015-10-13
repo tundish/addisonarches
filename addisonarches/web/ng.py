@@ -44,23 +44,6 @@ __doc__ = """
 Runs the web interface for Addison Arches.
 """
 
-
-#bottle.TEMPLATE_PATH.append(
-#    pkg_resources.resource_filename("addisonarches.web", "templates")
-#)
-
-def get_params(terminal, link=None, section=None):
-    if link is None and section is None:
-        return pkg_resources.resource_string(
-            "addisonarches.web",
-            "rson/{}.rson".format(terminal)
-        )
-    else:
-        return pkg_resources.resource_string(
-            "addisonarches.web",
-            "rson/{}_{}_{}.rson".format(terminal, link, section)
-        )
-
 class TemplateLoader(pyratemp.LoaderFile):
 
     def __init__(self, *args, encoding="utf=8", **kwargs):
@@ -77,12 +60,37 @@ class TemplateLoader(pyratemp.LoaderFile):
 def authenticated_userid(request):
     return "someone@somewhere.net"
 
-class Transitions:
+class Service:
+
+    def __init__(self, app, **kwargs):
+        self.config = kwargs
+
+class Transitions(Service):
+
+    def __init__(self, app, **kwargs):
+        super().__init__(app, **kwargs)
+        app.router.add_route("GET", "/titles", self.titles_get, name="titles")
+        #app.router.add_route('GET', r'/{name:\d+}', variable_handler)
+
+    @property
+    def titles(self):
+        items = []
+        return {
+            "info": {
+                "args": self.config.get("args"),
+                "interval": 200,
+                "time": "{:.1f}".format(time.time()),
+                "title": "Addison Arches {}".format(__version__),
+                "version": __version__
+            },
+            "items": OrderedDict([(str(id(i)), i) for i in items]),
+            
+        }
 
     @asyncio.coroutine
-    def hello(self, request):
+    def titles_get(self, request):
         t = pyratemp.Template(filename="titles.prt", loader_class=TemplateLoader)
-        return aiohttp.web.Response(content_type="text/html", text=t())
+        return aiohttp.web.Response(content_type="text/html", text=t(**self.titles))
 
 #@app.route("/", "GET")
 def home_get():
@@ -207,9 +215,8 @@ def main(args):
     ch.setFormatter(formatter)
     log.addHandler(ch)
 
-    transitions = Transitions()
     app = aiohttp.web.Application()
-    app.router.add_route('GET', '/', transitions.hello, name="hello")
+    transitions = Transitions(app, args=args)
 
     loop = asyncio.get_event_loop()
     handler = app.make_handler()

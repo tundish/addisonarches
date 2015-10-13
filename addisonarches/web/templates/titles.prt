@@ -1,8 +1,11 @@
+<!--(set_escape)-->
+    html
+<!--(end)-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>{{info.get("title", "Addison Arches")}}</title>
+<title>@!info.get("title", "Addison Arches")!@</title>
 <link rel="stylesheet" href="/css/pure/base-min.css" />
 <link rel="stylesheet" href="/css/pure/pure-min.css" media="screen" />
 <link rel="stylesheet" href="/css/pure/grids-responsive-min.css" media="screen" />
