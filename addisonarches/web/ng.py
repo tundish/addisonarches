@@ -80,14 +80,15 @@ class Service:
                     pass
                 else:
                     app.router.add_route(verb, path, fn, name=name)
-                    yield name
+                    yield (name, fn)
                 
         
 class Transitions(Service):
 
     def __init__(self, app, **kwargs):
         super().__init__(app, **kwargs)
-        print(list(self._register(app, "/titles")))
+        self.routes = dict(list(self._register(app, "/titles")))
+        print(self.routes)
         #app.router.add_route("GET", "/titles", self.titles_get, name="titles")
         #app.router.add_route('GET', r'/{name:\d+}', variable_handler)
 
