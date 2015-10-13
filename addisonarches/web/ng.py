@@ -69,7 +69,7 @@ class Service:
         self.config = kwargs
 
     def _register(self, app, *args):
-        table = str.maketrans("/", "_", "{}")
+        table = str.maketrans("/", "_", "{}[]^+*:.?()$")
         for path in args:
             base = urllib.parse.urlparse(path).path.strip("/").translate(table)
             for verb in Service.verbs:
@@ -82,15 +82,89 @@ class Service:
                     app.router.add_route(verb, path, fn, name=name)
                     yield (name, fn)
                 
-        
+
+class Assets(Service):
+
+    def __init__(self, app, **kwargs):
+        super().__init__(app, **kwargs)
+        self.routes = dict(list(self._register(
+            app,
+            "/audio/{path}",
+            "/css/{path:[^{}]+}",
+            "/img/{path}",
+            "/js/{path}"
+        )))
+
+    @asyncio.coroutine
+    def audio_path_get(self, request):
+        path = request.match_info["path"]
+        if os.sep in path:
+            return aiohttp.web.HTTPForbidden()
+        else:
+            data = pkg_resources.resource_string(
+                "addisonarches.web",
+                "static/audio/{}".format(path)
+            )
+            return aiohttp.web.Response(
+                body=data,
+                content_type="audio/wav"
+            )
+
+    @asyncio.coroutine
+    def css_path_get(self, request):
+        path = request.match_info["path"]
+        if ".." in path:
+            return aiohttp.web.HTTPForbidden()
+        else:
+            data = pkg_resources.resource_string(
+                "addisonarches.web",
+                "static/css/{}".format(path)
+            )
+            return aiohttp.web.Response(
+                body=data,
+                content_type="text/css"
+            )
+
+    @asyncio.coroutine
+    def img_path_get(self, request):
+        path = request.match_info["path"]
+        ext = os.path.splitext(path)[1]
+        if not ext or os.sep in path:
+            return aiohttp.web.HTTPForbidden()
+        else:
+            data = pkg_resources.resource_string(
+                "addisonarches.web",
+                "static/img/{}".format(path)
+            )
+            cType = {
+                "jpg": "image/jpeg",
+                "png": "image/png",
+            }.get(ext, "application/octet-stream")
+            return aiohttp.web.Response(
+                body=data,
+                content_type=cType
+            )
+
+    @asyncio.coroutine
+    def js_path_get(self, request):
+        path = request.match_info["path"]
+        if os.sep in path:
+            return aiohttp.web.HTTPForbidden()
+        else:
+            data = pkg_resources.resource_string(
+                "addisonarches.web",
+                "static/js/{}".format(path)
+            )
+            return aiohttp.web.Response(
+                body=data,
+                content_type="text/javascript"
+            )
+
 class Transitions(Service):
 
     def __init__(self, app, **kwargs):
         super().__init__(app, **kwargs)
         self.routes = dict(list(self._register(app, "/titles")))
-        print(self.routes)
-        #app.router.add_route("GET", "/titles", self.titles_get, name="titles")
-        #app.router.add_route('GET', r'/{name:\d+}', variable_handler)
 
     def titles(self, items=[]):
         return {
@@ -147,75 +221,6 @@ def home_get():
             page, cls=TypesEncoder, indent=4
         )
 
-#@app.route("/titles", "GET")
-#@bottle.view("titles")
-def titles_get():
-    log = logging.getLogger("addisonarches.web.titles")
-
-    items = []
-    return {
-        "info": {
-            "args": app.config.get("args"),
-            "debug": bottle.debug,
-            "interval": 200,
-            "time": "{:.1f}".format(time.time()),
-            "title": "Addison Arches {}".format(__version__),
-            "version": __version__
-        },
-        "items": OrderedDict([(str(id(i)), i) for i in items]),
-        
-    }
-
-#@app.route("/audio/<filepath:path>")
-def serve_audio(filepath):
-    log = logging.getLogger("addisonarches.web.serve_audio")
-    log.debug(filepath)
-    locn = pkg_resources.resource_filename(
-        "addisonarches.web", "static/audio"
-    )
-    return bottle.static_file(filepath, root=locn)
-
-
-#@app.route("/css/<filepath:path>")
-def serve_css(filepath):
-    log = logging.getLogger("addisonarches.web.serve_css")
-    log.debug(filepath)
-    locn = pkg_resources.resource_filename(
-        "addisonarches.web", "static/css"
-    )
-    return bottle.static_file(filepath, root=locn)
-
-
-#@app.route("/data/<filename>")
-def serve_data(filename):
-    bottle.request.environ["HTTP_IF_MODIFIED_SINCE"] = None
-    locn = app.config["args"].output
-    response = bottle.static_file(filename, root=locn)
-    response.expires = os.path.getmtime(locn)
-    response.set_header("Cache-control", "max-age=0")
-    return response
-
-
-#@app.route("/img/<filepath:path>")
-def serve_img(filepath):
-    log = logging.getLogger("addisonarches.web.serve_img")
-    log.debug(filepath)
-    locn = pkg_resources.resource_filename(
-        "addisonarches.web", "static/img"
-    )
-    return bottle.static_file(filepath, root=locn)
-
-
-#@app.route("/js/<filepath:path>")
-def serve_js(filepath):
-    log = logging.getLogger("addisonarches.web.serve_js")
-    log.debug(filepath)
-    locn = pkg_resources.resource_filename(
-        "addisonarches.web", "static/js"
-    )
-    return bottle.static_file(filepath, root=locn)
-
-
 def main(args):
     log = logging.getLogger("addisonarches.web")
     log.setLevel(args.log_level)
@@ -237,6 +242,7 @@ def main(args):
     log.addHandler(ch)
 
     app = aiohttp.web.Application()
+    assets = Assets(app, args=args)
     transitions = Transitions(app, args=args)
 
     loop = asyncio.get_event_loop()
