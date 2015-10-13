@@ -27,6 +27,7 @@ import logging
 import os
 import sys
 import time
+import urllib.parse
 
 import aiohttp.web
 import pkg_resources
@@ -62,19 +63,35 @@ def authenticated_userid(request):
 
 class Service:
 
+    verbs = ("get", "head", "options", "post", "put", "delete", "trace", "connect", "patch")
+
     def __init__(self, app, **kwargs):
         self.config = kwargs
 
+    def _register(self, app, *args):
+        table = str.maketrans("/", "_", "{}")
+        for path in args:
+            base = urllib.parse.urlparse(path).path.strip("/").translate(table)
+            for verb in Service.verbs:
+                name = "{}_{}".format(base, verb)
+                try:
+                    fn = getattr(self, name)
+                except AttributeError:
+                    pass
+                else:
+                    app.router.add_route(verb, path, fn, name=name)
+                    yield name
+                
+        
 class Transitions(Service):
 
     def __init__(self, app, **kwargs):
         super().__init__(app, **kwargs)
-        app.router.add_route("GET", "/titles", self.titles_get, name="titles")
+        print(list(self._register(app, "/titles")))
+        #app.router.add_route("GET", "/titles", self.titles_get, name="titles")
         #app.router.add_route('GET', r'/{name:\d+}', variable_handler)
 
-    @property
-    def titles(self):
-        items = []
+    def titles(self, items=[]):
         return {
             "info": {
                 "args": self.config.get("args"),
@@ -89,8 +106,11 @@ class Transitions(Service):
 
     @asyncio.coroutine
     def titles_get(self, request):
-        t = pyratemp.Template(filename="titles.prt", loader_class=TemplateLoader)
-        return aiohttp.web.Response(content_type="text/html", text=t(**self.titles))
+        tmplt = pyratemp.Template(filename="titles.prt", loader_class=TemplateLoader)
+        return aiohttp.web.Response(
+            content_type="text/html",
+            text=tmplt(**self.titles())
+        )
 
 #@app.route("/", "GET")
 def home_get():
