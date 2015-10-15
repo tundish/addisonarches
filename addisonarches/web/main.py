@@ -19,17 +19,12 @@
 
 import argparse
 import asyncio
-from collections import OrderedDict
-import concurrent.futures
-import json
+import functools
 import logging
 import os
 import sys
-import time
 
-import bottle
-from bottle import Bottle
-import pkg_resources
+import aiohttp.web
 
 from turberfield.utils.expert import TypesEncoder
 
@@ -38,22 +33,14 @@ from addisonarches.cli import add_common_options
 from addisonarches.cli import add_web_options
 import addisonarches.game
 from addisonarches.utils import send
+from addisonarches.web.services import Assets
+from addisonarches.web.services import Transitions
 
 __doc__ = """
 Runs the web interface for Addison Arches.
 """
 
-
-bottle.TEMPLATE_PATH.append(
-    pkg_resources.resource_filename("addisonarches.web", "templates")
-)
-
-app = Bottle()
-
-def authenticated_userid(request):
-    return "someone@somewhere.net"
-
-@app.route("/", "GET")
+#@app.route("/", "GET")
 def home_get():
     log = logging.getLogger("addisonarches.web.home")
     userId = authenticated_userid(bottle.request)
@@ -87,75 +74,6 @@ def home_get():
             page, cls=TypesEncoder, indent=4
         )
 
-@app.route("/titles", "GET")
-@bottle.view("titles")
-def titles_get():
-    log = logging.getLogger("addisonarches.web.titles")
-
-    items = []
-    return {
-        "info": {
-            "args": app.config.get("args"),
-            "debug": bottle.debug,
-            "interval": 200,
-            "time": "{:.1f}".format(time.time()),
-            "title": "Addison Arches {}".format(__version__),
-            "version": __version__
-        },
-        "items": OrderedDict([(str(id(i)), i) for i in items]),
-        
-    }
-
-@app.route("/audio/<filepath:path>")
-def serve_audio(filepath):
-    log = logging.getLogger("addisonarches.web.serve_audio")
-    log.debug(filepath)
-    locn = pkg_resources.resource_filename(
-        "addisonarches.web", "static/audio"
-    )
-    return bottle.static_file(filepath, root=locn)
-
-
-@app.route("/css/<filepath:path>")
-def serve_css(filepath):
-    log = logging.getLogger("addisonarches.web.serve_css")
-    log.debug(filepath)
-    locn = pkg_resources.resource_filename(
-        "addisonarches.web", "static/css"
-    )
-    return bottle.static_file(filepath, root=locn)
-
-
-@app.route("/data/<filename>")
-def serve_data(filename):
-    bottle.request.environ["HTTP_IF_MODIFIED_SINCE"] = None
-    locn = app.config["args"].output
-    response = bottle.static_file(filename, root=locn)
-    response.expires = os.path.getmtime(locn)
-    response.set_header("Cache-control", "max-age=0")
-    return response
-
-
-@app.route("/img/<filepath:path>")
-def serve_img(filepath):
-    log = logging.getLogger("addisonarches.web.serve_img")
-    log.debug(filepath)
-    locn = pkg_resources.resource_filename(
-        "addisonarches.web", "static/img"
-    )
-    return bottle.static_file(filepath, root=locn)
-
-
-@app.route("/js/<filepath:path>")
-def serve_js(filepath):
-    log = logging.getLogger("addisonarches.web.serve_js")
-    log.debug(filepath)
-    locn = pkg_resources.resource_filename(
-        "addisonarches.web", "static/js"
-    )
-    return bottle.static_file(filepath, root=locn)
-
-
 def main(args):
     log = logging.getLogger("addisonarches.web")
     log.setLevel(args.log_level)
@@ -176,16 +94,26 @@ def main(args):
     ch.setFormatter(formatter)
     log.addHandler(ch)
 
-    bottle.debug(True)
-    bottle.TEMPLATES.clear()
-    log.debug(bottle.TEMPLATE_PATH)
+    app = aiohttp.web.Application()
+    assets = Assets(app, args=args)
+    transitions = Transitions(app, args=args)
 
-    log.info("Starting local server...")
-    app.config.update({
-        "args": args,
-    })
-    bottle.run(app, host=args.host, port=args.port)
+    loop = asyncio.get_event_loop()
+    handler = app.make_handler()
+    f = loop.create_server(handler, args.host, args.port)
+    srv = loop.run_until_complete(f)
 
+    log.info("Serving on {0[0]}:{0[1]}".format(srv.sockets[0].getsockname()))
+    try:
+        loop.run_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        loop.run_until_complete(handler.finish_connections(1.0))
+        srv.close()
+        loop.run_until_complete(srv.wait_closed())
+        loop.run_until_complete(app.finish())
+    loop.close()
 
 def run():
     p = argparse.ArgumentParser(
