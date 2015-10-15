@@ -68,8 +68,9 @@ setup(
         ]
     },
     install_requires=[
-        "bottle>=0.12.7",
+        "aiohttp>=0.17.4",
         "rson>=0.9",
+        "pyratemp>=0.3.2",
         "tallywallet-common>=0.009.0",
         "turberfield-utils>=0.011.0",
     ],
