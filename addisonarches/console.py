@@ -378,6 +378,8 @@ def main(args):
     commands = asyncio.Queue(loop=loop)
     queue = asyncio.Queue(loop=loop)
 
+    # TODO Make an up and a down queue for each of Console, Game.
+    # TODO: Cross-wire them.
     options = Clock.options(parent=args.output)
     clock = Clock(loop=loop, **options)
 

@@ -100,6 +100,8 @@ def main(args):
         else:
             loop = asyncio.get_event_loop()
 
+        # TODO: Spawn N==1 web processes
+        # TODO: Create node and invoke Game object in this process
         queue = asyncio.Queue(loop=loop)
         transport = loop.run_until_complete(
             loop.subprocess_exec(

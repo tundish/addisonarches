@@ -97,6 +97,8 @@ def main(args):
     app = aiohttp.web.Application()
     assets = Assets(app, args=args)
     transitions = Transitions(app, args=args)
+    # TODO: Make a Turberfield-ipc node
+    # TODO: API service takes up and down queue
 
     loop = asyncio.get_event_loop()
     handler = app.make_handler()
