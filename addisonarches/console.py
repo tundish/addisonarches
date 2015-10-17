@@ -52,6 +52,44 @@ from addisonarches.valuation import Bid
 #           sys.stdout.flush()
 
 
+def create_console(args, loop, down, up):
+    console = Console(game, commands, queue)
+    executor = concurrent.futures.ThreadPoolExecutor(
+        max(4, len(console.routines) + 1)
+    )
+    tasks = [
+        asyncio.Task(routine(executor, loop=loop))
+        for routine in console.routines
+    ]
+    return (down, up)
+
+def create_game(args, loop, user, name, down=None, up=None):
+
+    if None in (down, up):
+        down = asyncio.Queue(loop=loop)
+        up = asyncio.Queue(loop=loop)
+
+        tok = token(args.connect, APP_NAME)
+        node = create_udp_node(loop, tok, down, up)
+        loop.create_task(node(token=tok))
+
+    options = Clock.options(parent=args.output)
+    clock = Clock(loop=loop, **options)
+
+    options = Game.options(Game.Player(user, name), parent=args.output)
+    game = Game(
+        Game.Player(user, name),
+        addisonarches.scenario.businesses[:],
+        clock,
+        queue,
+        loop=loop,
+        **options
+    ).load()
+    loop.create_task(clock(loop=loop))
+    loop.create_task(game(loop=loop))
+
+    return (down, up)
+
 def get_progress(path, types=(Clock.Tick, Location, Game.Via)):
     path = os.path.join(*path._replace(file="progress.rson"))
     rv = defaultdict(list)
@@ -68,11 +106,15 @@ def get_progress(path, types=(Clock.Tick, Location, Game.Via)):
 
 class Console(cmd.Cmd):
 
-    def __init__(self, game, commands, queue, *args, **kwargs):
+    """
+    TODO: game, queue -> down, up
+    """
+
+    def __init__(self, down, up, *args, loop=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.game = game
-        self.commands = commands
-        self.queue = queue
+        self.down = down
+        self.up = up
+        self.commands = asyncio.Queue(loop=loop)
         self.prompt = "Type 'help' for commands > "
         self.ts = None
 
@@ -393,7 +435,16 @@ def main(args):
         **options
     ).load()
 
-    console = Console(game, commands, queue)
+    #loop = asyncio.SelectorEventLoop()
+    #asyncio.set_event_loop(loop)
+
+    #down = asyncio.Queue(loop=loop)
+    #up = asyncio.Queue(loop=loop)
+
+    #tok = token(args.connect, APP_NAME)
+    #node = create_udp_node(loop, tok, down, up)
+    #loop.create_task(node(token=tok))
+    console = Console(game, commands, queue, loop=loop)
     executor = concurrent.futures.ThreadPoolExecutor(
         max(4, len(console.routines) + 1)
     )
@@ -405,7 +456,10 @@ def main(args):
     tasks.append(asyncio.Task(game(loop=loop)))
     try:
         loop.run_until_complete(asyncio.wait(asyncio.Task.all_tasks(loop)))
+        #loop.run_forever()
     except concurrent.futures.CancelledError:
         pass
+    finally:
+        loop.close()
 
     return 0
