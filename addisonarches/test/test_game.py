@@ -149,7 +149,10 @@ class GameTests(unittest.TestCase):
         """
         @asyncio.coroutine
         def stimulus(game, q, loop=None):
-            data = get_objects(game, "progress.rson")
+            progress = Persistent.recent_slot(
+                game._services["progress.rson"].path
+            )
+            data = get_objects(progress)
             objs = group_by_type(data)
             self.assertEqual(0, len(objs[Location]))
 
@@ -159,7 +162,10 @@ class GameTests(unittest.TestCase):
 
         @asyncio.coroutine
         def stimulus(game, q, loop=None):
-            data = get_objects(game, "progress.rson")
+            progress = Persistent.recent_slot(
+                game._services["progress.rson"].path
+            )
+            data = get_objects(progress)
             objs = group_by_type(data)
             self.assertEqual(6, len(objs[Game.Via]))
 
@@ -182,7 +188,10 @@ class GameTests(unittest.TestCase):
 
         @asyncio.coroutine
         def stimulus(game, q, loop=None):
-            data = get_objects(game, "progress.rson")
+            progress = Persistent.recent_slot(
+                game._services["progress.rson"].path
+            )
+            data = get_objects(progress)
             objs = group_by_type(data)
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
             self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
@@ -192,7 +201,10 @@ class GameTests(unittest.TestCase):
             yield from q.put(objs[Game.Via][1])
             yield from asyncio.sleep(0, loop=loop)
             yield from asyncio.sleep(0, loop=loop)
-            data = get_objects(game, "progress.rson")
+            progress = Persistent.recent_slot(
+                game._services["progress.rson"].path
+            )
+            data = get_objects(progress)
             objs = group_by_type(data)
 
             self.assertEqual("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
@@ -208,7 +220,10 @@ class GameTests(unittest.TestCase):
 
         @asyncio.coroutine
         def stimulus(game, q, loop=None):
-            data = get_objects(game, "progress.rson")
+            progress = Persistent.recent_slot(
+                game._services["progress.rson"].path
+            )
+            data = get_objects(progress)
             objs = group_by_type(data)
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
             self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
@@ -218,7 +233,10 @@ class GameTests(unittest.TestCase):
             yield from q.put(objs[Game.Via][1])
             yield from asyncio.sleep(0, loop=loop)
             yield from asyncio.sleep(0, loop=loop)
-            data = get_objects(game, "progress.rson")
+            progress = Persistent.recent_slot(
+                game._services["progress.rson"].path
+            )
+            data = get_objects(progress)
             objs = group_by_type(data)
             drama = objs[Game.Drama][0]
             self.assertEqual(type(None).__name__, drama.type)
@@ -228,7 +246,10 @@ class GameTests(unittest.TestCase):
             focus = objs[Game.Item][0]
             yield from q.put(focus)
             yield from asyncio.sleep(0, loop=loop)
-            data = get_objects(game, "progress.rson")
+            progress = Persistent.recent_slot(
+                game._services["progress.rson"].path
+            )
+            data = get_objects(progress)
             objs = group_by_type(data)
 
             drama = objs[Game.Drama][0]
