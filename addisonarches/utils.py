@@ -64,6 +64,19 @@ def get_objects(expert, name="progress.rson"):
         )
     return data
 
+def get_objects(path):
+    path = os.path.join(*path)
+    with open(path, 'r') as content:
+        data = rson2objs(
+            content.read(), (
+                Character, Clock.Tick, 
+                Game.Drama, Game.Item, Game.Player, Game.Tally, Game.Via,
+                Location, Trader.Patter,
+                )
+        )
+    return data
+
+
 
 def rson2objs(text, types):
     """

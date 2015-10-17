@@ -52,26 +52,21 @@ from addisonarches.valuation import Bid
 #           sys.stdout.flush()
 
 
-def create_console(args, loop, down, up):
-    console = Console(game, commands, queue)
+def create_local_console(progress, down, up, loop=None):
+    # 'down' and 'up' of game node are cross-connected to console
+    console = Console(progress, up, down, loop=loop)
     executor = concurrent.futures.ThreadPoolExecutor(
         max(4, len(console.routines) + 1)
     )
-    tasks = [
-        asyncio.Task(routine(executor, loop=loop))
-        for routine in console.routines
-    ]
-    return (down, up)
+    for coro in console.routines:
+        loop.create_task(coro(executor, loop=loop))
+    return console
 
 def create_game(args, loop, user, name, down=None, up=None):
 
     if None in (down, up):
         down = asyncio.Queue(loop=loop)
         up = asyncio.Queue(loop=loop)
-
-        tok = token(args.connect, APP_NAME)
-        node = create_udp_node(loop, tok, down, up)
-        loop.create_task(node(token=tok))
 
     options = Clock.options(parent=args.output)
     clock = Clock(loop=loop, **options)
@@ -81,14 +76,14 @@ def create_game(args, loop, user, name, down=None, up=None):
         Game.Player(user, name),
         addisonarches.scenario.businesses[:],
         clock,
-        queue,
         loop=loop,
         **options
     ).load()
     loop.create_task(clock(loop=loop))
     loop.create_task(game(loop=loop))
 
-    return (down, up)
+    progress = Persistent.recent_slot(game._services["progress.rson"].path)
+    return (progress, down, up)
 
 def get_progress(path, types=(Clock.Tick, Location, Game.Via)):
     path = os.path.join(*path._replace(file="progress.rson"))
@@ -110,8 +105,9 @@ class Console(cmd.Cmd):
     TODO: game, queue -> down, up
     """
 
-    def __init__(self, down, up, *args, loop=None, **kwargs):
+    def __init__(self, progress, down, up, *args, loop=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.progress = progress
         self.down = down
         self.up = up
         self.commands = asyncio.Queue(loop=loop)
@@ -161,14 +157,15 @@ class Console(cmd.Cmd):
             try:
                 line = self.precmd(line)
                 stop = self.onecmd(line)
-                self.game.stop = self.postcmd(stop, line)
+                stop = self.postcmd(stop, line)
+                # TODO: Send 'stop' to game (down)
             except Exception as e:
                 print(e)
 
             yield from asyncio.sleep(0, loop)
             yield from asyncio.sleep(0, loop)
 
-            data = get_objects(self.game)
+            data = get_objects(self.progress)
             progress = group_by_type(data)
             locn = next(iter(progress[Location]), None)
             print("You're at {}.".format(getattr(locn, "name", "?")))
@@ -179,10 +176,13 @@ class Console(cmd.Cmd):
             tally = query_object_chain(data, "name", "cash")
             print("You've got {0.units}{0.value} in the kitty.".format(tally))
 
-            if self.game.here != self.game.businesses[0]:
-                print("{0.name} is nearby.".format(
-                        self.game.here.proprietor
-                ))
+            # TODO: Get bystanders from self.progress
+            #if self.game.here != self.game.businesses[0]:
+            if False:
+                pass
+                #print("{0.name} is nearby.".format(
+                #        self.game.here.proprietor
+                #))
             else:
                 print("Earache and fisticuffs? Take them elsewhere.")
 
@@ -221,7 +221,7 @@ class Console(cmd.Cmd):
                     print("{0.actor.name} says,".format(msg), end=" ")
                 print(msg.text)
 
-        data = get_objects(self.game, "progress.rson")
+        data = get_objects(self.progress)
         objs = group_by_type(data)
         tick = next(iter(objs[Clock.Tick]), None)
         self.ts = tick.ts
@@ -242,7 +242,7 @@ class Console(cmd.Cmd):
         """
         line = arg.strip()
         #view = self.game.here.inventories[self.game.location].contents.items()
-        data = get_objects(self.game)
+        data = get_objects(self.progress)
         progress = group_by_type(data)
         totals = Counter(progress[Game.Item])
         menu = list(set(progress[Game.Item]))
@@ -317,7 +317,7 @@ class Console(cmd.Cmd):
             > go 3
         """
         line = arg.strip()
-        data = get_objects(self.game)
+        data = get_objects(self.progress)
         progress = group_by_type(data)
 
         if not line:
@@ -341,7 +341,8 @@ class Console(cmd.Cmd):
             (more details may follow)
         """
         line = arg.strip()
-        data = get_objects(self.game)
+        print(Game.public)
+        data = get_objects(self.progress)
         progress = group_by_type(data)
         totals = Counter(progress[Game.Item])
         menu = list(set(progress[Game.Item]))
@@ -416,27 +417,8 @@ def main(args):
     path = Persistent.Path(args.output, user, None, None)
     Persistent.make_path(path)
 
-    loop = asyncio.get_event_loop()
-    commands = asyncio.Queue(loop=loop)
-    queue = asyncio.Queue(loop=loop)
-
-    # TODO Make an up and a down queue for each of Console, Game.
-    # TODO: Cross-wire them.
-    options = Clock.options(parent=args.output)
-    clock = Clock(loop=loop, **options)
-
-    options = Game.options(Game.Player(user, name), parent=args.output)
-    game = Game(
-        Game.Player(user, name),
-        addisonarches.scenario.businesses[:],
-        clock,
-        queue,
-        loop=loop,
-        **options
-    ).load()
-
-    #loop = asyncio.SelectorEventLoop()
-    #asyncio.set_event_loop(loop)
+    loop = asyncio.SelectorEventLoop()
+    asyncio.set_event_loop(loop)
 
     #down = asyncio.Queue(loop=loop)
     #up = asyncio.Queue(loop=loop)
@@ -444,19 +426,11 @@ def main(args):
     #tok = token(args.connect, APP_NAME)
     #node = create_udp_node(loop, tok, down, up)
     #loop.create_task(node(token=tok))
-    console = Console(game, commands, queue, loop=loop)
-    executor = concurrent.futures.ThreadPoolExecutor(
-        max(4, len(console.routines) + 1)
-    )
-    tasks = [
-        asyncio.Task(routine(executor, loop=loop))
-        for routine in console.routines
-    ]
-    tasks.append(asyncio.Task(clock(loop=loop)))
-    tasks.append(asyncio.Task(game(loop=loop)))
+    progress, down, up = create_game(args, loop, user, name)
+    console = create_local_console(progress, down, up, loop=loop)
+
     try:
-        loop.run_until_complete(asyncio.wait(asyncio.Task.all_tasks(loop)))
-        #loop.run_forever()
+        loop.run_forever()
     except concurrent.futures.CancelledError:
         pass
     finally:
