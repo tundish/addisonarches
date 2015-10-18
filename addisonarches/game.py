@@ -41,6 +41,7 @@ from turberfield.utils.expert import TypesEncoder
 from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
 from addisonarches.business import Trader
+import addisonarches.scenario
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 from addisonarches.scenario.types import Commodity
@@ -367,3 +368,26 @@ class Game(Persistent):
                         self._log.warning(msg)
                 except Exception as e:
                     self._log.error(e)
+
+def create_game(parent, user, name, loop=None, down=None, up=None):
+
+    if None in (down, up):
+        down = asyncio.Queue(loop=loop)
+        up = asyncio.Queue(loop=loop)
+
+    options = Clock.options(parent=parent)
+    clock = Clock(loop=loop, **options)
+
+    options = Game.options(Game.Player(user, name), parent=parent)
+    game = Game(
+        Game.Player(user, name),
+        addisonarches.scenario.businesses[:],
+        clock,
+        loop=loop,
+        **options
+    ).load()
+    loop.create_task(clock(loop=loop))
+    loop.create_task(game(loop=loop))
+
+    progress = Persistent.recent_slot(game._services["progress.rson"].path)
+    return (progress, down, up)

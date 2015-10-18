@@ -46,6 +46,8 @@ class GameTests(unittest.TestCase):
 
     @staticmethod
     def create_experts(parent, qIn, loop=None):
+        # TODO: Game now to take down/up queues
+        # TODO: Reuse game.create_game in place of this method
         options = Clock.options(parent=parent)
         clock = Clock(loop=loop, **options)
 

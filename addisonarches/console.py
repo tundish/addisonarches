@@ -36,7 +36,7 @@ from addisonarches.business import Selling
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
-import addisonarches.scenario
+from addisonarches.game import create_game
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 from addisonarches.utils import get_objects
@@ -62,28 +62,6 @@ def create_local_console(progress, down, up, loop=None):
         loop.create_task(coro(executor, loop=loop))
     return console
 
-def create_game(args, loop, user, name, down=None, up=None):
-
-    if None in (down, up):
-        down = asyncio.Queue(loop=loop)
-        up = asyncio.Queue(loop=loop)
-
-    options = Clock.options(parent=args.output)
-    clock = Clock(loop=loop, **options)
-
-    options = Game.options(Game.Player(user, name), parent=args.output)
-    game = Game(
-        Game.Player(user, name),
-        addisonarches.scenario.businesses[:],
-        clock,
-        loop=loop,
-        **options
-    ).load()
-    loop.create_task(clock(loop=loop))
-    loop.create_task(game(loop=loop))
-
-    progress = Persistent.recent_slot(game._services["progress.rson"].path)
-    return (progress, down, up)
 
 def get_progress(path, types=(Clock.Tick, Location, Game.Via)):
     path = os.path.join(*path._replace(file="progress.rson"))
@@ -426,7 +404,7 @@ def main(args):
     #tok = token(args.connect, APP_NAME)
     #node = create_udp_node(loop, tok, down, up)
     #loop.create_task(node(token=tok))
-    progress, down, up = create_game(args, loop, user, name)
+    progress, down, up = create_game(args.output, user, name, loop=loop)
     console = create_local_console(progress, down, up, loop=loop)
 
     try:
