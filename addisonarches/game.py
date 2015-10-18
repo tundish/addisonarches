@@ -22,6 +22,7 @@ from collections import OrderedDict
 from collections import namedtuple
 import datetime
 from decimal import Decimal
+import getpass
 import itertools
 import json
 import logging
@@ -59,6 +60,8 @@ class Persistent(Expert):
 
     @staticmethod
     def make_path(path:Path, prefix="tmp", suffix=""):
+        if not path.home:
+            path = path._replace(home=getpass.getuser())
         dctry = os.path.join(path.root, path.home)
         os.makedirs(dctry, exist_ok=True)
 
@@ -70,11 +73,14 @@ class Persistent(Expert):
 
     @staticmethod
     def recent_slot(path:Path):
-        slots = [i for i in os.listdir(os.path.join(path.root, path.home))
-                 if os.path.isdir(os.path.join(path.root, path.home, i))]
-        stats = [(os.path.getmtime(os.path.join(path.root, path.home, fP)), fP)
-                 for fP in slots]
-        stats.sort(key=operator.itemgetter(0), reverse=True)
+        try:
+            slots = [i for i in os.listdir(os.path.join(path.root, path.home))
+                     if os.path.isdir(os.path.join(path.root, path.home, i))]
+            stats = [(os.path.getmtime(os.path.join(path.root, path.home, fP)), fP)
+                     for fP in slots]
+            stats.sort(key=operator.itemgetter(0), reverse=True)
+        except:
+            slots, stats = [], []
         return Persistent.Path(
             path.root, path.home, next((i[1] for i in stats), None), path.file)
 

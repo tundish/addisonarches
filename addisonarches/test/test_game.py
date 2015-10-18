@@ -31,6 +31,7 @@ from addisonarches.business import Trader
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
+from addisonarches.game import create_game
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 from addisonarches.utils import get_objects
@@ -103,38 +104,33 @@ class GameTests(unittest.TestCase):
 
         self.assertTrue(self.loop)
 
-        def run_then_cancel(tasks, coro, game, q, loop):
+        def run_then_cancel(tasks, coro, game, down, up, loop):
             yield from asyncio.sleep(0, loop=loop)
 
             try:
-                yield from coro(game, q, loop)
+                yield from coro(game, down, up, loop)
             finally:
                 yield from q.put(None)
                 yield from asyncio.sleep(0, loop=loop)
                 for task in tasks:
                     task.cancel()
 
-        q = asyncio.Queue(loop=self.loop)
-        clock, game = GameTests.create_experts(
-            self.root.name, q, loop=self.loop
+        progress, down, up = create_game(
+            self.root.name, user=None, name="test",
+            loop=self.loop, down=None, up=None
         )
-        tasks = [
-            asyncio.Task(clock(loop=self.loop), loop=self.loop),
-            asyncio.Task(game(loop=self.loop), loop=self.loop)
-        ]
-
-        tasks = asyncio.Task.all_tasks(self.loop)
         test = asyncio.Task(
-            run_then_cancel(tasks, coro, game, q, loop=self.loop),
+            run_then_cancel(
+                tasks, coro, game, down, up, loop=self.loop),
             loop=self.loop
         )
-        done, pending = self.loop.run_until_complete(
-            asyncio.wait(
-                asyncio.Task.all_tasks(loop=self.loop),
-                loop=self.loop,
-                timeout=1
-            )
-        )
+        try:
+            loop.run_forever()
+        except concurrent.futures.CancelledError:
+            pass
+        finally:
+            loop.close()
+
         e = test.exception()
         if e is not None:
             if isinstance(e, UserWarning):
@@ -150,7 +146,7 @@ class GameTests(unittest.TestCase):
 
         """
         @asyncio.coroutine
-        def stimulus(game, q, loop=None):
+        def stimulus(game, down, up, loop=None):
             progress = Persistent.recent_slot(
                 game._services["progress.rson"].path
             )
@@ -163,7 +159,7 @@ class GameTests(unittest.TestCase):
     def test_look(self):
 
         @asyncio.coroutine
-        def stimulus(game, q, loop=None):
+        def stimulus(game, down, up, loop=None):
             progress = Persistent.recent_slot(
                 game._services["progress.rson"].path
             )
@@ -189,7 +185,7 @@ class GameTests(unittest.TestCase):
     def test_go(self):
 
         @asyncio.coroutine
-        def stimulus(game, q, loop=None):
+        def stimulus(game, down, up, loop=None):
             progress = Persistent.recent_slot(
                 game._services["progress.rson"].path
             )
@@ -221,7 +217,7 @@ class GameTests(unittest.TestCase):
     def test_buy(self):
 
         @asyncio.coroutine
-        def stimulus(game, q, loop=None):
+        def stimulus(game, down, up, loop=None):
             progress = Persistent.recent_slot(
                 game._services["progress.rson"].path
             )
