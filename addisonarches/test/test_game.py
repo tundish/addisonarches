@@ -105,7 +105,7 @@ class GameTests(unittest.TestCase):
 
         self.assertTrue(loop)
 
-        def run_then_cancel(tasks, coro, game, down, up, loop):
+        def run_then_cancel(coro, down, up, loop):
             yield from asyncio.sleep(0, loop=loop)
 
             try:
@@ -124,14 +124,12 @@ class GameTests(unittest.TestCase):
             game, clock, down, up, loop=self.loop
         )
         test = loop.create_task(
-            run_then_cancel(
-                None, coro, game, down, up, loop=loop
-            )
+            run_then_cancel(coro, down, up, loop=loop)
         )
         try:
-            loop.run_until_complete(asyncio.wait_for(test, 3, loop=loop))
+            rv = loop.run_until_complete(asyncio.wait_for(test, 3, loop=loop))
         except concurrent.futures.CancelledError:
-            pass
+            rv = None
         finally:
             loop.close()
 
@@ -142,7 +140,7 @@ class GameTests(unittest.TestCase):
             else:
                 raise e
         else:
-            return (done, pending)
+            return rv
 
     def test_run_async_masks_no_failures(self):
         """
@@ -150,23 +148,20 @@ class GameTests(unittest.TestCase):
 
         """
         @asyncio.coroutine
-        def stimulus(game, down, up, loop=None):
-            progress = Persistent.recent_slot(
-                game._services["progress.rson"].path
-            )
+        def stimulus(progress, down, up, loop=None):
             data = get_objects(progress)
             objs = group_by_type(data)
             self.assertEqual(0, len(objs[Location]))
 
-        self.assertRaises(AssertionError, self.run_test_async, stimulus)
+        self.assertRaises(
+            AssertionError,
+            self.run_test_async, stimulus, loop=self.loop
+        )
 
     def test_look(self):
 
         @asyncio.coroutine
-        def stimulus(game, down, up, loop=None):
-            progress = Persistent.recent_slot(
-                game._services["progress.rson"].path
-            )
+        def stimulus(progress, down, up, loop=None):
             data = get_objects(progress)
             objs = group_by_type(data)
             self.assertEqual(6, len(objs[Game.Via]))
@@ -184,15 +179,12 @@ class GameTests(unittest.TestCase):
             self.assertEqual(0, len(objs[Character]))
             self.assertEqual(0, len(objs[Trader.Patter]))
 
-        done, pending = self.run_test_async(stimulus)
+        rv = self.run_test_async(stimulus, loop=self.loop)
 
     def test_go(self):
 
         @asyncio.coroutine
-        def stimulus(game, down, up, loop=None):
-            progress = Persistent.recent_slot(
-                game._services["progress.rson"].path
-            )
+        def stimulus(progress, down, up, loop=None):
             data = get_objects(progress)
             objs = group_by_type(data)
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
@@ -200,12 +192,10 @@ class GameTests(unittest.TestCase):
             self.assertEqual(6, len(objs[Game.Via]))
 
             # Go to Kinh Ship Bulk Buy
-            yield from q.put(objs[Game.Via][1])
+            yield from up.put(objs[Game.Via][1])
             yield from asyncio.sleep(0, loop=loop)
             yield from asyncio.sleep(0, loop=loop)
-            progress = Persistent.recent_slot(
-                game._services["progress.rson"].path
-            )
+            
             data = get_objects(progress)
             objs = group_by_type(data)
 
@@ -216,7 +206,7 @@ class GameTests(unittest.TestCase):
             self.assertEqual(3, len(objs[Game.Item]))
             self.assertEqual(1, len(objs[Trader.Patter]))
 
-        done, pending = self.run_test_async(stimulus)
+        rv = self.run_test_async(stimulus, loop=self.loop)
 
     def test_buy(self):
 
@@ -251,4 +241,4 @@ class GameTests(unittest.TestCase):
             self.assertEqual("buying", drama.mood)
             self.assertIsInstance(game.drama, Buying)
 
-        done, pending = self.run_test_async(stimulus, loop=self.loop)
+        rv = self.run_test_async(stimulus, loop=self.loop)
