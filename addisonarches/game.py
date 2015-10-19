@@ -389,6 +389,8 @@ def create_game(parent, user, name, down=None, up=None, loop=None):
         Game.Player(user, name),
         addisonarches.scenario.businesses[:],
         clock,
+        up,
+        down=down,
         loop=loop,
         **options
     ).load()
