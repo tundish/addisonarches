@@ -113,11 +113,11 @@ class GameTests(unittest.TestCase):
             finally:
                 yield from up.put(None)
                 yield from asyncio.sleep(0, loop=loop)
-                #for task in tasks:
-                #    task.cancel()
+                for task in asyncio.Task.all_tasks(loop=loop):
+                    task.cancel()
 
         game, clock, down, up = create_game(
-            self.root.name, user=None, name="test",
+            self.root.name, user=GameTests.user, name="test",
             down=None, up=None, loop=loop
         )
         progress, down, up = init_game(
@@ -222,7 +222,6 @@ class GameTests(unittest.TestCase):
 
         @asyncio.coroutine
         def stimulus(progress, down, up, loop=None):
-            print(progress)
             data = get_objects(progress)
             objs = group_by_type(data)
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
@@ -230,12 +229,10 @@ class GameTests(unittest.TestCase):
             self.assertEqual(6, len(objs[Game.Via]))
 
             # Go to Kinh Ship Bulk Buy
-            yield from q.put(objs[Game.Via][1])
+            yield from up.put(objs[Game.Via][1])
             yield from asyncio.sleep(0, loop=loop)
             yield from asyncio.sleep(0, loop=loop)
-            progress = Persistent.recent_slot(
-                game._services["progress.rson"].path
-            )
+            
             data = get_objects(progress)
             objs = group_by_type(data)
             drama = objs[Game.Drama][0]
@@ -244,11 +241,9 @@ class GameTests(unittest.TestCase):
             self.assertEqual("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
 
             focus = objs[Game.Item][0]
-            yield from q.put(focus)
+            yield from up.put(focus)
             yield from asyncio.sleep(0, loop=loop)
-            progress = Persistent.recent_slot(
-                game._services["progress.rson"].path
-            )
+
             data = get_objects(progress)
             objs = group_by_type(data)
 
