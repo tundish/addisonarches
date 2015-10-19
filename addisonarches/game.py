@@ -217,10 +217,15 @@ class Game(Persistent):
 
     def __init__(self, player, businesses, clock=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.clock = clock
         self.player = player
-        self.path = None
         self.businesses = businesses
+        self.clock = clock
+
+        # Network
+        self.down = kwargs.pop("down", None)
+
+        # Game state
+        self.path = None
         self.location = None
         self.drama = None
 
