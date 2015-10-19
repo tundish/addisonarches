@@ -103,7 +103,7 @@ class GameTests(unittest.TestCase):
 
     def run_test_async(self, coro, loop=None):
 
-        self.assertTrue(self.loop)
+        self.assertTrue(loop)
 
         def run_then_cancel(tasks, coro, game, down, up, loop):
             yield from asyncio.sleep(0, loop=loop)
@@ -118,18 +118,18 @@ class GameTests(unittest.TestCase):
 
         game, clock, down, up = create_game(
             self.root.name, user=None, name="test",
-            down=None, up=None, loop=self.loop
+            down=None, up=None, loop=loop
         )
         progress, down, up = init_game(
             game, clock, down, up, loop=self.loop
         )
         test = loop.create_task(
             run_then_cancel(
-                None, coro, game, down, up, loop=self.loop
+                None, coro, game, down, up, loop=loop
             )
         )
         try:
-            loop.run_forever()
+            loop.run_until_complete(asyncio.wait_for(test, 3, loop=loop))
         except concurrent.futures.CancelledError:
             pass
         finally:
@@ -221,10 +221,8 @@ class GameTests(unittest.TestCase):
     def test_buy(self):
 
         @asyncio.coroutine
-        def stimulus(game, down, up, loop=None):
-            progress = Persistent.recent_slot(
-                game._services["progress.rson"].path
-            )
+        def stimulus(progress, down, up, loop=None):
+            print(progress)
             data = get_objects(progress)
             objs = group_by_type(data)
             self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
