@@ -375,7 +375,7 @@ class Game(Persistent):
                 except Exception as e:
                     self._log.error(e)
 
-def create_game(parent, user, name, loop=None, down=None, up=None):
+def create_game(parent, user, name, down=None, up=None, loop=None):
 
     if None in (down, up):
         down = asyncio.Queue(loop=loop)
@@ -392,8 +392,14 @@ def create_game(parent, user, name, loop=None, down=None, up=None):
         loop=loop,
         **options
     ).load()
+    return (game, clock, down, up)
+
+def init_game(game, clock, down, up, loop=None):
     loop.create_task(clock(loop=loop))
     loop.create_task(game(loop=loop))
 
     progress = Persistent.recent_slot(game._services["progress.rson"].path)
     return (progress, down, up)
+
+def create(parent, user, name, down=None, up=None, loop=None):
+    return init_game(*create_game(parent, user, name, down, up, loop=loop))

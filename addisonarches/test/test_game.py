@@ -32,6 +32,7 @@ from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
 from addisonarches.game import create_game
+from addisonarches.game import init_game
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 from addisonarches.utils import get_objects
@@ -100,7 +101,7 @@ class GameTests(unittest.TestCase):
         Clock.public = None
         Game.public = None
 
-    def run_test_async(self, coro):
+    def run_test_async(self, coro, loop=None):
 
         self.assertTrue(self.loop)
 
@@ -108,21 +109,24 @@ class GameTests(unittest.TestCase):
             yield from asyncio.sleep(0, loop=loop)
 
             try:
-                yield from coro(game, down, up, loop)
+                yield from coro(progress, down, up, loop=loop)
             finally:
-                yield from q.put(None)
+                yield from up.put(None)
                 yield from asyncio.sleep(0, loop=loop)
-                for task in tasks:
-                    task.cancel()
+                #for task in tasks:
+                #    task.cancel()
 
-        progress, down, up = create_game(
+        game, clock, down, up = create_game(
             self.root.name, user=None, name="test",
-            loop=self.loop, down=None, up=None
+            down=None, up=None, loop=self.loop
         )
-        test = asyncio.Task(
+        progress, down, up = init_game(
+            game, clock, down, up, loop=self.loop
+        )
+        test = loop.create_task(
             run_then_cancel(
-                tasks, coro, game, down, up, loop=self.loop),
-            loop=self.loop
+                None, coro, game, down, up, loop=self.loop
+            )
         )
         try:
             loop.run_forever()
@@ -254,4 +258,4 @@ class GameTests(unittest.TestCase):
             self.assertEqual("buying", drama.mood)
             self.assertIsInstance(game.drama, Buying)
 
-        done, pending = self.run_test_async(stimulus)
+        done, pending = self.run_test_async(stimulus, loop=self.loop)
