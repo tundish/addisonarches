@@ -36,6 +36,8 @@ import tempfile
 import time
 import uuid
 
+from turberfield.ipc.message import Message
+from turberfield.ipc.message import parcel
 from turberfield.utils.expert import Expert
 from turberfield.utils.expert import TypesEncoder
 
@@ -380,6 +382,16 @@ class Game(Persistent):
                             self._log.warning(job)
                     except Exception as e:
                         self._log.error(e)
+
+            if None not in (msg, self.down):
+                msg = Message(
+                    msg.header._replace(
+                        src=msg.header.dst,
+                        dst=msg.header.src
+                    ),
+                    []
+                )
+                yield from self.down.put(msg)
 
 def create_game(parent, user, name, down=None, up=None, loop=None):
 

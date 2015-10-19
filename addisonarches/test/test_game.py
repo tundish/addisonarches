@@ -196,8 +196,8 @@ class GameTests(unittest.TestCase):
             # Go to Kinh Ship Bulk Buy
             msg = parcel(None, objs[Game.Via][1])
             yield from up.put(msg)
-            yield from asyncio.sleep(0, loop=loop)
-            yield from asyncio.sleep(0, loop=loop)
+            reply = yield from down.get()
+            self.assertEqual(msg.header.id, reply.header.id)
             
             data = get_objects(progress)
             objs = group_by_type(data)
@@ -224,8 +224,7 @@ class GameTests(unittest.TestCase):
             # Go to Kinh Ship Bulk Buy
             msg = parcel(None, objs[Game.Via][1])
             yield from up.put(msg)
-            yield from asyncio.sleep(0, loop=loop)
-            yield from asyncio.sleep(0, loop=loop)
+            reply = yield from down.get()
             
             data = get_objects(progress)
             objs = group_by_type(data)
@@ -236,7 +235,7 @@ class GameTests(unittest.TestCase):
 
             msg = parcel(None, objs[Game.Item][0])
             yield from up.put(msg)
-            yield from asyncio.sleep(0, loop=loop)
+            reply = yield from down.get()
 
             data = get_objects(progress)
             objs = group_by_type(data)
