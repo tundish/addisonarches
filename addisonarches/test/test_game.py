@@ -26,6 +26,8 @@ import tempfile
 import unittest
 import uuid
 
+from turberfield.ipc.message import parcel
+
 from addisonarches.business import Buying
 from addisonarches.business import Trader
 from addisonarches.game import Clock
@@ -192,7 +194,8 @@ class GameTests(unittest.TestCase):
             self.assertEqual(6, len(objs[Game.Via]))
 
             # Go to Kinh Ship Bulk Buy
-            yield from up.put(objs[Game.Via][1])
+            msg = parcel(None, objs[Game.Via][1])
+            yield from up.put(msg)
             yield from asyncio.sleep(0, loop=loop)
             yield from asyncio.sleep(0, loop=loop)
             
@@ -219,7 +222,8 @@ class GameTests(unittest.TestCase):
             self.assertEqual(6, len(objs[Game.Via]))
 
             # Go to Kinh Ship Bulk Buy
-            yield from up.put(objs[Game.Via][1])
+            msg = parcel(None, objs[Game.Via][1])
+            yield from up.put(msg)
             yield from asyncio.sleep(0, loop=loop)
             yield from asyncio.sleep(0, loop=loop)
             
@@ -230,8 +234,8 @@ class GameTests(unittest.TestCase):
 
             self.assertEqual("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
 
-            focus = objs[Game.Item][0]
-            yield from up.put(focus)
+            msg = parcel(None, objs[Game.Item][0])
+            yield from up.put(msg)
             yield from asyncio.sleep(0, loop=loop)
 
             data = get_objects(progress)

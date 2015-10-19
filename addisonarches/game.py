@@ -352,33 +352,34 @@ class Game(Persistent):
         msg = object()
         while msg is not None:
             msg = yield from q.get()
-            if isinstance(msg, Game.Item):
-                # TODO: owner of item determines buy/sell context
-                try:
-                    item = next(
-                        i for i in
-                        self.businesses[msg.owner].inventories[msg.location].contents
-                        if i.label == msg.label and i.description == msg.description
-                    )
-                except (KeyError, StopIteration) as e:
-                    self._log.warning(msg)
-                else:
-                    self.drama = Buying(iterable=[item])
-                    self.declare(dict(progress=self.progress))
-                    yield from asyncio.sleep(0, loop=loop)
-
-            elif isinstance(msg, Game.Via):
-                try: 
-                    if self.destinations[msg.id] == msg.name:
-
-                        yield from self.clock.advance(loop=loop)
-
-                        self.location = msg.name
-                        self.declare(dict(progress=self.progress))
+            for job in getattr(msg, "payload", []):
+                if isinstance(job, Game.Item):
+                    # TODO: owner of item determines buy/sell context
+                    try:
+                        item = next(
+                            i for i in
+                            self.businesses[job.owner].inventories[job.location].contents
+                            if i.label == job.label and i.description == job.description
+                        )
+                    except (KeyError, StopIteration) as e:
+                        self._log.warning(job)
                     else:
-                        self._log.warning(msg)
-                except Exception as e:
-                    self._log.error(e)
+                        self.drama = Buying(iterable=[item])
+                        self.declare(dict(progress=self.progress))
+                        yield from asyncio.sleep(0, loop=loop)
+
+                elif isinstance(job, Game.Via):
+                    try: 
+                        if self.destinations[job.id] == job.name:
+
+                            yield from self.clock.advance(loop=loop)
+
+                            self.location = job.name
+                            self.declare(dict(progress=self.progress))
+                        else:
+                            self._log.warning(job)
+                    except Exception as e:
+                        self._log.error(e)
 
 def create_game(parent, user, name, down=None, up=None, loop=None):
 
