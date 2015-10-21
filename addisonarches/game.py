@@ -360,7 +360,12 @@ class Game(Persistent):
         while msg is not None:
             msg = yield from q.get()
             for job in getattr(msg, "payload", []):
-                if isinstance(job, Game.Item):
+                if isinstance(job, Buying):
+                    self.drama = job
+                    self.declare(dict(progress=self.progress))
+                    yield from asyncio.sleep(0, loop=loop)
+
+                elif isinstance(job, Game.Item):
                     # TODO: owner of item determines buy/sell context
                     try:
                         item = next(
@@ -376,6 +381,7 @@ class Game(Persistent):
                         yield from asyncio.sleep(0, loop=loop)
 
                 elif isinstance(job, Game.Via):
+                    print(job)
                     try: 
                         if self.destinations[job.id] == job.name:
 

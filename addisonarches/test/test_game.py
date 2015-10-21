@@ -214,8 +214,8 @@ class GameTests(unittest.TestCase):
             self.assertEqual("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
 
             # TODO: Send Buying drama
-            # data = Buying(iterable=[item])
-            msg = parcel(None, objs[Game.Item][0])
+            item = objs[Game.Item][0]
+            msg = parcel(None, Buying(iterable=[item]))
             yield from up.put(msg)
             reply = yield from down.get()
 

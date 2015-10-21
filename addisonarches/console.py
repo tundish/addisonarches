@@ -31,6 +31,8 @@ import random
 import sys
 import uuid
 
+from turberfield.ipc.message import parcel
+
 from addisonarches.business import CashBusiness
 from addisonarches.business import Buying
 from addisonarches.business import Selling
@@ -131,8 +133,11 @@ class Console(cmd.Cmd):
             line = yield from self.commands.get()
             try:
                 line = self.precmd(line)
-                stop = self.onecmd(line)
-                stop = self.postcmd(stop, line)
+                msg = self.onecmd(line)
+                if msg is not None:
+                    yield from self.up.put(msg)
+                    #reply = yield from self.down.get()
+                stop = self.postcmd(msg, line)
                 # TODO: Send 'stop' to game (down)
             except Exception as e:
                 print(e)
@@ -187,8 +192,9 @@ class Console(cmd.Cmd):
     def precmd(self, line):
         return line
 
-    def postcmd(self, stop, line):
+    def postcmd(self, msg, line):
         "Potential 'game over' decisions."
+        print(msg)
         data = get_objects(self.progress)
         objs = group_by_type(data)
         tick = next(iter(objs[Clock.Tick]), None)
@@ -196,7 +202,7 @@ class Console(cmd.Cmd):
         t = datetime.datetime.strptime(tick.value, "%Y-%m-%d %H:%M:%S")
         self.prompt = "{:%A %H:%M} > ".format(t)
         # TODO: Send 'stop' to game (down)
-        return stop
+        return msg is None
 
     def do_buy(self, arg):
         """
@@ -299,7 +305,8 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             via = progress[Game.Via][int(line)]
-            self.up.put_nowait(via)
+            msg = parcel(None, via)
+            return msg
 
     def do_look(self, arg):
         """
