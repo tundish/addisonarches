@@ -56,8 +56,7 @@ from addisonarches.valuation import Bid
 
 
 def create_local_console(progress, down, up, loop=None):
-    # 'down' and 'up' of game node are cross-connected to console
-    console = Console(progress, up, down, loop=loop)
+    console = Console(progress, down, up, loop=loop)
     executor = concurrent.futures.ThreadPoolExecutor(
         max(4, len(console.routines) + 1)
     )
@@ -136,14 +135,14 @@ class Console(cmd.Cmd):
                 msg = self.onecmd(line)
                 if msg is not None:
                     yield from self.up.put(msg)
-                    #reply = yield from self.down.get()
+                    reply = yield from self.down.get()
                 stop = self.postcmd(msg, line)
                 # TODO: Send 'stop' to game (down)
             except Exception as e:
                 print(e)
 
-            yield from asyncio.sleep(0, loop)
-            yield from asyncio.sleep(0, loop)
+            #yield from asyncio.sleep(0, loop)
+            #yield from asyncio.sleep(0, loop)
 
             data = get_objects(self.progress)
             progress = group_by_type(data)
@@ -194,7 +193,6 @@ class Console(cmd.Cmd):
 
     def postcmd(self, msg, line):
         "Potential 'game over' decisions."
-        print(msg)
         data = get_objects(self.progress)
         objs = group_by_type(data)
         tick = next(iter(objs[Clock.Tick]), None)
