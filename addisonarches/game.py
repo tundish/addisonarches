@@ -36,6 +36,7 @@ import tempfile
 import time
 import uuid
 
+from turberfield.ipc.message import Alert
 from turberfield.ipc.message import Message
 from turberfield.ipc.message import parcel
 from turberfield.utils.expert import Expert
@@ -320,7 +321,10 @@ class Game(Persistent):
             rv.extend(list(reaction))
         except AttributeError:
             # Player business is not a Handler subclass
-            pass
+            rv.append(Alert(
+                datetime.datetime.now(),
+                "Earache and fisticuffs? Take them elsewhere.")
+            )
         except TypeError:
             rv.append(Trader.Patter(
                 self.here.proprietor,

@@ -26,6 +26,7 @@ import tempfile
 import unittest
 import uuid
 
+from turberfield.ipc.message import Alert
 from turberfield.ipc.message import parcel
 
 from addisonarches.business import Buying
@@ -47,29 +48,6 @@ import addisonarches.scenario
 class GameTests(unittest.TestCase):
 
     user = "someone@somewhere.net"
-
-    @staticmethod
-    def create_experts(parent, qIn, loop=None):
-        # TODO: Game now to take down/up queues
-        # TODO: Reuse game.create_game in place of this method
-        options = Clock.options(parent=parent)
-        clock = Clock(loop=loop, **options)
-
-        options = Game.options(
-            Game.Player(GameTests.user, "Player 1"),
-            parent=parent
-        )
-        game = Game(
-            Game.Player(GameTests.user, "Player 1"),
-            addisonarches.scenario.businesses[:],
-            clock,
-            qIn, 
-            loop=loop,
-            **options
-        )
-        game.load()
-
-        return (clock, game)
 
     @classmethod
     def setUpClass(cls):
@@ -172,7 +150,7 @@ class GameTests(unittest.TestCase):
             self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
 
             self.assertEqual(1, len(objs[Clock.Tick]))
-            self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
+            self.assertTrue(objs[Clock.Tick][0].value.endswith("08:00:00"))
 
             self.assertEqual(1, len(objs[Game.Drama]))
             self.assertEqual(1, len(objs[Game.Tally]))
@@ -180,6 +158,8 @@ class GameTests(unittest.TestCase):
 
             self.assertEqual(0, len(objs[Character]))
             self.assertEqual(0, len(objs[Trader.Patter]))
+
+            self.assertEqual(1, len(objs[Alert]))
 
         rv = self.run_test_async(stimulus, loop=self.loop)
 
@@ -189,7 +169,7 @@ class GameTests(unittest.TestCase):
         def stimulus(progress, down, up, loop=None):
             data = get_objects(progress)
             objs = group_by_type(data)
-            self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
+            self.assertTrue(objs[Clock.Tick][0].value.endswith("08:00:00"))
             self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
             self.assertEqual(6, len(objs[Game.Via]))
 
@@ -203,7 +183,7 @@ class GameTests(unittest.TestCase):
             objs = group_by_type(data)
 
             self.assertEqual("Kinh Ship Bulk Buy", query_object_chain(data, "capacity").name)
-            self.assertTrue(query_object_chain(data, "ts").value.endswith("08:30:00"))
+            self.assertTrue(objs[Clock.Tick][0].value.endswith("08:30:00"))
             self.assertEqual(1, len(objs[Game.Via]))
             self.assertEqual(1, len(objs[Character]))
             self.assertEqual(3, len(objs[Game.Item]))
@@ -217,7 +197,7 @@ class GameTests(unittest.TestCase):
         def stimulus(progress, down, up, loop=None):
             data = get_objects(progress)
             objs = group_by_type(data)
-            self.assertTrue(query_object_chain(data, "ts").value.endswith("08:00:00"))
+            self.assertTrue(objs[Clock.Tick][0].value.endswith("08:00:00"))
             self.assertTrue("Addison Arches 18a", query_object_chain(data, "capacity").name)
             self.assertEqual(6, len(objs[Game.Via]))
 
@@ -242,5 +222,8 @@ class GameTests(unittest.TestCase):
 
             drama = objs[Game.Drama][0]
             self.assertEqual("buying", drama.mood)
+
+            nearby = objs[Character][0]
+            self.assertEqual("Jimmy Wei Zhang", nearby.name)
 
         rv = self.run_test_async(stimulus, loop=self.loop)
