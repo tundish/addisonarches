@@ -32,11 +32,12 @@ import sys
 import uuid
 
 from addisonarches.business import CashBusiness
+from addisonarches.business import Buying
 from addisonarches.business import Selling
+import addisonarches.game
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
-from addisonarches.game import create_game
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 from addisonarches.utils import get_objects
@@ -78,10 +79,6 @@ def get_progress(path, types=(Clock.Tick, Location, Game.Via)):
     return rv
 
 class Console(cmd.Cmd):
-
-    """
-    TODO: game, queue -> down, up
-    """
 
     def __init__(self, progress, down, up, *args, loop=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -154,6 +151,21 @@ class Console(cmd.Cmd):
             tally = query_object_chain(data, "name", "cash")
             print("You've got {0.units}{0.value} in the kitty.".format(tally))
 
+            #greeting = random.choice(
+            #    ["Hello, {0.name}".format(
+            #        self.game.businesses[0].proprietor
+            #    ), "What can I do for you?"]
+            #)
+            #print("{0.name} says, '{1}'.".format(
+            #        self.game.here.proprietor, greeting
+            #     )
+            #)
+            #else:
+            #for n, msg in enumerate(reaction):
+            #    if not n:
+            #        print("{0.actor.name} says,".format(msg), end=" ")
+            #    print(msg.text)
+
             # TODO: Get bystanders from self.progress
             #if self.game.here != self.game.businesses[0]:
             if False:
@@ -177,35 +189,13 @@ class Console(cmd.Cmd):
 
     def postcmd(self, stop, line):
         "Potential 'game over' decisions."
-        try:
-            handler = self.game.here.handler(self.game.drama, ts=self.ts)
-            reaction = handler(self.game.drama, self.game)
-        except AttributeError:
-            # Player business is not a Handler subclass
-            pass
-        except TypeError as e:
-            greeting = random.choice(
-                ["Hello, {0.name}".format(
-                    self.game.businesses[0].proprietor
-                ), "What can I do for you?"]
-            )
-            print("{0.name} says, '{1}'.".format(
-                    self.game.here.proprietor, greeting
-                 )
-            )
-        else:
-            for n, msg in enumerate(reaction):
-                if not n:
-                    print("{0.actor.name} says,".format(msg), end=" ")
-                print(msg.text)
-
         data = get_objects(self.progress)
         objs = group_by_type(data)
         tick = next(iter(objs[Clock.Tick]), None)
         self.ts = tick.ts
         t = datetime.datetime.strptime(tick.value, "%Y-%m-%d %H:%M:%S")
         self.prompt = "{:%A %H:%M} > ".format(t)
-        self.game.stop = stop
+        # TODO: Send 'stop' to game (down)
         return stop
 
     def do_buy(self, arg):
@@ -234,8 +224,9 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             item = menu[int(line)]
-            self.queue.put_nowait(item)
-            # TODO: send a buying message to Game
+            # TODO: Send Buying drama
+            # msg = Buying(iterable=[item])
+            self.up.put_nowait(item)
         
     def do_ask(self, arg):
         """
@@ -282,7 +273,10 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             k, v = list(view)[int(line)]
-            self.game.drama = Selling(iterable=[k])
+            #self.game.drama = Selling(iterable=[k])
+            # TODO: as per buy
+            #item = menu[int(line)]
+            #self.up.put_nowait(item)
         
     def do_go(self, arg):
         """
@@ -305,7 +299,7 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             via = progress[Game.Via][int(line)]
-            self.queue.put_nowait(via)
+            self.up.put_nowait(via)
 
     def do_look(self, arg):
         """
@@ -404,7 +398,9 @@ def main(args):
     #tok = token(args.connect, APP_NAME)
     #node = create_udp_node(loop, tok, down, up)
     #loop.create_task(node(token=tok))
-    progress, down, up = create_game(args.output, user, name, loop=loop)
+    progress, down, up = addisonarches.game.create(
+        args.output, user, name, loop=loop
+    )
     console = create_local_console(progress, down, up, loop=loop)
 
     try:

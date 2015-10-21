@@ -44,6 +44,7 @@ from turberfield.utils.expert import TypesEncoder
 
 from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
+from addisonarches.business import Selling
 from addisonarches.business import Trader
 import addisonarches.scenario
 from addisonarches.scenario import Location
@@ -426,4 +427,7 @@ def init_game(game, clock, down, up, loop=None):
     return (progress, down, up)
 
 def create(parent, user, name, down=None, up=None, loop=None):
-    return init_game(*create_game(parent, user, name, down, up, loop=loop))
+    return init_game(
+        *create_game(parent, user, name, down, up, loop=loop),
+        loop=loop
+    )
