@@ -31,20 +31,26 @@ import random
 import sys
 import uuid
 
+from turberfield.ipc.message import Alert
 from turberfield.ipc.message import parcel
 
 from addisonarches.business import CashBusiness
 from addisonarches.business import Buying
 from addisonarches.business import Selling
+from addisonarches.business import Trader
+
 import addisonarches.game
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
+
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
+
 from addisonarches.utils import get_objects
 from addisonarches.utils import group_by_type
 from addisonarches.utils import query_object_chain
+
 from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
 
@@ -141,44 +147,25 @@ class Console(cmd.Cmd):
             except Exception as e:
                 print(e)
 
-            #yield from asyncio.sleep(0, loop)
-            #yield from asyncio.sleep(0, loop)
-
             data = get_objects(self.progress)
-            progress = group_by_type(data)
-            locn = next(iter(progress[Location]), None)
+            objs = group_by_type(data)
+            locn = next(iter(objs[Location]), None)
             print("You're at {}.".format(getattr(locn, "name", "?")))
 
-            drama = next(iter(progress[Game.Drama]), None)
+            for bystander in objs[Character]:
+                print("{0.name} is nearby.".format(bystander))
+
+            drama = next(iter(objs[Game.Drama]), None)
             print("You're in a {0.mood} mood.".format(drama))
 
             tally = query_object_chain(data, "name", "cash")
             print("You've got {0.units}{0.value} in the kitty.".format(tally))
 
-            #greeting = random.choice(
-            #    ["Hello, {0.name}".format(
-            #        self.game.businesses[0].proprietor
-            #    ), "What can I do for you?"]
-            #)
-            #print("{0.name} says, '{1}'.".format(
-            #        self.game.here.proprietor, greeting
-            #     )
-            #)
-            #else:
-            #for n, msg in enumerate(reaction):
-            #    if not n:
-            #        print("{0.actor.name} says,".format(msg), end=" ")
-            #    print(msg.text)
+            for patter in objs[Trader.Patter]:
+                print("{0.actor[1]} says, '{0.text}'.".format(patter))
 
-            # TODO: Get bystanders from self.progress
-            #if self.game.here != self.game.businesses[0]:
-            if False:
-                pass
-                #print("{0.name} is nearby.".format(
-                #        self.game.here.proprietor
-                #))
-            else:
-                print("Earache and fisticuffs? Take them elsewhere.")
+            for alert in objs[Alert]:
+                print("{0.text}".format(alert))
 
         else:
             self.postloop()
@@ -359,6 +346,7 @@ class Console(cmd.Cmd):
             ].contents.items()
             if v and getattr(k, "components", None))
         if self.game.here != self.game.businesses[0]:
+            # TODO: server side. Send Alert
             print("You can't do that here.")
             return False
         if not line:
