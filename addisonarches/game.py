@@ -46,10 +46,14 @@ from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
 from addisonarches.business import Selling
 from addisonarches.business import Trader
+
 import addisonarches.scenario
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 from addisonarches.scenario.types import Commodity
+
+from addisonarches.valuation import Ask
+from addisonarches.valuation import Bid
 
 
 __doc__ = """
@@ -283,6 +287,23 @@ class Game(Persistent):
         )
 
     @property
+    def inventory(self):
+        rv = [
+            Game.Item("Compound", k.label, k.description, locn, 0) 
+            for locn, i in self.businesses[0].inventories.items()
+            for k, v in i.contents.items()
+            for n in range(v)
+            if getattr(k, "components", None)
+        ] + [
+            Game.Item("Commodity", k.label, k.description, locn, 0) 
+            for locn, i in self.businesses[0].inventories.items()
+            for k, v in i.contents.items()
+            for n in range(v)
+            if not getattr(k, "components", None)
+        ]
+        return rv
+
+    @property
     def progress(self):
         rv = [
             Clock.Tick(time.time(), Clock.public.value),
@@ -348,6 +369,7 @@ class Game(Persistent):
             self.declare(
                 dict(
                     progress=self.progress,
+                    inventory=self.inventory,
                     businesses=self.businesses
                 ),
                 loop=loop
@@ -361,47 +383,61 @@ class Game(Persistent):
         while msg is not None:
             msg = yield from q.get()
             for job in getattr(msg, "payload", []):
-                if isinstance(job, Buying):
-                    ref = job.memory[0]
-                    try:
-                        item = next(
-                            i for i in
-                            self.businesses[ref.owner].inventories[ref.location].contents
-                            if i.label == ref.label and i.description == ref.description
-                        )
-                    except (KeyError, StopIteration) as e:
-                        self._log.warning(ref)
-                    else:
-                        self.drama = Buying(iterable=[item])
-                        self.declare(dict(progress=self.progress))
-                        yield from asyncio.sleep(0, loop=loop)
+                try:
+                    if isinstance(job, Ask):
+                        self.drama.memory.append(job)
+                    elif isinstance(job, Bid):
+                        self.drama.memory.append(job)
+                    elif isinstance(job, Buying):
+                        ref = job.memory[0]
+                        try:
+                            item = next(
+                                i for i in
+                                self.businesses[ref.owner].inventories[ref.location].contents
+                                if i.label == ref.label and i.description == ref.description
+                            )
+                        except (KeyError, StopIteration) as e:
+                            self._log.warning(ref)
+                        else:
+                            self.drama = Buying(iterable=[item])
+                    # TODO: Split?
+                    elif isinstance(job, Game.Item):
+                        try:
+                            item = next(
+                                i for i in
+                                self.businesses[job.owner].inventories[job.location].contents
+                                if i.label == job.label and i.description == job.description
+                            )
+                        except (KeyError, StopIteration) as e:
+                            self._log.warning(job)
+                        else:
+                            self.drama = Buying(iterable=[item])
 
-                elif isinstance(job, Game.Item):
-                    try:
-                        item = next(
-                            i for i in
-                            self.businesses[job.owner].inventories[job.location].contents
-                            if i.label == job.label and i.description == job.description
-                        )
-                    except (KeyError, StopIteration) as e:
-                        self._log.warning(job)
-                    else:
-                        self.drama = Buying(iterable=[item])
-                        self.declare(dict(progress=self.progress))
-                        yield from asyncio.sleep(0, loop=loop)
-
-                elif isinstance(job, Game.Via):
-                    try: 
+                    elif isinstance(job, Game.Via):
                         if self.destinations[job.id] == job.name:
 
                             yield from self.clock.advance(loop=loop)
 
                             self.location = job.name
-                            self.declare(dict(progress=self.progress))
                         else:
                             self._log.warning(job)
-                    except Exception as e:
-                        self._log.error(e)
+
+                    elif isinstance(job, Selling):
+                        ref = job.memory[0]
+                        try:
+                            item = next(
+                                i for i in
+                                self.businesses[ref.owner].inventories[ref.location].contents
+                                if i.label == ref.label and i.description == ref.description
+                            )
+                        except (KeyError, StopIteration) as e:
+                            self._log.warning(ref)
+                        else:
+                            self.drama = Selling(iterable=[item])
+                except Exception as e:
+                    self._log.error(e)
+
+            self.declare(dict(progress=self.progress, inventory=self.inventory))
 
             if None not in (msg, self.down):
                 msg = Message(

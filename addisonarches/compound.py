@@ -61,7 +61,7 @@ class Compound:
 
     @property
     def description(self):
-        return self.__doc__.strip()
+        return "" if self.__doc__ is None else self.__doc__.strip()
 
     @property
     def label(self):

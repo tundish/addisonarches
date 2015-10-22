@@ -237,7 +237,8 @@ class Console(cmd.Cmd):
         line = arg.strip()
         if line.isdigit():
             offer = Ask(self.ts, int(line), "£")
-            self.game.drama.memory.append(offer)
+            msg = parcel(None, offer)
+            return msg
         
     def do_bid(self, arg):
         """
@@ -248,7 +249,8 @@ class Console(cmd.Cmd):
         line = arg.strip()
         if line.isdigit():
             offer = Bid(self.ts, int(line), "£")
-            self.game.drama.memory.append(offer)
+            msg = parcel(None, offer)
+            return msg
         
     def do_sell(self, arg):
         """
@@ -261,9 +263,8 @@ class Console(cmd.Cmd):
             > sell 3
         """
         line = arg.strip()
-        view = (
-            c for i in self.game.businesses[0].inventories.values()
-            for c in i.contents.items())
+        data = get_objects(self.progress._replace(file="inventory.rson"))
+        view = Counter(data).items()
         if not line:
             print("Here's what you can sell:")
             print(
@@ -273,11 +274,10 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             k, v = list(view)[int(line)]
-            #self.game.drama = Selling(iterable=[k])
-            # TODO: as per buy
-            #item = menu[int(line)]
-            #self.up.put_nowait(item)
-        
+            drama = Selling(iterable=[k])
+            msg = parcel(None, drama)
+            return msg
+
     def do_go(self, arg):
         """
         'Go' lists places you can go. Supply a number from
