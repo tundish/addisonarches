@@ -321,11 +321,11 @@ class Console(cmd.Cmd):
 
         if not line:
             print("Here's what you can see:")
-            print(
-                *["{0:01}: {1.label} ({2})".format(n, i, totals[i])
-                for n, i in enumerate(menu) if totals[i]],
-                sep="\n")
-            sys.stdout.write("\n")
+            if menu:
+                print(
+                    *["{0:01}: {1.label} ({2})".format(n, i, totals[i])
+                    for n, i in enumerate(menu) if totals[i]],
+                    sep="\n")
         elif line.isdigit():
             prefix = random.choice([
             "Dunno about the", "No details on the", "Just",
@@ -334,6 +334,7 @@ class Console(cmd.Cmd):
             print(item.description or "{prefix} {0}{1}.".format(
                 item.label.lower(), ("s" if totals[item] > 1 else ""), prefix=prefix
             ))
+        sys.stdout.write("\n")
 
     def do_split(self, arg):
         """

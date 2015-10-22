@@ -126,7 +126,7 @@ class Trader(Handler, CashBusiness):
                 ))
             else:
                 yield Trader.Patter(self.proprietor, (
-                    "I'll agree on "
+                    "We have a deal at "
                     "{0.currency}{0.value}.".format(offer)
                 ))
                 asset = Asset(focus, None, ts)
@@ -139,6 +139,7 @@ class Trader(Handler, CashBusiness):
                 game.businesses[0].tally -= price
                 self.tally += price
                 game.drama = None
+                yield Trader.Patter(self.proprietor, "I'll have it all sent over.")
         except (TypeError, NotImplementedError) as e:
             # No offer yet
             yield Trader.Patter(self.proprietor, (
@@ -163,12 +164,7 @@ class Trader(Handler, CashBusiness):
             offer = drama.memory[-1]
         except KeyError:
             # Not in book
-            yield Trader.Patter(self.proprietor, (
-                "{0.name} says, 'No thanks, "
-                "not at the moment'.".format(
-                    self.proprietor, focus
-                 )
-            ))
+            yield Trader.Patter(self.proprietor, "No thanks, not at the moment.")
             try:
                 pick = random.choice(list(self.book.keys()))
                 need = " ".join(i.lower() for i in re.split(
@@ -176,12 +172,12 @@ class Trader(Handler, CashBusiness):
             except IndexError:
                 yield Trader.Patter(
                     self.proprietor,
-                    "'Thanks for coming over, {0.name}. Bye!'".format(
+                    "Thanks for coming over, {0.name}. Bye!".format(
                         game.businesses[0].proprietor
                     )
                 )
             else:
-                yield Trader.Patter(self.proprietor, "'Got any {0}s?'".format(need))
+                yield Trader.Patter(self.proprietor, "Got any {0}s?".format(need))
             game.drama = None
         except Exception as e:
             yield(e)
@@ -192,13 +188,13 @@ class Trader(Handler, CashBusiness):
                         type(focus), offer, constraint=0
                     )
                     yield Trader.Patter(self.proprietor, (
-                        "'I can go to "
-                        "{0.currency}{0.value:.0f}'.".format(valuation)
+                        "I can go to "
+                        "{0.currency}{0.value:.0f}.".format(valuation)
                     ))
                 else:
                     yield Trader.Patter(self.proprietor, (
-                        "'I'll agree on "
-                        "{0.currency}{0.value}'.".format(offer)
+                        "I'll agree on "
+                        "{0.currency}{0.value}.".format(offer)
                     ))
                     asset = Asset(focus, None, ts)
                     picks = game.businesses[0].retrieve(asset)
@@ -212,9 +208,7 @@ class Trader(Handler, CashBusiness):
                     game.drama = None
             except (TypeError, NotImplementedError) as e:
                 # No offer yet
-                yield Trader.Patter(self.proprietor, (
-                    "{0.name} says: 'How much are you asking for "
-                    "a {1.label}?'".format(
-                        self.proprietor, focus
-                     )
-                ))
+                yield Trader.Patter(
+                    self.proprietor,
+                    "How much are you asking for a {0.label}?".format(focus)
+                )
