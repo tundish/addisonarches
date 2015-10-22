@@ -236,6 +236,7 @@ class Game(Persistent):
         self.path = None
         self.location = None
         self.drama = None
+        self.alerts = []
 
     def load(self):
         name, pickler = next(
@@ -343,7 +344,7 @@ class Game(Persistent):
             rv.extend(list(reaction))
         except AttributeError:
             # Player business is not a Handler subclass
-            rv.append(Alert(
+            self.alerts.append(Alert(
                 datetime.datetime.now(),
                 "Earache and fisticuffs? Take them elsewhere.")
             )
@@ -357,6 +358,10 @@ class Game(Persistent):
             ))
         except Exception as e:
             print(e)
+
+        finally:
+            rv.extend(self.alerts)
+            self.alerts = []
         return rv
 
     @asyncio.coroutine
@@ -402,6 +407,11 @@ class Game(Persistent):
                             self.drama = Buying(iterable=[item])
                     # TODO: Split?
                     elif isinstance(job, Game.Item):
+                        if self.here != self.businesses[0]:
+                            self.alerts.append(Alert(
+                                datetime.datetime.now(),
+                                "You can't do that here.")
+                            )
                         try:
                             item = next(
                                 i for i in
