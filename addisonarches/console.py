@@ -347,16 +347,11 @@ class Console(cmd.Cmd):
             (more details may follow)
         """
         line = arg.strip()
-        view = (
-            (k, v)
-            for k, v in self.game.here.inventories[
-                self.game.location
-            ].contents.items()
-            if v and getattr(k, "components", None))
-        if self.game.here != self.game.businesses[0]:
-            # TODO: server side. Send Alert
-            print("You can't do that here.")
-            return False
+        data = [i
+            for i in get_objects(self.progress._replace(file="inventory.rson"))
+            if i.type == "Compound"
+        ]
+        view = Counter(data).items()
         if not line:
             print("Here's what you can split:")
             print(
@@ -366,10 +361,8 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             k, v = list(view)[int(line)]
-            # TODO: split becomes a method of Business
-            inv = self.game.here.inventories[self.game.location]
-            inv.contents[k] -= 1
-            inv.contents.update(k.components)
+            msg = parcel(None, k)
+            return msg
 
     def do_wait(self, arg):
         """

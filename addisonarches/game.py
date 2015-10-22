@@ -405,23 +405,24 @@ class Game(Persistent):
                             self._log.warning(ref)
                         else:
                             self.drama = Buying(iterable=[item])
-                    # TODO: Split?
                     elif isinstance(job, Game.Item):
-                        if self.here != self.businesses[0]:
-                            self.alerts.append(Alert(
-                                datetime.datetime.now(),
-                                "You can't do that here.")
-                            )
+                        # crafting
                         try:
                             item = next(
                                 i for i in
                                 self.businesses[job.owner].inventories[job.location].contents
                                 if i.label == job.label and i.description == job.description
                             )
-                        except (KeyError, StopIteration) as e:
-                            self._log.warning(job)
-                        else:
-                            self.drama = Buying(iterable=[item])
+                            inv = self.here.inventories[self.location]
+                            inv.contents[item] -= 1
+                            inv.contents.update(item.components)
+                        except:
+                            # self.here != self.businesses[0]
+                            self.alerts.append(Alert(
+                                datetime.datetime.now(),
+                                "You can't do that here.")
+                            )
+                            break
 
                     elif isinstance(job, Game.Via):
                         if self.destinations[job.id] == job.name:
