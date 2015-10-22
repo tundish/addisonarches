@@ -143,7 +143,9 @@ class Console(cmd.Cmd):
                     yield from self.up.put(msg)
                     reply = yield from self.down.get()
                 stop = self.postcmd(msg, line)
-                # TODO: Send 'stop' to game (down)
+                if stop:
+                    # TODO: Send 'stop' msg to game (up)
+                    break
             except Exception as e:
                 print(e)
 
@@ -167,13 +169,11 @@ class Console(cmd.Cmd):
             for alert in objs[Alert]:
                 print("{0.text}".format(alert))
 
-        else:
-            self.postloop()
-            sys.stdout.write("Press return.")
-            sys.stdout.flush()
-            for task in asyncio.Task.all_tasks(loop):
-                task.cancel()
-            loop.stop()
+        self.postloop()
+        sys.stdout.flush()
+        for task in asyncio.Task.all_tasks(loop):
+            task.cancel()
+        loop.stop()
 
     def precmd(self, line):
         return line
@@ -187,7 +187,7 @@ class Console(cmd.Cmd):
         t = datetime.datetime.strptime(tick.value, "%Y-%m-%d %H:%M:%S")
         self.prompt = "{:%A %H:%M} > ".format(t)
         # TODO: Send 'stop' to game (down)
-        return msg is None
+        return line.startswith("quit") and msg is None
 
     def do_buy(self, arg):
         """
@@ -305,7 +305,6 @@ class Console(cmd.Cmd):
             (more details may follow)
         """
         line = arg.strip()
-        print(Game.public)
         data = get_objects(self.progress)
         progress = group_by_type(data)
         totals = Counter(progress[Game.Item])
@@ -367,13 +366,13 @@ class Console(cmd.Cmd):
         """
         Pass the time quietly.
         """
-        return False
+        return None
 
     def do_quit(self, arg):
         """
         End the game.
         """
-        return True
+        return None
 
 
 def main(args):
