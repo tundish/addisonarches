@@ -121,13 +121,13 @@ class Trader(Handler, CashBusiness):
                     type(focus), offer, constraint=0
                 )
                 yield Trader.Patter(self.proprietor, (
-                    "'I can go to "
-                    "{0.currency}{0.value:.0f}'.".format(valuation)
+                    "I can go to "
+                    "{0.currency}{0.value:.0f}.".format(valuation)
                 ))
             else:
                 yield Trader.Patter(self.proprietor, (
-                    "'I'll agree on "
-                    "{0.currency}{0.value}'.".format(offer)
+                    "I'll agree on "
+                    "{0.currency}{0.value}.".format(offer)
                 ))
                 asset = Asset(focus, None, ts)
                 picks = self.retrieve(asset)
@@ -142,12 +142,12 @@ class Trader(Handler, CashBusiness):
         except (TypeError, NotImplementedError) as e:
             # No offer yet
             yield Trader.Patter(self.proprietor, (
-                "'I see you're "
-                "considering this fine {0.label}'.".format(focus)
+                "I see you're "
+                "considering this fine {0.label}.".format(focus)
             ))
             yield Trader.Patter(self.proprietor, (
-                "'We let those go for "
-                "{0.currency}{0.value:.0f}'.".format(
+                "We let those go for "
+                "{0.currency}{0.value:.0f}.".format(
                     max(self.book[type(focus)])
                 )
             ))

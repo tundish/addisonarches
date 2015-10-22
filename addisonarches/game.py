@@ -329,12 +329,13 @@ class Game(Persistent):
         except TypeError:
             rv.append(Trader.Patter(
                 self.here.proprietor,
-                random.choice(
-                    ["Hello, {0.name}".format(
-                        self.businesses[0].proprietor
-                    ), "What can I do for you?"]
-                )
+                random.choice([
+                    "Hello, {0.name}".format(self.businesses[0].proprietor),
+                    "What can I do for you?"
+                ])
             ))
+        except Exception as e:
+            print(e)
         return rv
 
     @asyncio.coroutine
@@ -361,12 +362,21 @@ class Game(Persistent):
             msg = yield from q.get()
             for job in getattr(msg, "payload", []):
                 if isinstance(job, Buying):
-                    self.drama = job
-                    self.declare(dict(progress=self.progress))
-                    yield from asyncio.sleep(0, loop=loop)
+                    ref = job.memory[0]
+                    try:
+                        item = next(
+                            i for i in
+                            self.businesses[ref.owner].inventories[ref.location].contents
+                            if i.label == ref.label and i.description == ref.description
+                        )
+                    except (KeyError, StopIteration) as e:
+                        self._log.warning(ref)
+                    else:
+                        self.drama = Buying(iterable=[item])
+                        self.declare(dict(progress=self.progress))
+                        yield from asyncio.sleep(0, loop=loop)
 
                 elif isinstance(job, Game.Item):
-                    # TODO: owner of item determines buy/sell context
                     try:
                         item = next(
                             i for i in
@@ -381,7 +391,6 @@ class Game(Persistent):
                         yield from asyncio.sleep(0, loop=loop)
 
                 elif isinstance(job, Game.Via):
-                    print(job)
                     try: 
                         if self.destinations[job.id] == job.name:
 

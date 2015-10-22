@@ -26,6 +26,7 @@ import datetime
 from decimal import Decimal
 import getpass
 import itertools
+import operator
 import os.path
 import random
 import sys
@@ -151,6 +152,8 @@ class Console(cmd.Cmd):
 
             data = get_objects(self.progress)
             objs = group_by_type(data)
+            #print(*list(objs.items()), sep="\n")
+
             locn = next(iter(objs[Location]), None)
             print("You're at {}.".format(getattr(locn, "name", "?")))
 
@@ -163,8 +166,14 @@ class Console(cmd.Cmd):
             tally = query_object_chain(data, "name", "cash")
             print("You've got {0.units}{0.value} in the kitty.".format(tally))
 
-            for patter in objs[Trader.Patter]:
-                print("{0.actor[1]} says, '{0.text}'.".format(patter))
+            for actor, patter in itertools.groupby(objs[Trader.Patter], operator.attrgetter("actor")):
+                print("{0[1]} says, ".format(actor))
+                phrases = list(patter)
+                for n, phrase in enumerate(phrases):
+                    if n == len(phrases) - 1:
+                        print("'{0}'.".format(phrase.text.rstrip('.')))
+                    else:
+                        print("'{0.text}'".format(phrase))
 
             for alert in objs[Alert]:
                 print("{0.text}".format(alert))
@@ -215,9 +224,9 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             item = menu[int(line)]
-            # TODO: Send Buying drama
-            # msg = Buying(iterable=[item])
-            self.up.put_nowait(item)
+            drama = Buying(iterable=[item])
+            msg = parcel(None, drama)
+            return msg
         
     def do_ask(self, arg):
         """
