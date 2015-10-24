@@ -34,6 +34,7 @@ from addisonarches.cli import add_web_options
 import addisonarches.game
 from addisonarches.utils import send
 from addisonarches.web.services import Assets
+from addisonarches.web.services import Registration
 from addisonarches.web.services import Transitions
 
 __doc__ = """
@@ -42,6 +43,7 @@ Runs the web interface for Addison Arches.
 
 #@app.route("/", "GET")
 def home_get():
+    # TODO: Get game name
     log = logging.getLogger("addisonarches.web.home")
     userId = authenticated_userid(bottle.request)
     log.info(userId)
@@ -95,8 +97,9 @@ def main(args):
     log.addHandler(ch)
 
     app = aiohttp.web.Application()
-    assets = Assets(app, args=args)
-    transitions = Transitions(app, args=args)
+    assets = Assets(app, **vars(args))
+    reg = Registration(app, **vars(args))
+    transitions = Transitions(app, **vars(args))
     # TODO: Make a Turberfield-ipc node
     # TODO: API service takes up and down queue
 

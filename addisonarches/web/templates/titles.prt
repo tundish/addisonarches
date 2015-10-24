@@ -174,7 +174,7 @@ travel {
 <li id="strapline">a web game of trade and adventure.</li>
 </ul>
 </div>
-<a id="play" class="pure-button pure-button-primary" href="/">Play</a>
+<a id="play" class="pure-button pure-button-primary" href="/start">Play</a>
 <script type="text/javascript" src="/js/jquery-2.1.1.js"></script>
 <script type="text/javascript" src="/js/SeamlessLoop.js"></script>
 <!-- TODO: Button to mute audio -->

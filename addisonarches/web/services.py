@@ -130,6 +130,33 @@ class Assets(Service):
                 content_type="text/javascript"
             )
 
+class Registration(Service):
+
+    def __init__(self, app, **kwargs):
+        super().__init__(app, **kwargs)
+        self.routes = dict(list(self._register(app, "/start")))
+
+    def start(self, items=[]):
+        return {
+            "info": {
+                "args": self.config.get("args"),
+                "interval": 200,
+                "time": "{:.1f}".format(time.time()),
+                "title": "Addison Arches {}".format(__version__),
+                "version": __version__
+            },
+            "items": OrderedDict([(str(id(i)), i) for i in items]),
+            
+        }
+
+    @asyncio.coroutine
+    def start_get(self, request):
+        tmplt = pyratemp.Template(filename="start.prt", loader_class=TemplateLoader)
+        return aiohttp.web.Response(
+            content_type="text/html",
+            text=tmplt(**self.start())
+        )
+
 class Transitions(Service):
 
     def __init__(self, app, **kwargs):
