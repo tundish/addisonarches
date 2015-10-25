@@ -41,10 +41,13 @@ class Service:
         self.config = kwargs
 
     def _register(self, app, *args):
-        table = str.maketrans("/", "_", "0123456789{}[]^+*:.?()$")
+        table = str.maketrans("/", "_", "0123456789{}[]^+-*:.?()$")
         for path in args:
-            base = urllib.parse.urlparse(path).path.strip("/").translate(table)
-            print(base, file=sys.stderr)
+            base = "_".join(
+                i.split(":")[0].translate(table)
+                for i in urllib.parse.urlparse(path).path.split("/")
+                if i
+            )
             for verb in Service.verbs:
                 name = "{}_{}".format(base, verb)
                 try:
