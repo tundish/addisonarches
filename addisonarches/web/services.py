@@ -21,6 +21,7 @@ import asyncio
 from collections import OrderedDict
 import logging
 import os
+import sys
 import time
 import urllib.parse
 import uuid
@@ -40,9 +41,10 @@ class Service:
         self.config = kwargs
 
     def _register(self, app, *args):
-        table = str.maketrans("/", "_", "{}[]^+*:.?()$")
+        table = str.maketrans("/", "_", "0123456789{}[]^+*:.?()$")
         for path in args:
             base = urllib.parse.urlparse(path).path.strip("/").translate(table)
+            print(base, file=sys.stderr)
             for verb in Service.verbs:
                 name = "{}_{}".format(base, verb)
                 try:
@@ -137,7 +139,11 @@ class Registration(Service):
 
     def __init__(self, app, **kwargs):
         super().__init__(app, **kwargs)
-        self.routes = dict(list(self._register(app, "/start")))
+        self.routes = dict(list(self._register(
+            app,
+            "/start",
+            "/{session:[a-z0-9]{32}}",
+        )))
 
     def start(self, items=[]):
         session = uuid.uuid4().hex
@@ -157,6 +163,14 @@ class Registration(Service):
         }
 
     @asyncio.coroutine
+    def session_get(self, request):
+        tmplt = pyratemp.Template(filename="session.prt", loader_class=TemplateLoader)
+        return aiohttp.web.Response(
+            content_type="text/html",
+            text=tmplt(**self.start())
+        )
+
+    @asyncio.coroutine
     def start_get(self, request):
         tmplt = pyratemp.Template(filename="start.prt", loader_class=TemplateLoader)
         return aiohttp.web.Response(
@@ -173,7 +187,7 @@ class Registration(Service):
             ts, Registration.sessions[session] = Registration.sessions[session], time.time()
         except KeyError:
             log.warning("Session not found: {}".format(session))
-            return aiohttp.web.HTTPFound("/")
+            return aiohttp.web.HTTPFound("/titles")
         else:
             log.info(
                 "Initiating game for session {0} ({1}s)".format(
@@ -181,6 +195,7 @@ class Registration(Service):
                     Registration.sessions[session] - ts
                 )
             )
+            log.info(self.routes)
 
         name = data.getone("name")
         # TODO: Create game 
