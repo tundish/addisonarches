@@ -43,6 +43,7 @@ margin: 1.2em 0 0 7.0em;
                     <label for="name">Name</label>
                     <input id="name" name="name" type="text" pattern="[a-zA-Z]{2,16}"
                     title="Think of a name for your character." />
+                    <input id="session" name="session" type="hidden" value="@!  info["session"] !@" />
                 </div>
                 <div class="pure-control-group" >
                     <button type="submit" class="pure-button pure-button-primary local-indent">Create</button>

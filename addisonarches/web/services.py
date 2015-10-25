@@ -23,6 +23,7 @@ import logging
 import os
 import time
 import urllib.parse
+import uuid
 
 import aiohttp.web
 import pkg_resources
@@ -132,16 +133,22 @@ class Assets(Service):
 
 class Registration(Service):
 
+    sessions = {}
+
     def __init__(self, app, **kwargs):
         super().__init__(app, **kwargs)
         self.routes = dict(list(self._register(app, "/start")))
 
     def start(self, items=[]):
+        session = uuid.uuid4().hex
+        ts = time.time()
+        self.sessions[session] = ts
         return {
             "info": {
                 "args": self.config.get("args"),
                 "interval": 200,
-                "time": "{:.1f}".format(time.time()),
+                "session": session,
+                "time": "{:.1f}".format(ts),
                 "title": "Addison Arches {}".format(__version__),
                 "version": __version__
             },
@@ -156,6 +163,31 @@ class Registration(Service):
             content_type="text/html",
             text=tmplt(**self.start())
         )
+
+    @asyncio.coroutine
+    def start_post(self, request):
+        data = yield from request.post()
+        log = logging.getLogger("addisonarches.web")
+        session = data.getone("session")
+        try:
+            ts, Registration.sessions[session] = Registration.sessions[session], time.time()
+        except KeyError:
+            log.warning("Session not found: {}".format(session))
+            return aiohttp.web.HTTPFound("/")
+        else:
+            log.info(
+                "Initiating game for session {0} ({1}s)".format(
+                    session,
+                    Registration.sessions[session] - ts
+                )
+            )
+
+        name = data.getone("name")
+        # TODO: Create game 
+        #progress, down, up = addisonarches.game.create(
+        #    args.output, user, name, loop=loop
+        #)
+        return aiohttp.web.HTTPFound("/{}".format(session))
 
 class Transitions(Service):
 

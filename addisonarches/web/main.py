@@ -96,12 +96,17 @@ def main(args):
     ch.setFormatter(formatter)
     log.addHandler(ch)
 
+    # TODO: Make a Turberfield-ipc node
+    # TODO: API service takes up and down queue
+    #down = asyncio.Queue(loop=loop)
+    #up = asyncio.Queue(loop=loop)
+    #tok = token(args.connect, APP_NAME)
+    #node = create_udp_node(loop, tok, down, up)
+
     app = aiohttp.web.Application()
     assets = Assets(app, **vars(args))
     reg = Registration(app, **vars(args))
     transitions = Transitions(app, **vars(args))
-    # TODO: Make a Turberfield-ipc node
-    # TODO: API service takes up and down queue
 
     loop = asyncio.get_event_loop()
     handler = app.make_handler()
