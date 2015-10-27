@@ -1,0 +1,11 @@
+<!--(set_escape)-->
+    html
+<!--(end)-->
+<!--(macro item_list)-->
+<ul>
+    <!--(for item in items)-->
+    <li>@!default(item, "name", "Eh?")!@</li>
+    <!--(end)-->
+</ul>
+<!--(end)-->
+@!item_list(items=items)!@
