@@ -56,12 +56,6 @@ from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
 
 
-# TODO: Coroutine to check game status, update prompt of necessary,
-# then
-#           sys.stdout.write("\n")
-#           sys.stdout.flush()
-
-
 def create_local_console(progress, down, up, loop=None):
     console = Console(progress, down, up, loop=loop)
     executor = concurrent.futures.ThreadPoolExecutor(
@@ -71,20 +65,6 @@ def create_local_console(progress, down, up, loop=None):
         loop.create_task(coro(executor, loop=loop))
     return console
 
-
-def get_progress(path, types=(Clock.Tick, Location, Game.Via)):
-    path = os.path.join(*path._replace(file="progress.rson"))
-    rv = defaultdict(list)
-    try:
-        with open(path, 'r') as content:
-            data = rson2objs(content.read(), types)
-    except Exception as e:
-        print(e)
-
-    for obj in data:
-        rv[type(obj)].append(obj)
-
-    return rv
 
 class Console(cmd.Cmd):
 

@@ -31,6 +31,8 @@ import pkg_resources
 import pyratemp
 
 from addisonarches import __version__
+import addisonarches.game
+from addisonarches.utils import get_objects
 from addisonarches.web.utils import TemplateLoader
 
 class Service:
@@ -189,12 +191,12 @@ class Registration(Service):
                     Registration.sessions[session] - ts
                 )
             )
-            log.info(self.routes)
 
         name = data.getone("name")
+        loop = asyncio.get_event_loop()
         if session not in Workflow.sessions:
             progress, down, up = addisonarches.game.create(
-                self.config.output, session, name, loop=loop
+                self.config["output"], session, name, loop=loop
             )
             Workflow.sessions[session] = (progress, down, up)
         return aiohttp.web.HTTPFound("/{}".format(session))
@@ -212,6 +214,8 @@ class Workflow(Service):
 
     def progress(self, session, items=[]):
         ts = time.time()
+        path, down, up = self.sessions[session]
+        data = get_objects(path)
         return {
             "info": {
                 "args": self.config.get("args"),

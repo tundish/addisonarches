@@ -109,6 +109,9 @@ def main(args):
     reg = Registration(app, **vars(args))
     transitions = Transitions(app, **vars(args))
     work = Workflow(app, **vars(args))
+    for svc in (assets, reg, transitions, work):
+        log.info("{0.__class__.__name__} object serves {1}".format(
+            svc, ", ".join(svc.routes.keys())))
 
     loop = asyncio.get_event_loop()
     handler = app.make_handler()
