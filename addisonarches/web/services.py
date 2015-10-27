@@ -192,6 +192,12 @@ class Registration(Service):
                 )
             )
 
+        # TODO: hateoas
+        # form = RegistrationView(data)
+        # if form.invalid:
+        # raise HTTPBadRequest(
+        #     "Bad value in '{}' field".format(form.invalid[0].name))
+
         name = data.getone("name")
         loop = asyncio.get_event_loop()
         if session not in Workflow.sessions:
