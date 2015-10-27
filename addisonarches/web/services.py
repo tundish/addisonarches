@@ -145,7 +145,6 @@ class Registration(Service):
         self.routes = dict(list(self._register(
             app,
             "/start",
-            "/{session:[a-z0-9]{32}}",
         )))
 
     def start(self, items=[]):
@@ -164,14 +163,6 @@ class Registration(Service):
             "items": OrderedDict([(str(id(i)), i) for i in items]),
             
         }
-
-    @asyncio.coroutine
-    def session_get(self, request):
-        tmplt = pyratemp.Template(filename="session.prt", loader_class=TemplateLoader)
-        return aiohttp.web.Response(
-            content_type="text/html",
-            text=tmplt(**self.start())
-        )
 
     @asyncio.coroutine
     def start_get(self, request):
@@ -201,11 +192,50 @@ class Registration(Service):
             log.info(self.routes)
 
         name = data.getone("name")
-        # TODO: Create game 
-        #progress, down, up = addisonarches.game.create(
-        #    args.output, user, name, loop=loop
-        #)
+        if session not in Workflow.sessions:
+            progress, down, up = addisonarches.game.create(
+                self.config.output, session, name, loop=loop
+            )
+            Workflow.sessions[session] = (progress, down, up)
         return aiohttp.web.HTTPFound("/{}".format(session))
+
+class Workflow(Service):
+
+    sessions = {}
+
+    def __init__(self, app, **kwargs):
+        super().__init__(app, **kwargs)
+        self.routes = dict(list(self._register(
+            app,
+            "/{session:[a-z0-9]{32}}",
+        )))
+
+    def progress(self, session, items=[]):
+        ts = time.time()
+        return {
+            "info": {
+                "args": self.config.get("args"),
+                "interval": 200,
+                "session": session,
+                "time": "{:.1f}".format(ts),
+                "title": "Addison Arches {}".format(__version__),
+                "version": __version__
+            },
+            "items": OrderedDict([(str(id(i)), i) for i in items]),
+            
+        }
+
+    @asyncio.coroutine
+    def session_get(self, request):
+        session = request.match_info["session"]
+        tmplt = pyratemp.Template(filename="session.prt", loader_class=TemplateLoader)
+
+
+        return aiohttp.web.Response(
+            content_type="text/html",
+            #text=tmplt(**self.progress(session))
+            text=repr(self.progress(session))
+        )
 
 class Transitions(Service):
 

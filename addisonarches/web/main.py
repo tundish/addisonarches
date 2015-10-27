@@ -36,6 +36,7 @@ from addisonarches.utils import send
 from addisonarches.web.services import Assets
 from addisonarches.web.services import Registration
 from addisonarches.web.services import Transitions
+from addisonarches.web.services import Workflow
 
 __doc__ = """
 Runs the web interface for Addison Arches.
@@ -96,10 +97,10 @@ def main(args):
     ch.setFormatter(formatter)
     log.addHandler(ch)
 
+    loop = asyncio.SelectorEventLoop()
+    asyncio.set_event_loop(loop)
+
     # TODO: Make a Turberfield-ipc node
-    # TODO: API service takes up and down queue
-    #down = asyncio.Queue(loop=loop)
-    #up = asyncio.Queue(loop=loop)
     #tok = token(args.connect, APP_NAME)
     #node = create_udp_node(loop, tok, down, up)
 
@@ -107,6 +108,7 @@ def main(args):
     assets = Assets(app, **vars(args))
     reg = Registration(app, **vars(args))
     transitions = Transitions(app, **vars(args))
+    work = Workflow(app, **vars(args))
 
     loop = asyncio.get_event_loop()
     handler = app.make_handler()
