@@ -2,16 +2,19 @@
 # encoding: UTF-8
 
 from collections import namedtuple
+from collections import OrderedDict
 from functools import singledispatch
 import json
 import re
+import time
 import unittest
 import uuid
 
 import pkg_resources
 import pyratemp
 
-from addisonarches.web.hateoas import Action
+from turberfield.ipc.message import Alert
+
 from addisonarches.web.hateoas import Parameter
 from addisonarches.web.utils import TemplateLoader
 
@@ -19,7 +22,8 @@ from addisonarches.web.utils import TemplateLoader
 #    "cloudhands.web.templates", "item_list.pt"))
 item_macro = pyratemp.Template(
     filename="items.prt",
-    loader_class=TemplateLoader
+    loader_class=TemplateLoader,
+    data={"unittest": unittest},
 )
 #nav_macro = PageTemplate(pkg_resources.resource_string(
 #    "cloudhands.web.templates", "nav_list.pt"))
@@ -29,11 +33,47 @@ item_macro = pyratemp.Template(
 Ownership = namedtuple("Ownership", ["uuid", "limit", "level"])
 SimpleType = namedtuple("SimpleType", ["uuid", "name"])
 
+Action = namedtuple(
+    "Action", ["name", "rel", "typ", "ref", "method", "parameters", "prompt"])
+
+class Validating:
+
+    def __init__(self, data):
+        pass
+
+    def invalid(self):
+        missing = [i for i in self.parameters
+                   if i.required and i.name not in self]
+        missing = missing or [
+            i for i in self.parameters if i.name in self
+            and i.values and self[i.name] not in i.values]
+        missing = missing or [
+            i for i in self.parameters
+            if i.name in self and not i.regex.match(self[i.name])]
+        return missing
+
+class AlertAction(Validating):
+    parameters = [
+        Parameter("ts", True, None, ["data.ts"], ""),
+    ]
+
+    def __init__(self, data):
+        self.links = [Action(
+            name=data.text,
+            rel="edit-form",
+            typ="/registration/{}/passwords",
+            ref="data.uuid",
+            method="post",
+            parameters=self.parameters,
+            prompt="Change")]
 
 class TestFundamentals(unittest.TestCase):
 
     def test_items_macro(self):
-        print(item_macro(items=[]))
+        items = OrderedDict([
+            (Alert(time.time(), "Time for a test!"), AlertAction),           
+        ])
+        print(item_macro(items=items))
 
     def tost_views_without_links_are_not_displayed(self):
         objects = [

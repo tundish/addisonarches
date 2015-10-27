@@ -3,9 +3,11 @@
 <!--(end)-->
 <!--(macro item_list)-->
 <ul>
-    <!--(for item in items)-->
-    <li>@!default(item, "name", "Eh?")!@</li>
+    <!--(for data, view in items.items())-->
+    <li>@!default("data.name", "Eh?")!@</li>
     <!--(end)-->
 </ul>
 <!--(end)-->
+<!--(if exists("unittest"))-->
 @!item_list(items=items)!@
+<!--(end)-->
