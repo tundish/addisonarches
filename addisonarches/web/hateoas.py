@@ -18,27 +18,27 @@
 
 
 from collections import namedtuple
-import functools
 
 Action = namedtuple(
     "Action", ["name", "rel", "typ", "ref", "method", "parameters", "prompt"])
 Parameter = namedtuple("Parameter", ["name", "required", "regex", "values", "tip"])
 
 
-class Validating:
+class View:
 
-    @property
-    def parameters(self):
-        return []
+    def __init__(self, data, actions={}, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.data = data
+        self.actions = actions
 
-    @property
-    def invalid(self):
-        missing = [i for i in self.parameters
-                   if i.required and i.name not in self]
+    def invalid(self, action:str):
+        action = self.actions[action]
+        missing = [i for i in action.parameters
+                   if i.required and i.name not in self.data]
         missing = missing or [
-            i for i in self.parameters if i.name in self
-            and i.values and self[i.name] not in i.values]
+            i for i in action.parameters if i.name in self.data
+            and i.values and data[i.name] not in i.values]
         missing = missing or [
-            i for i in self.parameters
-            if i.name in self and not i.regex.match(self[i.name])]
+            i for i in action.parameters
+            if i.name in self.data and not i.regex.match(self.data[i.name])]
         return missing
