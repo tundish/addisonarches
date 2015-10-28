@@ -32,7 +32,7 @@ class AlertTests(unittest.TestCase):
         view = alert(msg)
         self.assertIs(msg, view.obj)
         self.assertEqual(1, len(view.actions))
-        problems = view.reject("save")
+        problems = view.rejects("save")
         self.assertFalse(problems)
 
     def test_alert_from_multidict(self):
@@ -41,7 +41,7 @@ class AlertTests(unittest.TestCase):
         view = alert(data)
         self.assertEqual(msg, view.obj)
         self.assertEqual(1, len(view.actions))
-        problems = view.reject("save")
+        problems = view.rejects("save")
         self.assertFalse(problems)
 
     def test_alert_from_bad_multidict(self):
@@ -50,5 +50,5 @@ class AlertTests(unittest.TestCase):
         view = alert(data)
         self.assertEqual(msg, view.obj)
         self.assertEqual(1, len(view.actions))
-        problems = view.reject("save")
+        problems = view.rejects("save")
         self.assertTrue(problems)

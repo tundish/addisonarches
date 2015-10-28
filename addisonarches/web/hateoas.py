@@ -32,7 +32,7 @@ class View:
         self.fields = obj._fields
         self.actions = actions
 
-    def reject(self, action:str):
+    def rejects(self, action:str):
         data = vars(self.obj)
         action = self.actions[action]
         missing = [i for i in action.parameters

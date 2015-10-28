@@ -21,7 +21,7 @@ from addisonarches.web.utils import TemplateLoader
 #item_macro = PageTemplate(pkg_resources.resource_string(
 #    "cloudhands.web.templates", "item_list.pt"))
 item_macro = pyratemp.Template(
-    filename="items.prt",
+    filename="items.html.prt",
     loader_class=TemplateLoader,
     data={"unittest": unittest},
 )

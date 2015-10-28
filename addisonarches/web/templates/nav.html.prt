@@ -1,0 +1,18 @@
+<!--(set_escape)-->
+    html
+<!--(end)-->
+<!--(macro nav_list)-->
+<ul>
+    <!--(for view in nav)-->
+    <li><dl>
+        <!--(for attr, val in zip(view.fields, view.obj))-->
+        <dt>@! attr !@</dt>
+        <dd>@! val !@</dd>
+        <!--(end)-->
+    </dl></li>
+    <!--(end)-->
+</ul>
+<!--(end)-->
+<!--(if exists("unittest"))-->
+@!nav_list(nav=nav)!@
+<!--(end)-->

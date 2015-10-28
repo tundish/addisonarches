@@ -29,10 +29,16 @@ import uuid
 import aiohttp.web
 import pkg_resources
 import pyratemp
+from turberfield.ipc.message import Alert
 
 from addisonarches import __version__
 import addisonarches.game
+from addisonarches.game import Clock
+from addisonarches.game import Game
 from addisonarches.utils import get_objects
+from addisonarches.utils import group_by_type
+from addisonarches.utils import query_object_chain
+from addisonarches.web.elements import alert
 from addisonarches.web.utils import TemplateLoader
 
 class Service:
@@ -219,9 +225,11 @@ class Workflow(Service):
         )))
 
     def progress(self, session, items=[]):
+        log = logging.getLogger("addisonarches.web")
         ts = time.time()
         path, down, up = self.sessions[session]
-        data = get_objects(path)
+        items = items or get_objects(path)
+        progress = group_by_type(items)
         return {
             "info": {
                 "args": self.config.get("args"),
@@ -231,20 +239,20 @@ class Workflow(Service):
                 "title": "Addison Arches {}".format(__version__),
                 "version": __version__
             },
-            "items": OrderedDict([(str(id(i)), i) for i in items]),
+            "nav": progress[Game.Via],
+            "items": [alert(i) for i in progress[Alert]],
             
         }
 
     @asyncio.coroutine
     def session_get(self, request):
         session = request.match_info["session"]
-        tmplt = pyratemp.Template(filename="session.prt", loader_class=TemplateLoader)
+        tmplt = pyratemp.Template(filename="session.html.prt", loader_class=TemplateLoader)
 
 
         return aiohttp.web.Response(
             content_type="text/html",
-            #text=tmplt(**self.progress(session))
-            text=repr(self.progress(session))
+            text=tmplt(**self.progress(session))
         )
 
 class Transitions(Service):
