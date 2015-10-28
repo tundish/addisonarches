@@ -24,6 +24,7 @@ from turberfield.ipc.message import Alert
 
 from addisonarches.web.elements import alert
 
+
 class AlertTests(unittest.TestCase):
 
     def test_alert_from_msg(self):
@@ -33,3 +34,21 @@ class AlertTests(unittest.TestCase):
         self.assertEqual(1, len(view.actions))
         problems = view.reject("save")
         self.assertFalse(problems)
+
+    def test_alert_from_multidict(self):
+        msg = Alert(time.time(), "There was a bang!")
+        data = MultiDict(**vars(msg))
+        view = alert(data)
+        self.assertEqual(msg, view.obj)
+        self.assertEqual(1, len(view.actions))
+        problems = view.reject("save")
+        self.assertFalse(problems)
+
+    def test_alert_from_bad_multidict(self):
+        msg = Alert(time.time(), "There was a b*ng!")
+        data = MultiDict(**vars(msg))
+        view = alert(data)
+        self.assertEqual(msg, view.obj)
+        self.assertEqual(1, len(view.actions))
+        problems = view.reject("save")
+        self.assertTrue(problems)
