@@ -23,44 +23,26 @@ from turberfield.ipc.message import Alert
 
 from addisonarches.web.hateoas import Action
 from addisonarches.web.hateoas import Parameter
+from addisonarches.web.hateoas import View
 
 
 def alert(data):
     try:
         obj = Alert(**data)
-    except IndexError:
+    except TypeError:
         obj = data
     return View(obj, actions=OrderedDict([
         ("save", Action(
-                name="User login",
-                rel="login",
-                typ="/login/{}",
-                ref="0987654321",
+                name="Save",
+                rel="memento",
+                typ="/alerts/{}",
+                ref=obj.ts,
                 method="post",
                 parameters=[
                     Parameter(
-                        "username", True, re.compile("\\w{8,10}$"),
+                        "text", True, re.compile("[\\w\.! ]{5,64}$"),
                         [],
-                        """
-                        User names are 8 to 10 characters long.
-                        """),
-                    Parameter(
-                        "password", True, re.compile(
-                            "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])"
-                            "(?=.*[^a-zA-Z0-9])"
-                            "(?!.*\\s).{8,20}$"
-                        ), [],
-                        """
-                        Passwords are between 8 and 20 characters in length.
-                        They must contain:
-                        <ul>
-                        <li>at least one lowercase letter</li>
-                        <li>at least one uppercase letter</li>
-                        <li>at least one numeric digit</li>
-                        <li>at least one special character</li>
-                        </ul>
-                        They cannot contain whitespace.
-                        """),
+                        "Alert text is 5 to 64 characters long."),
                     ],
                 prompt="OK")),
         ])

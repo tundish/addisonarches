@@ -16,6 +16,20 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
+import time
 import unittest
 
+from aiohttp import MultiDict
+from turberfield.ipc.message import Alert
+
 from addisonarches.web.elements import alert
+
+class AlertTests(unittest.TestCase):
+
+    def test_alert_from_msg(self):
+        msg = Alert(time.time(), "There was a bang!")
+        view = alert(msg)
+        self.assertIs(msg, view.obj)
+        self.assertEqual(1, len(view.actions))
+        problems = view.reject("save")
+        self.assertFalse(problems)

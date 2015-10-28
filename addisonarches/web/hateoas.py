@@ -26,19 +26,20 @@ Parameter = namedtuple("Parameter", ["name", "required", "regex", "values", "tip
 
 class View:
 
-    def __init__(self, data, actions={}, *args, **kwargs):
+    def __init__(self, obj, actions={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.data = data
+        self.obj = obj
         self.actions = actions
 
-    def invalid(self, action:str):
+    def reject(self, action:str):
+        data = vars(self.obj)
         action = self.actions[action]
         missing = [i for i in action.parameters
-                   if i.required and i.name not in self.data]
+                   if i.required and i.name not in data]
         missing = missing or [
-            i for i in action.parameters if i.name in self.data
+            i for i in action.parameters if i.name in data
             and i.values and data[i.name] not in i.values]
         missing = missing or [
             i for i in action.parameters
-            if i.name in self.data and not i.regex.match(self.data[i.name])]
+            if i.name in data and not i.regex.match(data[i.name])]
         return missing
