@@ -15,7 +15,7 @@ import pyratemp
 
 from turberfield.ipc.message import Alert
 
-from addisonarches.web.hateoas import Parameter
+from addisonarches.web.elements import alert
 from addisonarches.web.utils import TemplateLoader
 
 #item_macro = PageTemplate(pkg_resources.resource_string(
@@ -33,47 +33,12 @@ item_macro = pyratemp.Template(
 Ownership = namedtuple("Ownership", ["uuid", "limit", "level"])
 SimpleType = namedtuple("SimpleType", ["uuid", "name"])
 
-Action = namedtuple(
-    "Action", ["name", "rel", "typ", "ref", "method", "parameters", "prompt"])
-
-class Validating:
-
-    def __init__(self, data):
-        pass
-
-    def invalid(self):
-        missing = [i for i in self.parameters
-                   if i.required and i.name not in self]
-        missing = missing or [
-            i for i in self.parameters if i.name in self
-            and i.values and self[i.name] not in i.values]
-        missing = missing or [
-            i for i in self.parameters
-            if i.name in self and not i.regex.match(self[i.name])]
-        return missing
-
-class AlertAction(Validating):
-    parameters = [
-        Parameter("ts", True, None, ["data.ts"], ""),
-    ]
-
-    def __init__(self, data):
-        self.links = [Action(
-            name=data.text,
-            rel="edit-form",
-            typ="/registration/{}/passwords",
-            ref="data.uuid",
-            method="post",
-            parameters=self.parameters,
-            prompt="Change")]
-
 class TestFundamentals(unittest.TestCase):
 
     def test_items_macro(self):
-        items = OrderedDict([
-            (Alert(time.time(), "Time for a test!"), AlertAction),           
-        ])
-        print(item_macro(items=items))
+        msg = Alert(time.time(), "Time for a test!")
+        view = alert(msg)
+        print(item_macro(items=[view]))
 
     def tost_views_without_links_are_not_displayed(self):
         objects = [

@@ -29,6 +29,7 @@ class View:
     def __init__(self, obj, actions={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.obj = obj
+        self.fields = obj._fields
         self.actions = actions
 
     def reject(self, action:str):

@@ -3,8 +3,13 @@
 <!--(end)-->
 <!--(macro item_list)-->
 <ul>
-    <!--(for data, view in items.items())-->
-    <li>@!default("data.name", "Eh?")!@</li>
+    <!--(for view in items)-->
+    <li><dl>
+        <!--(for attr, val in zip(view.fields, view.obj))-->
+        <dt>@! attr !@</dt>
+        <dd>@! val !@</dd>
+        <!--(end)-->
+    </dl></li>
     <!--(end)-->
 </ul>
 <!--(end)-->
