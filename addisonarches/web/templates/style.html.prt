@@ -1,0 +1,46 @@
+<!--(set_escape)-->
+    html
+<!--(end)-->
+<!--(macro style)-->
+<style>
+h1, h2, h2 {
+font-family: "Trebuchet MS", Helvetica, sans-serif;
+color: #666666;
+}
+
+.local-indent {
+margin: 1.2em 0 0 7.0em;
+}
+
+.local-nav {
+width: 22em;
+}
+
+ol.local-items, nav ul {
+list-style-type: none;
+}
+
+ol.local-items > li:before {
+color: #2A98ED;
+font-weight: bold;
+}
+
+li {
+background-color: clouds;
+border:2px solid #BBBBBB;
+border-radius: 0px 20px 15px 15px;
+margin: 0.4em 1.8em 0.4em 0.6em;
+padding: 1em;
+}
+
+nav ul li {
+border:0px;
+margin: 0.2em 1.0em 0.2em 0.6em;
+padding: 0.3em;
+}
+
+</style>
+<!--(end)-->
+<!--(if exists("unittest"))-->
+@!style()!@
+<!--(end)-->

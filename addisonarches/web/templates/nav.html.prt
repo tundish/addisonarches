@@ -4,8 +4,13 @@
 <!--(macro nav_list)-->
 <nav>
 <ul>
-    <!--(for view in nav)-->
+    <!--(for nV, view in enumerate(nav))-->
         <!--(for action in view.actions.values())-->
+            <!--(if (nV,) == (0, ))-->
+            <li><a class="pure-button local-nav"
+                href="@! '/{}/inventory'.format(action.ref[0]) !@">Inventory</a>
+            </li>
+            <!--(end)-->
         <li>
         <form action="@! action.typ.format(*action.ref) !@" method="post">
         <fieldset style="display: none;">
@@ -13,7 +18,7 @@
             <input type="hidden" name="@!param.name!@" value="@!param.values[0]!@" />
             <!--(end)-->
         </fieldset>
-        <button style="width:22em;" type="submit" class="pure-button pure-button-primary">
+        <button class="pure-button pure-button-primary local-nav" type="submit" >
         @!  view.obj.name !@</button>
         </form>
         </li>
