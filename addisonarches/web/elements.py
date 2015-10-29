@@ -22,6 +22,7 @@ import re
 from turberfield.ipc.message import Alert
 
 from addisonarches.game import Game
+from addisonarches.scenario.types import Location
 from addisonarches.web.hateoas import Action
 from addisonarches.web.hateoas import Parameter
 from addisonarches.web.hateoas import View
@@ -49,6 +50,13 @@ def alert(data, session=None):
         ])
     )
 
+def tally(data, session=None):
+    try:
+        obj = Game.Tally(**data)
+    except TypeError:
+        obj = data
+    return View(obj, actions=[])
+ 
 def via(data, session=None):
     try:
         obj = Game.Via(**data)

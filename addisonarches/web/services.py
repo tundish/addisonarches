@@ -35,10 +35,12 @@ from addisonarches import __version__
 import addisonarches.game
 from addisonarches.game import Clock
 from addisonarches.game import Game
+from addisonarches.scenario.types import Location
 from addisonarches.utils import get_objects
 from addisonarches.utils import group_by_type
 from addisonarches.utils import query_object_chain
 from addisonarches.web.elements import alert
+from addisonarches.web.elements import tally
 from addisonarches.web.elements import via
 from addisonarches.web.utils import TemplateLoader
 
@@ -231,6 +233,8 @@ class Workflow(Service):
         path, down, up = self.sessions[session]
         items = items or get_objects(path)
         progress = group_by_type(items)
+        for i in progress:
+            log.info(i)
         return {
             "info": {
                 "args": self.config.get("args"),
@@ -238,10 +242,12 @@ class Workflow(Service):
                 "session": session,
                 "time": "{:.1f}".format(ts),
                 "title": "Addison Arches {}".format(__version__),
-                "version": __version__
+                "version": __version__,
+                "location": next(iter(progress[Location]), None)
             },
             "nav": [via(i, session=session) for i in progress[Game.Via]],
-            "items": [alert(i, session=session) for i in progress[Alert]],
+            "items": [ alert(i, session=session) for i in progress[Alert] ] +
+                [ tally(i, session=session) for i in progress[Game.Tally] ]
             
         }
 
