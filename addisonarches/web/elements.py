@@ -22,8 +22,13 @@ import re
 
 from turberfield.ipc.message import Alert
 
+from addisonarches.business import Buying
+from addisonarches.business import Selling
+from addisonarches.business import Trader
 from addisonarches.game import Game
+from addisonarches.game import Clock
 from addisonarches.scenario.types import Location
+from addisonarches.scenario.types import Character
 from addisonarches.web.hateoas import Action
 from addisonarches.web.hateoas import Parameter
 from addisonarches.web.hateoas import View
@@ -51,9 +56,44 @@ def alert(data, session=None):
         ])
     )
 
+def character(data, session=None):
+    try:
+        obj = Character(**data)
+    except TypeError:
+        obj = data
+    return View(obj, actions=[])
+ 
+def drama(data, session=None):
+    try:
+        obj = Game.Drama(**data)
+    except TypeError:
+        obj = data
+    return View(obj, actions=[])
+ 
+def item(data, session=None):
+    try:
+        obj = Game.Item(**data)
+    except TypeError:
+        obj = data
+    return View(obj, actions=[])
+ 
+def patter(data, session=None):
+    try:
+        obj = Trader.Patter(**data)
+    except TypeError:
+        obj = data
+    return View(obj, actions=[])
+ 
 def tally(data, session=None):
     try:
         obj = Game.Tally(**data)
+    except TypeError:
+        obj = data
+    return View(obj, actions=[])
+ 
+def tick(data, session=None):
+    try:
+        obj = Clock.Tick(**data)
     except TypeError:
         obj = data
     return View(obj, actions=[])

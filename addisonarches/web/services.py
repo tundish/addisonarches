@@ -33,15 +33,22 @@ from turberfield.ipc.message import Alert
 from turberfield.ipc.message import parcel
 
 from addisonarches import __version__
+from addisonarches.business import Trader
 import addisonarches.game
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.scenario.types import Location
+from addisonarches.scenario.types import Character
 from addisonarches.utils import get_objects
 from addisonarches.utils import group_by_type
 from addisonarches.utils import query_object_chain
 from addisonarches.web.elements import alert
+from addisonarches.web.elements import character
+from addisonarches.web.elements import drama
+from addisonarches.web.elements import item
+from addisonarches.web.elements import patter
 from addisonarches.web.elements import tally
+from addisonarches.web.elements import tick
 from addisonarches.web.elements import via
 from addisonarches.web.utils import TemplateLoader
 
@@ -248,8 +255,13 @@ class Workflow(Service):
                 "location": next(iter(progress[Location]), None)
             },
             "nav": [via(i, session=session) for i in progress[Game.Via]],
-            "items": [ alert(i, session=session) for i in progress[Alert] ] +
-                [ tally(i, session=session) for i in progress[Game.Tally] ]
+            "items": [ tick(i, session=session) for i in progress[Clock.Tick] ] +
+                [ character(i, session=session) for i in progress[Character] ] +
+                [ drama(i, session=session) for i in progress[Game.Drama] ] +
+                [ tally(i, session=session) for i in progress[Game.Tally] ] +
+                [ patter(i, session=session) for i in progress[Trader.Patter] ] +
+                [ item(i, session=session) for i in progress[Game.Item] ] +
+                [ alert(i, session=session) for i in progress[Alert] ]
             
         }
 
@@ -304,7 +316,9 @@ class Transitions(Service):
 
     @asyncio.coroutine
     def titles_get(self, request):
-        tmplt = pyratemp.Template(filename="titles.prt", loader_class=TemplateLoader)
+        tmplt = pyratemp.Template(
+            filename="titles.prt", loader_class=TemplateLoader
+        )
         return aiohttp.web.Response(
             content_type="text/html",
             text=tmplt(**self.titles())
