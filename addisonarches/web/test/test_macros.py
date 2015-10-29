@@ -16,6 +16,7 @@ import pyratemp
 from turberfield.ipc.message import Alert
 
 from addisonarches.web.elements import alert
+from addisonarches.web.elements import via
 from addisonarches.web.utils import TemplateLoader
 
 #item_macro = PageTemplate(pkg_resources.resource_string(

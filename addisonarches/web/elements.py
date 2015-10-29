@@ -21,12 +21,13 @@ import re
 
 from turberfield.ipc.message import Alert
 
+from addisonarches.game import Game
 from addisonarches.web.hateoas import Action
 from addisonarches.web.hateoas import Parameter
 from addisonarches.web.hateoas import View
 
 
-def alert(data):
+def alert(data, session=None):
     try:
         obj = Alert(**data)
     except TypeError:
@@ -34,9 +35,31 @@ def alert(data):
     return View(obj, actions=OrderedDict([
         ("save", Action(
                 name="Save",
-                rel="memento",
-                typ="/alerts/{}",
-                ref=obj.ts,
+                rel="canonical",
+                typ="/alerts/{0}",
+                ref=(obj.ts,),
+                method="post",
+                parameters=[
+                    Parameter(
+                        "text", True, re.compile("[\\w\.! ]{5,64}$"),
+                        [],
+                        "Alert text is 5 to 64 characters long."),
+                    ],
+                prompt="OK")),
+        ])
+    )
+
+def via(data, session=None):
+    try:
+        obj = Game.Via(**data)
+    except TypeError:
+        obj = data
+    return View(obj, actions=OrderedDict([
+        ("go", Action(
+                name="Travel",
+                rel="canonical",
+                typ="/{0}/via/{1}",
+                ref=(session, obj.id),
                 method="post",
                 parameters=[
                     Parameter(

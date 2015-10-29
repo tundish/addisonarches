@@ -39,6 +39,7 @@ from addisonarches.utils import get_objects
 from addisonarches.utils import group_by_type
 from addisonarches.utils import query_object_chain
 from addisonarches.web.elements import alert
+from addisonarches.web.elements import via
 from addisonarches.web.utils import TemplateLoader
 
 class Service:
@@ -239,8 +240,8 @@ class Workflow(Service):
                 "title": "Addison Arches {}".format(__version__),
                 "version": __version__
             },
-            "nav": progress[Game.Via],
-            "items": [alert(i) for i in progress[Alert]],
+            "nav": [via(i, session=session) for i in progress[Game.Via]],
+            "items": [alert(i, session=session) for i in progress[Alert]],
             
         }
 

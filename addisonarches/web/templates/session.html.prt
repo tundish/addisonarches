@@ -37,10 +37,11 @@ margin: 1.2em 0 0 7.0em;
     </div>
 </div>
 <div class="pure-g">
-    <div class="pure-u-1-1 pure-u-lg-2-5">
+    <div class="pure-u-1-1 pure-u-lg-3-5">
     @!item_list(items=items)!@
     </div>
-    <div class="pure-u-1-1 pure-u-lg-3-5">
+    <div class="pure-u-1-1 pure-u-lg-2-5">
+    @!nav_list(nav=nav)!@
     </div>
 </div>
 </body>
