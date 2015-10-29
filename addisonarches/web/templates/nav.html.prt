@@ -13,7 +13,7 @@
             <input type="hidden" name="@!param.name!@" value="@!param.values[0]!@" />
             <!--(end)-->
         </fieldset>
-        <button style="width:16em;" type="submit" class="pure-button pure-button-primary">
+        <button style="width:22em;" type="submit" class="pure-button pure-button-primary">
         @!  view.obj.name !@</button>
         </form>
         </li>
