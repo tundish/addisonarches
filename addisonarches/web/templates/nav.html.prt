@@ -2,6 +2,7 @@
     html
 <!--(end)-->
 <!--(macro nav_list)-->
+<nav class="pure-menu pure-menu-open pure-menu-horizontal">
 <ul>
     <!--(for view in nav)-->
     <li><dl>
@@ -12,6 +13,7 @@
     </dl></li>
     <!--(end)-->
 </ul>
+</nav>
 <!--(end)-->
 <!--(if exists("unittest"))-->
 @!nav_list(nav=nav)!@
