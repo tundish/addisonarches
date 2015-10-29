@@ -1,16 +1,11 @@
 #!/usr/bin/env python3
 # encoding: UTF-8
 
-from collections import namedtuple
-from collections import OrderedDict
-from functools import singledispatch
-import json
 import re
 import time
 import unittest
 import uuid
 
-import pkg_resources
 import pyratemp
 
 from turberfield.ipc.message import Alert
@@ -30,17 +25,14 @@ nav_macro = pyratemp.Template(
     loader_class=TemplateLoader,
     data={"unittest": unittest},
 )
-#option_macro = PageTemplate(pkg_resources.resource_string(
-#    "cloudhands.web.templates", "option_list.pt"))
-
-Ownership = namedtuple("Ownership", ["uuid", "limit", "level"])
-SimpleType = namedtuple("SimpleType", ["uuid", "name"])
 
 class TestFundamentals(unittest.TestCase):
 
     def test_items_macro(self):
         msg = Alert(time.time(), "Time for a test!")
         view = alert(msg)
+        render = item_macro(items=[view])
+        self.assertTrue(msg.text in render)
 
     def test_nav_macro(self):
         msgs = [
@@ -48,100 +40,10 @@ class TestFundamentals(unittest.TestCase):
             Game.Via(1, "Ladder", "Slowest way up."),
         ]
         views = [via(i) for i in msgs]
-
-    def tost_views_without_links_are_not_displayed(self):
-        objects = [
-            SimpleType(uuid.uuid4().hex, "object-{:03}".format(n))
-            for n in range(6)]
-        p = TestFundamentals.TestPage()
-        for o in objects:
-            p.layout.items.push(o)
-        rv = item_macro(**dict(p.termination()))
-        self.assertNotIn("object-0", rv)
-
-
-#class TestItemListTemplate(unittest.TestCase):
-class TestItemListTemplate:
-
-    class TestPage:
-
-        plan = []
-
-    def test_definition_list_has_class_and_id(self):
-        objects = [
-            SimpleType(uuid.uuid4().hex, "object-{:03}".format(n))
-            for n in range(6)]
-        p = TestItemListTemplate.TestPage()
-        for o in objects:
-            p.layout.items.push(o)
-        rv = item_macro(**dict(p.termination()))
-        self.assertTrue(re.search('<dl[^>]+class="objectview"', rv))
-        self.assertTrue(re.search('<dl[^>]+id="[a-f0-9]{32}"', rv))
-
-    def test_definition_list_contains_public_attributes(self):
-        objects = [
-            SimpleType(uuid.uuid4().hex, "object-{:03}".format(n))
-            for n in range(6)]
-        p = TestItemListTemplate.TestPage()
-        for o in objects:
-            p.layout.items.push(o)
-        rv = item_macro(**dict(p.termination()))
-        self.assertEqual(6, len(re.findall("<dt[^>]*>name</dt>", rv)))
-        self.assertEqual(6, len(re.findall("<dd[^>]*>", rv)))
-
-    def test_list_items_have_aspects(self):
-        objects = [
-            SimpleType(uuid.uuid4().hex, "object-{:03}".format(n))
-            for n in range(6)]
-        p = TestItemListTemplate.TestPage()
-        for o in objects:
-            p.layout.items.push(o)
-        rv = item_macro(**dict(p.termination()))
-        self.assertEqual(
-            6, len(re.findall('<form[^>]+action="/object/[a-f0-9]{32}"', rv)))
-
-
-#class TestNavListTemplate(unittest.TestCase):
-class TestNavListTemplate:
-
-    class TestPage:
-
-        plan = []
-
-    def test_nav_section_exists(self):
-        p = TestNavListTemplate.TestPage()
-        p.layout.nav.push(SimpleType(uuid.uuid4().hex, "MARMITE"))
-        rv = nav_macro(**dict(p.termination()))
-        self.assertTrue(re.search(
-            '<nav[^>]+class="pure-menu pure-menu-open"', rv))
-
-
-    def test_menu_contains_each_element(self):
-        p = TestNavListTemplate.TestPage()
-        p.layout.nav.push(SimpleType(uuid.uuid4().hex, "MARMITE"))
-        p.layout.nav.push(SimpleType(uuid.uuid4().hex, "BRANSTON"))
-        rv = nav_macro(**dict(p.termination()))
-        self.assertEqual(2, rv.count('<a rel="canonical" href="/object/'))
-        self.assertIn(">MARMITE</a>", rv)
-        self.assertIn(">BRANSTON</a>", rv)
-
-
-    def test_self_link_shows_visited(self):
-        p = TestNavListTemplate.TestPage()
-        p.layout.nav.push(SimpleType(uuid.uuid4().hex, "MARMITE"))
-        p.layout.nav.push(
-            SimpleType(uuid.uuid4().hex, "BRANSTON"), isSelf=True)
-        rv = nav_macro(**dict(p.termination()))
-        self.assertEqual(1, rv.count('<a rel="canonical" href="/object/'))
-        self.assertIn("pure-menu-selected", rv)
-
+        render = nav_macro(nav=views)
+        self.assertEqual(2, render.count("<button"))
 
 class TestOptionListTemplate:
-#class TestOptionListTemplate(unittest.TestCase):
-
-    class TestPage:
-
-        plan = []
 
     def test_definition_list_has_class_and_id(self):
         p = TestItemListTemplate.TestPage()
@@ -150,24 +52,9 @@ class TestOptionListTemplate:
         self.assertTrue(re.search('<dl[^>]+class="ownershipview"', rv))
         self.assertTrue(re.search('<dl[^>]+id="[a-f0-9]{32}"', rv))
 
-    def test_definition_list_contains_public_attributes(self):
-        p = TestItemListTemplate.TestPage()
-        p.layout.options.push(Ownership(uuid.uuid4().hex, 256, 18))
-        rv = option_macro(**dict(p.termination()))
-        self.assertEqual(1, rv.count("<dt>level</dt>"))
-        self.assertEqual(1, rv.count("<dd>"))
-
     def test_list_items_have_aspects(self):
         p = TestItemListTemplate.TestPage()
         p.layout.options.push(Ownership(uuid.uuid4().hex, 256, 18))
         rv = option_macro(**dict(p.termination()))
         self.assertEqual(
             1, len(re.findall('<form[^>]+action="/bag"', rv)))
-
-    def test_print_render(self):
-        p = TestItemListTemplate.TestPage()
-        p.layout.options.push(Ownership(uuid.uuid4().hex, 256, 18))
-        data = dict(p.termination())
-        rv = option_macro(**data)
-        #print(rv)
-        #print(json.dumps(data, cls=TypesEncoder))
