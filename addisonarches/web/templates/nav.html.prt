@@ -2,15 +2,17 @@
     html
 <!--(end)-->
 <!--(macro nav_list)-->
-<nav class="pure-menu pure-menu-open pure-menu-horizontal">
+<nav>
 <ul>
     <!--(for view in nav)-->
-    <li><dl>
-        <!--(for attr, val in zip(view.fields, view.obj))-->
-        <dt>@! attr !@</dt>
-        <dd>@! val !@</dd>
+        <!--(for action in view.actions.values())-->
+        <li>
+        <form action="@! action.typ.format(*action.ref) !@" method="post">
+        <button style="width:16em;" type="submit" class="pure-button pure-button-primary">
+        @!  view.obj.name !@</button>
+        </form>
+        </li>
         <!--(end)-->
-    </dl></li>
     <!--(end)-->
 </ul>
 </nav>

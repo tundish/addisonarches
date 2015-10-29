@@ -15,19 +15,21 @@ import pyratemp
 
 from turberfield.ipc.message import Alert
 
+from addisonarches.game import Game
 from addisonarches.web.elements import alert
 from addisonarches.web.elements import via
 from addisonarches.web.utils import TemplateLoader
 
-#item_macro = PageTemplate(pkg_resources.resource_string(
-#    "cloudhands.web.templates", "item_list.pt"))
 item_macro = pyratemp.Template(
     filename="items.html.prt",
     loader_class=TemplateLoader,
     data={"unittest": unittest},
 )
-#nav_macro = PageTemplate(pkg_resources.resource_string(
-#    "cloudhands.web.templates", "nav_list.pt"))
+nav_macro = pyratemp.Template(
+    filename="nav.html.prt",
+    loader_class=TemplateLoader,
+    data={"unittest": unittest},
+)
 #option_macro = PageTemplate(pkg_resources.resource_string(
 #    "cloudhands.web.templates", "option_list.pt"))
 
@@ -39,7 +41,13 @@ class TestFundamentals(unittest.TestCase):
     def test_items_macro(self):
         msg = Alert(time.time(), "Time for a test!")
         view = alert(msg)
-        print(item_macro(items=[view]))
+
+    def test_nav_macro(self):
+        msgs = [
+            Game.Via(0, "Elevator", "Quickest way down."),
+            Game.Via(1, "Ladder", "Slowest way up."),
+        ]
+        views = [via(i) for i in msgs]
 
     def tost_views_without_links_are_not_displayed(self):
         objects = [

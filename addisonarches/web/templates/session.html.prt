@@ -30,22 +30,18 @@ margin: 1.2em 0 0 7.0em;
 </style>
 <h1 style="margin-left: 1em;">@! info["title"] !@</h1>
 <div class="pure-g">
-    <div class="pure-u-1-1 pure-u-lg-3-5">
+    <div class="pure-u-1-1 pure-u-sm-3-5">
         <h2 style="margin-left: 2em;">Location</h2>
     </div>
-    <div class="pure-u-1-1 pure-u-lg-2-5">
+    <div class="pure-u-1-1 pure-u-sm-2-5">
     </div>
 </div>
 <div class="pure-g">
-    <div class="pure-u-lg-1-12">
-    </div>
-    <div class="pure-u-1-1 pure-u-lg-3-6">
+    <div class="pure-u-1-1 pure-u-sm-3-5">
     @!item_list(items=items)!@
     </div>
-    <div class="pure-u-1-1 pure-u-lg-2-6">
+    <div class="pure-u-1-1 pure-u-sm-2-5">
     @!nav_list(nav=nav)!@
-    </div>
-    <div class="pure-u-lg-1-12">
     </div>
 </div>
 </body>

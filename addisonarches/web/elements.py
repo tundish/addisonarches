@@ -56,16 +56,15 @@ def via(data, session=None):
         obj = data
     return View(obj, actions=OrderedDict([
         ("go", Action(
-                name="Travel",
+                name="_hidden",
                 rel="canonical",
-                typ="/{0}/via/{1}",
-                ref=(session, obj.id),
+                typ="/{0}/via",
+                ref=(session,),
                 method="post",
                 parameters=[
                     Parameter(
-                        "text", True, re.compile("[\\w\.! ]{5,64}$"),
-                        [],
-                        "Alert text is 5 to 64 characters long."),
+                        "id", True, re.compile("[0-9]+"),
+                        [obj.id], "Index of available vias."),
                     ],
                 prompt="OK")),
         ])
