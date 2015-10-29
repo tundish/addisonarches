@@ -2,7 +2,7 @@
     html
 <!--(end)-->
 <!--(macro item_list)-->
-<ul>
+<ol class="local-items">
     <!--(for view in items)-->
     <li><dl>
         <!--(for attr, val in zip(view.fields, view.obj))-->
@@ -11,7 +11,7 @@
         <!--(end)-->
     </dl></li>
     <!--(end)-->
-</ul>
+</ol>
 <!--(end)-->
 <!--(if exists("unittest"))-->
 @!item_list(items=items)!@
