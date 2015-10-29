@@ -30,6 +30,7 @@ import aiohttp.web
 import pkg_resources
 import pyratemp
 from turberfield.ipc.message import Alert
+from turberfield.ipc.message import parcel
 
 from addisonarches import __version__
 import addisonarches.game
@@ -225,6 +226,7 @@ class Workflow(Service):
         self.routes = dict(list(self._register(
             app,
             "/{session:[a-z0-9]{32}}",
+            "/{session:[a-z0-9]{32}}/vias",
         )))
 
     def progress(self, session, items=[]):
@@ -261,6 +263,25 @@ class Workflow(Service):
             content_type="text/html",
             text=tmplt(**self.progress(session))
         )
+
+    @asyncio.coroutine
+    def session_vias_post(self, request):
+        log = logging.getLogger("addisonarches.web")
+        session = request.match_info["session"]
+        data = yield from request.post()
+        log.info(data.items())
+        view = via(data, session=session)
+        problems = view.rejects("go")
+        for prob in problems:
+            log.warning(prob)
+
+        if not problems:
+            log.info(view.obj)
+            path, down, up = self.sessions[session]
+            msg = parcel(None, view.obj)
+            yield from up.put(msg)
+            reply = yield from down.get()
+        return aiohttp.web.HTTPFound("/{}".format(session))
 
 class Transitions(Service):
 

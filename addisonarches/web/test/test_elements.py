@@ -22,7 +22,9 @@ import unittest
 from aiohttp import MultiDict
 from turberfield.ipc.message import Alert
 
+from addisonarches.game import Game
 from addisonarches.web.elements import alert
+from addisonarches.web.elements import via
 
 
 class AlertTests(unittest.TestCase):
@@ -52,3 +54,12 @@ class AlertTests(unittest.TestCase):
         self.assertEqual(1, len(view.actions))
         problems = view.rejects("save")
         self.assertTrue(problems)
+
+class ViaTests(unittest.TestCase):
+
+    def test_conversion_from_string(self):
+        data = dict(id="1", name="Ladder", tip="Slowest way up.")
+        view = via(data)
+        self.assertFalse(view.rejects("go"))
+        self.assertIsInstance(view.obj.id, int)
+

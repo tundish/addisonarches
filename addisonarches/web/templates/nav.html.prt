@@ -8,6 +8,11 @@
         <!--(for action in view.actions.values())-->
         <li>
         <form action="@! action.typ.format(*action.ref) !@" method="post">
+        <fieldset style="display: none;">
+            <!--(for param in action.parameters)-->
+            <input type="hidden" name="@!param.name!@" value="@!param.values[0]!@" />
+            <!--(end)-->
+        </fieldset>
         <button style="width:16em;" type="submit" class="pure-button pure-button-primary">
         @!  view.obj.name !@</button>
         </form>

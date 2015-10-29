@@ -17,6 +17,7 @@
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import OrderedDict
+import logging
 import re
 
 from turberfield.ipc.message import Alert
@@ -58,21 +59,29 @@ def tally(data, session=None):
     return View(obj, actions=[])
  
 def via(data, session=None):
+    log = logging.getLogger("addisonarches.web")
+    types = {"id": int}
     try:
-        obj = Game.Via(**data)
-    except TypeError:
+        obj = Game.Via(**{k: types.get(k, str)(v) for k, v in data.items()})
+    except (AttributeError, TypeError):
         obj = data
     return View(obj, actions=OrderedDict([
         ("go", Action(
                 name="_hidden",
                 rel="canonical",
-                typ="/{0}/via",
+                typ="/{0}/vias",
                 ref=(session,),
                 method="post",
                 parameters=[
                     Parameter(
                         "id", True, re.compile("[0-9]+"),
                         [obj.id], "Index of available vias."),
+                    Parameter(
+                        "name", True, re.compile("[^{}/]+"),
+                        [obj.name], "Name of via."),
+                    Parameter(
+                        "tip", True, re.compile("[^{}/]+"),
+                        [obj.tip], "Go to {}.".format(obj.name)),
                     ],
                 prompt="OK")),
         ])

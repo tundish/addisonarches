@@ -42,5 +42,5 @@ class View:
             and i.values and data[i.name] not in i.values]
         missing = missing or [
             i for i in action.parameters
-            if i.name in data and not i.regex.match(data[i.name])]
+            if i.name in data and not i.regex.match(str(data[i.name]))]
         return missing
