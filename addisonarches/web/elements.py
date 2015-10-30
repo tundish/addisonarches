@@ -83,7 +83,7 @@ def drama(data, session=None, **kwargs):
                     [time.time()], "Timestamp."),
                 Parameter(
                     "value", True, re.compile("[0-9.]+"),
-                    [], "Value of bid in £."),
+                    [], "£"),
                 Parameter(
                     "currency", "hidden", re.compile("[^{}/]+"),
                     ["£"], "Bidding currency."),
@@ -108,7 +108,7 @@ def item(data, session=None, totals={}, **kwargs):
                 parameters=[
                     Parameter(
                         k, "hidden", re.compile("[^{}/]+"),
-                        [getattr(obj, k)], "Data field")
+                        [getattr(obj, k)], "Data field.")
                     for k in obj._fields
                     ],
                 prompt="OK")),

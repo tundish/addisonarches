@@ -22,6 +22,9 @@
         method="@!action.method!@">
         <fieldset style="">
             <!--(for param in action.parameters)-->
+                <!--(if not param.tip.endswith("."))-->
+                <label>@!param.tip!@</label>
+                <!--(end)-->
             <input
             name="@!param.name!@"
             value="@!default('param.values[0]', '')!@"

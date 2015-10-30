@@ -239,6 +239,7 @@ class Workflow(Service):
         self.routes = dict(list(self._register(
             app,
             "/{session:[a-z0-9]{32}}",
+            "/{session:[a-z0-9]{32}}/bids",
             "/{session:[a-z0-9]{32}}/buying",
             "/{session:[a-z0-9]{32}}/vias",
         )))
@@ -282,8 +283,10 @@ class Workflow(Service):
     @asyncio.coroutine
     def session_get(self, request):
         session = request.match_info["session"]
-        tmplt = pyratemp.Template(filename="session.html.prt", loader_class=TemplateLoader)
-
+        tmplt = pyratemp.Template(
+            filename="session.html.prt",
+            loader_class=TemplateLoader
+        )
 
         return aiohttp.web.Response(
             content_type="text/html",
@@ -311,7 +314,7 @@ class Workflow(Service):
 
     @asyncio.coroutine
     def session_vias_post(self, request):
-        log = logging.getLogger("addisonarches.web")
+        log = logging.getLogger("addisonarches.web.session_vias_post")
         session = request.match_info["session"]
         data = yield from request.post()
         log.info(data.items())
