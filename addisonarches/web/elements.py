@@ -70,12 +70,14 @@ def drama(data, session=None):
         obj = data
     return View(obj, actions=[])
  
-def item(data, session=None):
+def item(data, session=None, totals={}):
     try:
         obj = Game.Item(**data)
     except TypeError:
         obj = data
-    return View(obj, actions=[])
+    rv = View(obj, actions=[])
+    rv.totals = totals
+    return rv
  
 def patter(data, session=None):
     try:

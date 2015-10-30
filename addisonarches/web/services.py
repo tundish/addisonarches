@@ -18,6 +18,7 @@
 
 
 import asyncio
+from collections import Counter
 from collections import OrderedDict
 import logging
 import os
@@ -241,8 +242,9 @@ class Workflow(Service):
         ts = time.time()
         path, down, up = self.sessions[session]
         items = items or get_objects(path)
-        progress = group_by_type(items)
-        for i in progress:
+        groups = group_by_type(items)
+        totals = Counter(groups[Game.Item])
+        for i in groups:
             log.info(i)
         return {
             "info": {
@@ -252,16 +254,16 @@ class Workflow(Service):
                 "time": "{:.1f}".format(ts),
                 "title": "Addison Arches {}".format(__version__),
                 "version": __version__,
-                "location": next(iter(progress[Location]), None)
+                "location": next(iter(groups[Location]), None)
             },
-            "nav": [via(i, session=session) for i in progress[Game.Via]],
-            "items": [ tick(i, session=session) for i in progress[Clock.Tick] ] +
-                [ character(i, session=session) for i in progress[Character] ] +
-                [ drama(i, session=session) for i in progress[Game.Drama] ] +
-                [ tally(i, session=session) for i in progress[Game.Tally] ] +
-                [ patter(i, session=session) for i in progress[Trader.Patter] ] +
-                [ item(i, session=session) for i in progress[Game.Item] ] +
-                [ alert(i, session=session) for i in progress[Alert] ]
+            "nav": [via(i, session=session) for i in groups[Game.Via]],
+            "items": [ tick(i, session=session) for i in groups[Clock.Tick] ] +
+                [ character(i, session=session) for i in groups[Character] ] +
+                [ drama(i, session=session) for i in groups[Game.Drama] ] +
+                [ tally(i, session=session) for i in groups[Game.Tally] ] +
+                [ patter(i, session=session) for i in groups[Trader.Patter] ] +
+                [ item(i, session=session, totals=totals) for i in groups[Game.Item] ] +
+                [ alert(i, session=session) for i in groups[Alert] ]
             
         }
 
