@@ -13,7 +13,22 @@
         <dt>total</dt>
         <dd>@! view.totals[view.obj] !@</dd>
         <!--(end)-->
-    </dl></li>
+        </dl>
+        <!--(for action in view.actions.values())-->
+        <form action="@! action.typ.format(*action.ref) !@" method="post">
+        <fieldset style="display: none;">
+            <!--(for param in action.parameters)-->
+            <input
+            type="hidden"
+            name="@!param.name!@"
+            value="@! default('param.values[0]', '') !@" />
+            <!--(end)-->
+        </fieldset>
+        <button class="pure-button pure-button-primary" type="submit" >
+        @!  action.name !@</button>
+        </form>
+        <!--(end)-->
+    </li>
     <!--(end)-->
 </ol>
 <!--(end)-->

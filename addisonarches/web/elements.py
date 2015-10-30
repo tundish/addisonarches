@@ -61,21 +61,37 @@ def character(data, session=None, **kwargs):
         obj = Character(**data)
     except TypeError:
         obj = data
-    return View(obj, actions=[])
+    return View(obj, actions={})
  
 def drama(data, session=None, **kwargs):
     try:
         obj = Game.Drama(**data)
     except TypeError:
         obj = data
-    return View(obj, actions=[])
+    return View(obj, actions={})
  
 def item(data, session=None, totals={}, **kwargs):
+    types = {"owner": int}
     try:
-        obj = Game.Item(**data)
-    except TypeError:
+        obj = Game.Item(**{k: types.get(k, str)(v) for k, v in data.items()})
+    except (AttributeError, TypeError):
         obj = data
-    rv = View(obj, actions=[])
+    rv =  View(obj, actions=OrderedDict([
+        ("buy", Action(
+                name="Buy",
+                rel="action",
+                typ="/{0}/buying",
+                ref=(session,),
+                method="post",
+                parameters=[
+                    Parameter(
+                        k, "_hidden", re.compile("[^{}/]+"),
+                        [getattr(obj, k)], "Data field")
+                    for k in obj._fields
+                    ],
+                prompt="OK")),
+        ])
+    )
     rv.totals = totals
     return rv
  
@@ -84,21 +100,21 @@ def patter(data, session=None, **kwargs):
         obj = Trader.Patter(**data)
     except TypeError:
         obj = data
-    return View(obj, actions=[])
+    return View(obj, actions={})
  
 def tally(data, session=None, **kwargs):
     try:
         obj = Game.Tally(**data)
     except TypeError:
         obj = data
-    return View(obj, actions=[])
+    return View(obj, actions={})
  
 def tick(data, session=None, **kwargs):
     try:
         obj = Clock.Tick(**data)
     except TypeError:
         obj = data
-    return View(obj, actions=[])
+    return View(obj, actions={})
  
 def via(data, session=None, **kwargs):
     log = logging.getLogger("addisonarches.web")
