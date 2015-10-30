@@ -34,15 +34,20 @@ from turberfield.ipc.message import Alert
 from turberfield.ipc.message import parcel
 
 from addisonarches import __version__
+from addisonarches.business import Buying
+from addisonarches.business import Selling
 from addisonarches.business import Trader
+
 import addisonarches.game
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.scenario.types import Location
 from addisonarches.scenario.types import Character
+
 from addisonarches.utils import get_objects
 from addisonarches.utils import group_by_type
 from addisonarches.utils import query_object_chain
+
 from addisonarches.web.elements import alert
 from addisonarches.web.elements import character
 from addisonarches.web.elements import drama
@@ -234,8 +239,8 @@ class Workflow(Service):
         self.routes = dict(list(self._register(
             app,
             "/{session:[a-z0-9]{32}}",
+            "/{session:[a-z0-9]{32}}/buying",
             "/{session:[a-z0-9]{32}}/vias",
-            #"/{session:[a-z0-9]{32}}/buying",
         )))
 
     def progress(self, session, items=[]):
@@ -278,6 +283,25 @@ class Workflow(Service):
             content_type="text/html",
             text=tmplt(**self.progress(session))
         )
+
+    @asyncio.coroutine
+    def session_buying_post(self, request):
+        log = logging.getLogger("addisonarches.web")
+        session = request.match_info["session"]
+        data = yield from request.post()
+        view = item(data, session=session)
+        problems = view.rejects("buy")
+        for prob in problems:
+            log.warning(prob)
+
+        if not problems:
+            log.info(view.obj)
+            path, down, up = self.sessions[session]
+            drama = Buying(iterable=[view.obj])
+            msg = parcel(None, drama)
+            yield from up.put(msg)
+            reply = yield from down.get()
+        return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
     def session_vias_post(self, request):
