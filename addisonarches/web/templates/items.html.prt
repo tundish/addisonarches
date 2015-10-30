@@ -9,6 +9,10 @@
         <dt>@! attr !@</dt>
         <dd>@! val !@</dd>
         <!--(end)-->
+        <!--(if default("view.totals", False))-->
+        <dt>total</dt>
+        <dd>@! view.totals[view.obj] !@</dd>
+        <!--(end)-->
     </dl></li>
     <!--(end)-->
 </ol>

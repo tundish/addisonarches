@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # encoding: UTF-8
 
+from collections import Counter
 import re
 import time
 import unittest
@@ -11,7 +12,9 @@ import pyratemp
 from turberfield.ipc.message import Alert
 
 from addisonarches.game import Game
+from addisonarches.utils import group_by_type
 from addisonarches.web.elements import alert
+from addisonarches.web.elements import item
 from addisonarches.web.elements import via
 from addisonarches.web.utils import TemplateLoader
 
@@ -29,10 +32,18 @@ nav_macro = pyratemp.Template(
 class TestFundamentals(unittest.TestCase):
 
     def test_items_macro(self):
-        msg = Alert(time.time(), "Time for a test!")
-        view = alert(msg)
-        render = item_macro(items=[view])
-        self.assertTrue(msg.text in render)
+        msgs = [
+            Game.Item("Compound", "table", "Coffee table", "Lounge", 0),
+            Game.Item("Compound", "table", "Coffee table", "Lounge", 0),
+            Alert(time.time(), "Time for a test!")
+        ]
+        groups = group_by_type(msgs)
+        totals = Counter(groups[Game.Item])
+        views = [typ(i, totals=totals) for typ, i in zip((item, item, alert), msgs)]
+        render = item_macro(items=views)
+        self.assertTrue(hasattr(views[0], "totals"))
+        self.assertTrue(hasattr(views[1], "totals"))
+        self.assertTrue(msgs[-1].text in render)
 
     def test_nav_macro(self):
         msgs = [

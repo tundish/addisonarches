@@ -235,6 +235,7 @@ class Workflow(Service):
             app,
             "/{session:[a-z0-9]{32}}",
             "/{session:[a-z0-9]{32}}/vias",
+            #"/{session:[a-z0-9]{32}}/buying",
         )))
 
     def progress(self, session, items=[]):

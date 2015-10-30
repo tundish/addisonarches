@@ -34,7 +34,7 @@ from addisonarches.web.hateoas import Parameter
 from addisonarches.web.hateoas import View
 
 
-def alert(data, session=None):
+def alert(data, session=None, **kwargs):
     try:
         obj = Alert(**data)
     except TypeError:
@@ -56,21 +56,21 @@ def alert(data, session=None):
         ])
     )
 
-def character(data, session=None):
+def character(data, session=None, **kwargs):
     try:
         obj = Character(**data)
     except TypeError:
         obj = data
     return View(obj, actions=[])
  
-def drama(data, session=None):
+def drama(data, session=None, **kwargs):
     try:
         obj = Game.Drama(**data)
     except TypeError:
         obj = data
     return View(obj, actions=[])
  
-def item(data, session=None, totals={}):
+def item(data, session=None, totals={}, **kwargs):
     try:
         obj = Game.Item(**data)
     except TypeError:
@@ -79,28 +79,28 @@ def item(data, session=None, totals={}):
     rv.totals = totals
     return rv
  
-def patter(data, session=None):
+def patter(data, session=None, **kwargs):
     try:
         obj = Trader.Patter(**data)
     except TypeError:
         obj = data
     return View(obj, actions=[])
  
-def tally(data, session=None):
+def tally(data, session=None, **kwargs):
     try:
         obj = Game.Tally(**data)
     except TypeError:
         obj = data
     return View(obj, actions=[])
  
-def tick(data, session=None):
+def tick(data, session=None, **kwargs):
     try:
         obj = Clock.Tick(**data)
     except TypeError:
         obj = data
     return View(obj, actions=[])
  
-def via(data, session=None):
+def via(data, session=None, **kwargs):
     log = logging.getLogger("addisonarches.web")
     types = {"id": int}
     try:
@@ -129,7 +129,7 @@ def via(data, session=None):
         ])
     )
 
-def login(data):
+def login(data, **kwargs):
     try:
         obj = User(**data)
     except IndexError:
