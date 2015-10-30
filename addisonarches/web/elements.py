@@ -49,8 +49,8 @@ def alert(data, session=None, **kwargs):
                 method="post",
                 parameters=[
                     Parameter(
-                        "text", True, re.compile("[\\w\.! ]{5,64}$"),
-                        [],
+                        "text", "hidden",
+                        re.compile("[\\w\.! ]{5,64}$"), [],
                         "Alert text is 5 to 64 characters long."),
                     ],
                 prompt="OK")),
@@ -83,7 +83,7 @@ def drama(data, session=None, **kwargs):
                     [time.time()], "Timestamp."),
                 Parameter(
                     "value", True, re.compile("[0-9.]+"),
-                    [], "Value of bid."),
+                    [], "Value of bid in £."),
                 Parameter(
                     "currency", "hidden", re.compile("[^{}/]+"),
                     ["£"], "Bidding currency."),
@@ -107,7 +107,7 @@ def item(data, session=None, totals={}, **kwargs):
                 method="post",
                 parameters=[
                     Parameter(
-                        k, "_hidden", re.compile("[^{}/]+"),
+                        k, "hidden", re.compile("[^{}/]+"),
                         [getattr(obj, k)], "Data field")
                     for k in obj._fields
                     ],

@@ -29,6 +29,7 @@ class View:
     def __init__(self, obj, actions={}, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.obj = obj
+        self.type = obj.__class__.__name__
         self.fields = obj._fields
         self.actions = actions
 

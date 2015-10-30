@@ -4,19 +4,22 @@
 <!--(macro item_list)-->
 <ol class="local-items">
     <!--(for view in items)-->
-    <li><dl>
+    <li>
+        <dl>
         <!--(for attr, val in zip(view.fields, view.obj))-->
         <dt>@! attr !@</dt>
         <dd>@! val !@</dd>
         <!--(end)-->
         <!--(if default("view.totals", False))-->
         <dt>total</dt>
+        <dd>@! view.type !@</dd>
         <dd>@! view.totals[view.obj] !@</dd>
         <!--(end)-->
         </dl>
         <!--(for action in view.actions.values())-->
-        <form action="@!action.typ.format(*action.ref)!@" method="@!
-action.method!@">
+        <form class="pure-form"
+        action="@!action.typ.format(*action.ref)!@"
+        method="@!action.method!@">
         <fieldset style="">
             <!--(for param in action.parameters)-->
             <input
@@ -24,13 +27,15 @@ action.method!@">
             value="@!default('param.values[0]', '')!@"
             placeholder="@!param.name if not param.values else param.values[0]!@"
             pattern="@!param.regex.pattern!@"
-            @!'required="required"' if param.required else ''!@
+            $!'required="required"' if param.required else ''!$
             type="@!'hidden' if param.required == 'hidden' else 'text'!@"
+            title="@!param.tip!@"
+            style="width: 4em;"
             />
             <!--(end)-->
+            <button class="pure-button pure-button-primary"
+            type="submit" >@!action.name!@</button>
         </fieldset>
-        <button class="pure-button pure-button-primary" type="submit" >
-        @!  action.name !@</button>
         </form>
         <!--(end)-->
     </li>
