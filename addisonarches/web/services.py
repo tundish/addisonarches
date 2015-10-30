@@ -244,14 +244,20 @@ class Workflow(Service):
         )))
 
     def progress(self, session, items=[]):
-        log = logging.getLogger("addisonarches.web")
+        log = logging.getLogger("addisonarches.web.progress")
         ts = time.time()
         path, down, up = self.sessions[session]
         items = items or get_objects(path)
         groups = group_by_type(items)
         totals = Counter(groups[Game.Item])
-        for i in groups:
-            log.info(i)
+
+        items = [item(i, session=session, totals=totals)
+                 for i in groups[Game.Item] ]
+        pending = getattr(next(iter(groups[Game.Drama]), None), "type", None)
+        if pending == "Buying":
+            for view in items:
+                del view.actions["buy"]
+
         return {
             "info": {
                 "args": self.config.get("args"),
@@ -268,7 +274,7 @@ class Workflow(Service):
                 [ drama(i, session=session) for i in groups[Game.Drama] ] +
                 [ tally(i, session=session) for i in groups[Game.Tally] ] +
                 [ patter(i, session=session) for i in groups[Trader.Patter] ] +
-                [ item(i, session=session, totals=totals) for i in groups[Game.Item] ] +
+                items +
                 [ alert(i, session=session) for i in groups[Alert] ]
             
         }
@@ -286,7 +292,7 @@ class Workflow(Service):
 
     @asyncio.coroutine
     def session_buying_post(self, request):
-        log = logging.getLogger("addisonarches.web")
+        log = logging.getLogger("addisonarches.web.session_buying_post")
         session = request.match_info["session"]
         data = yield from request.post()
         view = item(data, session=session)
