@@ -15,13 +15,18 @@
         <!--(end)-->
         </dl>
         <!--(for action in view.actions.values())-->
-        <form action="@! action.typ.format(*action.ref) !@" method="post">
-        <fieldset style="display: none;">
+        <form action="@!action.typ.format(*action.ref)!@" method="@!
+action.method!@">
+        <fieldset style="">
             <!--(for param in action.parameters)-->
             <input
-            type="hidden"
             name="@!param.name!@"
-            value="@! default('param.values[0]', '') !@" />
+            value="@!default('param.values[0]', '')!@"
+            placeholder="@!param.name if not param.values else param.values[0]!@"
+            pattern="@!param.regex.pattern!@"
+            @!'required="required"' if param.required else ''!@
+            type="@!'hidden' if param.required == 'hidden' else 'text'!@"
+            />
             <!--(end)-->
         </fieldset>
         <button class="pure-button pure-button-primary" type="submit" >

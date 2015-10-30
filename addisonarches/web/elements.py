@@ -19,6 +19,7 @@
 from collections import OrderedDict
 import logging
 import re
+import time
 
 from turberfield.ipc.message import Alert
 
@@ -66,9 +67,30 @@ def character(data, session=None, **kwargs):
 def drama(data, session=None, **kwargs):
     try:
         obj = Game.Drama(**data)
-    except TypeError:
+    except (AttributeError, TypeError):
         obj = data
-    return View(obj, actions={})
+    rv =  View(obj, actions=OrderedDict())
+    if obj.type == "Buying":
+        rv.actions["bid"] = Action(
+            name="Bid",
+            rel="action",
+            typ="/{0}/bids",
+            ref=(session,),
+            method="post",
+            parameters=[
+                Parameter(
+                    "ts", "hidden", re.compile("[0-9.]+"),
+                    [time.time()], "Timestamp."),
+                Parameter(
+                    "value", True, re.compile("[0-9.]+"),
+                    [], "Value of bid."),
+                Parameter(
+                    "currency", "hidden", re.compile("[^{}/]+"),
+                    ["£"], "Bidding currency."),
+                ],
+            prompt="OK")
+    return rv
+ 
  
 def item(data, session=None, totals={}, **kwargs):
     types = {"owner": int}
