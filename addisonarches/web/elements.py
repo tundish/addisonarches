@@ -57,6 +57,13 @@ def alert(data, session=None, **kwargs):
         ])
     )
 
+def bid(data, session=None, **kwargs):
+    try:
+        obj = Bid(**data)
+    except (AttributeError, TypeError):
+        obj = data
+    return View(obj, actions={})
+ 
 def character(data, session=None, **kwargs):
     try:
         obj = Character(**data)

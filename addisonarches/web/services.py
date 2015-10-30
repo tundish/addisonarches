@@ -49,6 +49,7 @@ from addisonarches.utils import group_by_type
 from addisonarches.utils import query_object_chain
 
 from addisonarches.web.elements import alert
+from addisonarches.web.elements import bid
 from addisonarches.web.elements import character
 from addisonarches.web.elements import drama
 from addisonarches.web.elements import item
@@ -272,9 +273,9 @@ class Workflow(Service):
             "nav": [via(i, session=session) for i in groups[Game.Via]],
             "items": [ tick(i, session=session) for i in groups[Clock.Tick] ] +
                 [ character(i, session=session) for i in groups[Character] ] +
-                [ drama(i, session=session) for i in groups[Game.Drama] ] +
                 [ tally(i, session=session) for i in groups[Game.Tally] ] +
                 [ patter(i, session=session) for i in groups[Trader.Patter] ] +
+                [ drama(i, session=session) for i in groups[Game.Drama] ] +
                 items +
                 [ alert(i, session=session) for i in groups[Alert] ]
             
@@ -292,6 +293,25 @@ class Workflow(Service):
             content_type="text/html",
             text=tmplt(**self.progress(session))
         )
+
+    @asyncio.coroutine
+    def session_bid_post(self, request):
+        log = logging.getLogger("addisonarches.web.session_bid_post")
+        session = request.match_info["session"]
+        data = yield from request.post()
+        log.debug(data.items())
+        view = bid(data, session=session)
+        problems = view.rejects("bid")
+        for prob in problems:
+            log.warning(prob)
+
+        if not problems:
+            log.info(view.obj)
+            path, down, up = self.sessions[session]
+            msg = parcel(None, view.obj)
+            yield from up.put(msg)
+            reply = yield from down.get()
+        return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
     def session_buying_post(self, request):
@@ -317,7 +337,7 @@ class Workflow(Service):
         log = logging.getLogger("addisonarches.web.session_vias_post")
         session = request.match_info["session"]
         data = yield from request.post()
-        log.info(data.items())
+        log.debug(data.items())
         view = via(data, session=session)
         problems = view.rejects("go")
         for prob in problems:
