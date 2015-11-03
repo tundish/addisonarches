@@ -255,8 +255,12 @@ class Workflow(Service):
 
         items = [item(i, session=session, totals=totals)
                  for i in groups[Game.Item] ]
+        location = next(iter(groups[Location]), None)
         pending = getattr(next(iter(groups[Game.Drama]), None), "type", None)
-        if pending == "Buying":
+
+        if location.name == "Addison Arches 18a":
+            items = []
+        elif pending == "Buying":
             for view in items:
                 del view.actions["buy"]
 
@@ -268,7 +272,7 @@ class Workflow(Service):
                 "time": "{:.1f}".format(ts),
                 "title": "Addison Arches {}".format(__version__),
                 "version": __version__,
-                "location": next(iter(groups[Location]), None)
+                "location": location,
             },
             "nav": [via(i, session=session) for i in groups[Game.Via]],
             "items": [ tick(i, session=session) for i in groups[Clock.Tick] ] +
@@ -295,8 +299,8 @@ class Workflow(Service):
         )
 
     @asyncio.coroutine
-    def session_bid_post(self, request):
-        log = logging.getLogger("addisonarches.web.session_bid_post")
+    def session_bids_post(self, request):
+        log = logging.getLogger("addisonarches.web.session_bids_post")
         session = request.match_info["session"]
         data = yield from request.post()
         log.debug(data.items())
@@ -309,6 +313,7 @@ class Workflow(Service):
             log.info(view.obj)
             path, down, up = self.sessions[session]
             msg = parcel(None, view.obj)
+            log.info(msg)
             yield from up.put(msg)
             reply = yield from down.get()
         return aiohttp.web.HTTPFound("/{}".format(session))

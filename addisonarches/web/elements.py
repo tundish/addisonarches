@@ -30,6 +30,8 @@ from addisonarches.game import Game
 from addisonarches.game import Clock
 from addisonarches.scenario.types import Location
 from addisonarches.scenario.types import Character
+from addisonarches.valuation import Ask
+from addisonarches.valuation import Bid
 from addisonarches.web.hateoas import Action
 from addisonarches.web.hateoas import Parameter
 from addisonarches.web.hateoas import View
@@ -40,6 +42,7 @@ def alert(data, session=None, **kwargs):
         obj = Alert(**data)
     except TypeError:
         obj = data
+    return View(obj, actions={})
     return View(obj, actions=OrderedDict([
         ("save", Action(
                 name="Save",
@@ -58,11 +61,32 @@ def alert(data, session=None, **kwargs):
     )
 
 def bid(data, session=None, **kwargs):
+    types = {"ts": float, "value": int}
     try:
-        obj = Bid(**data)
+        obj = Bid(**{k: types.get(k, str)(v) for k, v in data.items()})
     except (AttributeError, TypeError):
         obj = data
-    return View(obj, actions={})
+    return View(obj, actions=OrderedDict([
+        ("bid", Action(
+            name="Bid",
+            rel="action",
+            typ="/{0}/bids",
+            ref=(session,),
+            method="post",
+            parameters=[
+                Parameter(
+                    "ts", "hidden", re.compile("[0-9.]+"),
+                    [obj.ts], "Timestamp."),
+                Parameter(
+                    "value", True, re.compile("[0-9]+"),
+                    [obj.value] if obj.value is not None else [], "£"),
+                Parameter(
+                    "currency", "hidden", re.compile("[^{}/]+"),
+                    [obj.currency], "Bidding currency."),
+                ],
+                prompt="OK")),
+        ])
+    )
  
 def character(data, session=None, **kwargs):
     try:
@@ -77,25 +101,28 @@ def drama(data, session=None, **kwargs):
     except (AttributeError, TypeError):
         obj = data
     rv =  View(obj, actions=OrderedDict())
+    log = logging.getLogger("addisonarches.web.drama")
     if obj.type == "Buying":
-        rv.actions["bid"] = Action(
-            name="Bid",
-            rel="action",
-            typ="/{0}/bids",
-            ref=(session,),
-            method="post",
-            parameters=[
-                Parameter(
-                    "ts", "hidden", re.compile("[0-9.]+"),
-                    [time.time()], "Timestamp."),
-                Parameter(
-                    "value", True, re.compile("[0-9.]+"),
-                    [], "£"),
-                Parameter(
-                    "currency", "hidden", re.compile("[^{}/]+"),
-                    ["£"], "Bidding currency."),
-                ],
-            prompt="OK")
+        obj = Bid(time.time(), None, "£")
+        rv.actions["bid"] = bid(obj, session).actions["bid"]
+        #rv.actions["bid"] = Action(
+        #   name="Bid",
+        #   rel="action",
+        #   typ="/{0}/bids",
+        #   ref=(session,),
+        #   method="post",
+        #   parameters=[
+        #       Parameter(
+        #           "ts", "hidden", re.compile("[0-9.]+"),
+        #           [time.time()], "Timestamp."),
+        #       Parameter(
+        #           "value", True, re.compile("[0-9.]+"),
+        #           [], "£"),
+        #       Parameter(
+        #           "currency", "hidden", re.compile("[^{}/]+"),
+        #           ["£"], "Bidding currency."),
+        #       ],
+        #   prompt="OK")
     return rv
  
  
