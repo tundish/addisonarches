@@ -27,6 +27,7 @@ from addisonarches.web.elements import alert
 from addisonarches.web.elements import via
 
 
+@unittest.skip("Need to review Alert actions.")
 class AlertTests(unittest.TestCase):
 
     def test_alert_from_msg(self):
@@ -55,6 +56,7 @@ class AlertTests(unittest.TestCase):
         problems = view.rejects("save")
         self.assertTrue(problems)
 
+
 class ViaTests(unittest.TestCase):
 
     def test_conversion_from_string(self):
@@ -62,4 +64,3 @@ class ViaTests(unittest.TestCase):
         view = via(data)
         self.assertFalse(view.rejects("go"))
         self.assertIsInstance(view.obj.id, int)
-
