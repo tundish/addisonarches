@@ -245,6 +245,30 @@ class Workflow(Service):
             "/{session:[a-z0-9]{32}}/vias",
         )))
 
+    def inventory(self, session, items=[]):
+        log = logging.getLogger("addisonarches.web.inventory")
+        ts = time.time()
+        path, down, up = self.sessions[session]
+        items = items or get_objects(path._replace(file="inventory.rson"))
+        groups = group_by_type(items)
+        totals = Counter(groups[Game.Item])
+
+        items = [item(i, session=session, totals=totals)
+                 for i in groups[Game.Item] ]
+
+        return {
+            "info": {
+                "args": self.config.get("args"),
+                "interval": 200,
+                "session": session,
+                "time": "{:.1f}".format(ts),
+                "title": "Addison Arches {}".format(__version__),
+                "version": __version__,
+            },
+            "nav": [],
+            "items": items,
+        }
+
     def progress(self, session, items=[]):
         log = logging.getLogger("addisonarches.web.progress")
         ts = time.time()
