@@ -242,6 +242,7 @@ class Workflow(Service):
             "/{session:[a-z0-9]{32}}",
             "/{session:[a-z0-9]{32}}/bids",
             "/{session:[a-z0-9]{32}}/buying",
+            "/{session:[a-z0-9]{32}}/inventory",
             "/{session:[a-z0-9]{32}}/vias",
         )))
 
@@ -308,6 +309,19 @@ class Workflow(Service):
                 [ alert(i, session=session) for i in groups[Alert] ]
             
         }
+
+    @asyncio.coroutine
+    def session_inventory_get(self, request):
+        session = request.match_info["session"]
+        tmplt = pyratemp.Template(
+            filename="inventory.html.prt",
+            loader_class=TemplateLoader
+        )
+
+        return aiohttp.web.Response(
+            content_type="text/html",
+            text=tmplt(**self.inventory(session))
+        )
 
     @asyncio.coroutine
     def session_get(self, request):

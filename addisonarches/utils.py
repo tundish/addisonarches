@@ -69,8 +69,11 @@ def rson2objs(text, types):
     Read an RSON string and return a sequence of data objects.
     """
     which = {i.__name__: i for i in types}
-    things = rson.loads(text)
-    things = things if isinstance(things, list) else [things]
+    try:
+        things = rson.loads(text)
+        things = things if isinstance(things, list) else [things]
+    except IndexError:
+        things = []
     return [which.get(i.pop("_type", None), dict)(**i) for i in things]
 
 def group_by_type(items):
