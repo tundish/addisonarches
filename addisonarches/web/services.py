@@ -470,7 +470,11 @@ class Transitions(Service):
 
     def __init__(self, app, **kwargs):
         super().__init__(app, **kwargs)
-        self.routes = dict(list(self._register(app, "/titles")))
+        self.routes = dict(list(self._register(
+            app,
+            "/",
+            "/titles"
+        )))
 
     def titles(self, items=[]):
         return {
@@ -484,6 +488,10 @@ class Transitions(Service):
             "items": OrderedDict([(str(id(i)), i) for i in items]),
             
         }
+
+    @asyncio.coroutine
+    def _get(self, request):
+        return aiohttp.web.HTTPFound("/titles")
 
     @asyncio.coroutine
     def titles_get(self, request):
