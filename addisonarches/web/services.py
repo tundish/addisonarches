@@ -263,7 +263,7 @@ class Workflow(Service):
 
         for view in items:
             del view.actions["buy"]
-            del view.actions["split"]
+            view.actions.pop("split", None)
 
         return {
             "info": {
@@ -297,9 +297,9 @@ class Workflow(Service):
                 del view.actions["buy"]
             elif pending == "Buying":
                 del view.actions["buy"]
-                del view.actions["split"]
+                view.actions.pop("split", None)
             else:
-                del view.actions["split"]
+                view.actions.pop("split", None)
 
         return {
             "info": {
