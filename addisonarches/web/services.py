@@ -257,6 +257,9 @@ class Workflow(Service):
         items = [item(i, session=session, totals=totals)
                  for i in groups[Game.Item] ]
 
+        for view in items:
+            del view.actions["buy"]
+
         return {
             "info": {
                 "args": self.config.get("args"),
@@ -283,10 +286,9 @@ class Workflow(Service):
         location = next(iter(groups[Location]), None)
         pending = getattr(next(iter(groups[Game.Drama]), None), "type", None)
 
-        if location.name == "Addison Arches 18a":
-            items = []
-        elif pending == "Buying":
-            for view in items:
+        for view in items:
+            del view.actions["sell"]
+            if pending == "Buying" or location.name == "Addison Arches 18a":
                 del view.actions["buy"]
 
         return {

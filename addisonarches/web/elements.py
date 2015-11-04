@@ -146,7 +146,20 @@ def item(data, session=None, totals={}, **kwargs):
                     for k in obj._fields
                     ],
                 prompt="OK")),
-        ])
+        ("sell", Action(
+                name="Sell",
+                rel="action",
+                typ="/{0}/selling",
+                ref=(session,),
+                method="post",
+                parameters=[
+                    Parameter(
+                        k, "hidden", re.compile("[^{}/]+"),
+                        [getattr(obj, k)], "Data field.")
+                    for k in obj._fields
+                    ],
+                prompt="OK")),
+        ]),
     )
     rv.totals = totals
     return rv
