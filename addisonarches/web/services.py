@@ -49,6 +49,7 @@ from addisonarches.utils import group_by_type
 from addisonarches.utils import query_object_chain
 
 from addisonarches.web.elements import alert
+from addisonarches.web.elements import ask
 from addisonarches.web.elements import bid
 from addisonarches.web.elements import character
 from addisonarches.web.elements import drama
@@ -411,8 +412,10 @@ class Workflow(Service):
         data = yield from request.post()
         view = item(data, session=session)
         problems = view.rejects("sell")
-        for prob in problems:
+        for prob in problems[:]:
             log.warning(prob)
+            if prob.name == "description":
+                problems.remove(prob)
 
         if not problems:
             log.debug(view.obj)
@@ -431,8 +434,10 @@ class Workflow(Service):
         log.debug(data.items())
         view = item(data, session=session)
         problems = view.rejects("split")
-        for prob in problems:
+        for prob in problems[:]:
             log.warning(prob)
+            if prob.name == "description":
+                problems.remove(prob)
 
         if not problems:
             log.debug(view.obj)
