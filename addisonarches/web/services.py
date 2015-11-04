@@ -240,9 +240,12 @@ class Workflow(Service):
         self.routes = dict(list(self._register(
             app,
             "/{session:[a-z0-9]{32}}",
+            "/{session:[a-z0-9]{32}}/asks",
             "/{session:[a-z0-9]{32}}/bids",
             "/{session:[a-z0-9]{32}}/buying",
             "/{session:[a-z0-9]{32}}/inventory",
+            "/{session:[a-z0-9]{32}}/splits",
+            "/{session:[a-z0-9]{32}}/selling",
             "/{session:[a-z0-9]{32}}/vias",
         )))
 
@@ -259,6 +262,7 @@ class Workflow(Service):
 
         for view in items:
             del view.actions["buy"]
+            del view.actions["split"]
 
         return {
             "info": {
@@ -288,8 +292,13 @@ class Workflow(Service):
 
         for view in items:
             del view.actions["sell"]
-            if pending == "Buying" or location.name == "Addison Arches 18a":
+            if location.name == "Addison Arches 18a":
                 del view.actions["buy"]
+            elif pending == "Buying":
+                del view.actions["buy"]
+                del view.actions["split"]
+            else:
+                del view.actions["split"]
 
         return {
             "info": {
@@ -350,10 +359,9 @@ class Workflow(Service):
             log.warning(prob)
 
         if not problems:
-            log.info(view.obj)
+            log.debug(view.obj)
             path, down, up = self.sessions[session]
             msg = parcel(None, view.obj)
-            log.info(msg)
             yield from up.put(msg)
             reply = yield from down.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
@@ -369,9 +377,28 @@ class Workflow(Service):
             log.warning(prob)
 
         if not problems:
-            log.info(view.obj)
+            log.debug(view.obj)
             path, down, up = self.sessions[session]
             drama = Buying(iterable=[view.obj])
+            msg = parcel(None, drama)
+            yield from up.put(msg)
+            reply = yield from down.get()
+        return aiohttp.web.HTTPFound("/{}".format(session))
+
+    @asyncio.coroutine
+    def session_selling_post(self, request):
+        log = logging.getLogger("addisonarches.web.session_selling_post")
+        session = request.match_info["session"]
+        data = yield from request.post()
+        view = item(data, session=session)
+        problems = view.rejects("sell")
+        for prob in problems:
+            log.warning(prob)
+
+        if not problems:
+            log.debug(view.obj)
+            path, down, up = self.sessions[session]
+            drama = Selling(iterable=[view.obj])
             msg = parcel(None, drama)
             yield from up.put(msg)
             reply = yield from down.get()
@@ -389,7 +416,7 @@ class Workflow(Service):
             log.warning(prob)
 
         if not problems:
-            log.info(view.obj)
+            log.debug(view.obj)
             path, down, up = self.sessions[session]
             msg = parcel(None, view.obj)
             yield from up.put(msg)

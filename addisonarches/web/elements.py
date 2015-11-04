@@ -159,6 +159,19 @@ def item(data, session=None, totals={}, **kwargs):
                     for k in obj._fields
                     ],
                 prompt="OK")),
+        ("split", Action(
+                name="Split",
+                rel="action",
+                typ="/{0}/splits",
+                ref=(session,),
+                method="post",
+                parameters=[
+                    Parameter(
+                        k, "hidden", re.compile("[^{}/]+"),
+                        [getattr(obj, k)], "Data field.")
+                    for k in obj._fields
+                    ],
+                prompt="OK")),
         ]),
     )
     rv.totals = totals
