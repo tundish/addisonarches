@@ -348,6 +348,25 @@ class Workflow(Service):
         )
 
     @asyncio.coroutine
+    def session_asks_post(self, request):
+        log = logging.getLogger("addisonarches.web.session_asks_post")
+        session = request.match_info["session"]
+        data = yield from request.post()
+        log.debug(data.items())
+        view = ask(data, session=session)
+        problems = view.rejects("ask")
+        for prob in problems:
+            log.warning(prob)
+
+        if not problems:
+            log.debug(view.obj)
+            path, down, up = self.sessions[session]
+            msg = parcel(None, view.obj)
+            yield from up.put(msg)
+            reply = yield from down.get()
+        return aiohttp.web.HTTPFound("/{}".format(session))
+
+    @asyncio.coroutine
     def session_bids_post(self, request):
         log = logging.getLogger("addisonarches.web.session_bids_post")
         session = request.match_info["session"]
@@ -400,6 +419,25 @@ class Workflow(Service):
             path, down, up = self.sessions[session]
             drama = Selling(iterable=[view.obj])
             msg = parcel(None, drama)
+            yield from up.put(msg)
+            reply = yield from down.get()
+        return aiohttp.web.HTTPFound("/{}".format(session))
+
+    @asyncio.coroutine
+    def session_splits_post(self, request):
+        log = logging.getLogger("addisonarches.web.session_splits_post")
+        session = request.match_info["session"]
+        data = yield from request.post()
+        log.debug(data.items())
+        view = item(data, session=session)
+        problems = view.rejects("split")
+        for prob in problems:
+            log.warning(prob)
+
+        if not problems:
+            log.debug(view.obj)
+            path, down, up = self.sessions[session]
+            msg = parcel(None, view.obj)
             yield from up.put(msg)
             reply = yield from down.get()
         return aiohttp.web.HTTPFound("/{}".format(session))

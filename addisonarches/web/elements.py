@@ -60,6 +60,34 @@ def alert(data, session=None, **kwargs):
         ])
     )
 
+def ask(data, session=None, **kwargs):
+    types = {"ts": float, "value": int}
+    try:
+        obj = Ask(**{k: types.get(k, str)(v) for k, v in data.items()})
+    except (AttributeError, TypeError):
+        obj = data
+    return View(obj, actions=OrderedDict([
+        ("ask", Action(
+            name="Ask",
+            rel="action",
+            typ="/{0}/asks",
+            ref=(session,),
+            method="post",
+            parameters=[
+                Parameter(
+                    "ts", "hidden", re.compile("[0-9.]+"),
+                    [obj.ts], "Timestamp."),
+                Parameter(
+                    "value", True, re.compile("[0-9]+"),
+                    [obj.value] if obj.value is not None else [], obj.currency),
+                Parameter(
+                    "currency", "hidden", re.compile("[^{}/]+"),
+                    [obj.currency], "Asking currency."),
+                ],
+                prompt="OK")),
+        ])
+    )
+ 
 def bid(data, session=None, **kwargs):
     types = {"ts": float, "value": int}
     try:
@@ -79,7 +107,7 @@ def bid(data, session=None, **kwargs):
                     [obj.ts], "Timestamp."),
                 Parameter(
                     "value", True, re.compile("[0-9]+"),
-                    [obj.value] if obj.value is not None else [], "£"),
+                    [obj.value] if obj.value is not None else [], obj.currency),
                 Parameter(
                     "currency", "hidden", re.compile("[^{}/]+"),
                     [obj.currency], "Bidding currency."),
@@ -105,24 +133,9 @@ def drama(data, session=None, **kwargs):
     if obj.type == "Buying":
         obj = Bid(time.time(), None, "£")
         rv.actions["bid"] = bid(obj, session).actions["bid"]
-        #rv.actions["bid"] = Action(
-        #   name="Bid",
-        #   rel="action",
-        #   typ="/{0}/bids",
-        #   ref=(session,),
-        #   method="post",
-        #   parameters=[
-        #       Parameter(
-        #           "ts", "hidden", re.compile("[0-9.]+"),
-        #           [time.time()], "Timestamp."),
-        #       Parameter(
-        #           "value", True, re.compile("[0-9.]+"),
-        #           [], "£"),
-        #       Parameter(
-        #           "currency", "hidden", re.compile("[^{}/]+"),
-        #           ["£"], "Bidding currency."),
-        #       ],
-        #   prompt="OK")
+    elif obj.type == "Selling":
+        obj = Ask(time.time(), None, "£")
+        rv.actions["ask"] = ask(obj, session).actions["ask"]
     return rv
  
  
