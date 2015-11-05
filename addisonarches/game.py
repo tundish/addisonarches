@@ -302,6 +302,9 @@ class Game(Persistent):
             for n in range(v)
             if not getattr(k, "components", None)
         ]
+        rv.append(
+            Location(self.location, self.here.inventories[self.location].capacity)
+        )
         return rv
 
     @property
