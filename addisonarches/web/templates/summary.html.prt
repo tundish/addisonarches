@@ -2,7 +2,7 @@
     html
 <!--(end)-->
 
-<!--(macro definition_list)-->
+<!--(macro action_list)-->
     <!--(if class_ in ("item",))-->
     <dl>
         <!--(for attr, val in zip(view.fields, view.obj))-->
@@ -14,6 +14,32 @@
         <!--(if default("view.totals", False))-->
         <dt>total</dt>
         <dd>@!view.totals[view.obj]!@</dd>
+        <!--(end)-->
+        <!--(for action in view.actions.values())-->
+        <dd>
+        <form class="pure-form"
+        action="@!action.typ.format(*action.ref)!@"
+        method="@!action.method!@">
+        <fieldset style="">
+            <!--(for param in action.parameters)-->
+                <!--(if not param.tip.endswith("."))-->
+                <label>@!param.tip!@</label>
+                <!--(end)-->
+            <input
+            name="@!param.name!@"
+            value="@!default('param.values[0]', '')!@"
+            placeholder="@!param.name if not param.values else param.values[0]!@"
+            pattern="@!param.regex.pattern!@"
+            $!'required="required"' if param.required else ''!$
+            type="@!'hidden' if param.required == 'hidden' else 'text'!@"
+            title="@!param.tip!@"
+            style="width: 4em;"
+            />
+            <!--(end)-->
+            <button class="pure-button pure-button-primary"
+            type="submit" >@!action.name!@</button>
+        </fieldset>
+        </form></dd>
         <!--(end)-->
         </dl>
     <!--(end)-->
@@ -50,32 +76,7 @@
     <li class="@!class_!@">
         @!block_quote(class_=class_, view=view)!@
         @!figure_item(class_=class_, view=view)!@
-        <!--(for action in view.actions.values())-->
-        <form class="pure-form"
-        action="@!action.typ.format(*action.ref)!@"
-        method="@!action.method!@">
-        <fieldset style="">
-            <!--(for param in action.parameters)-->
-                <!--(if not param.tip.endswith("."))-->
-                <label>@!param.tip!@</label>
-                <!--(end)-->
-            <input
-            name="@!param.name!@"
-            value="@!default('param.values[0]', '')!@"
-            placeholder="@!param.name if not param.values else param.values[0]!@"
-            pattern="@!param.regex.pattern!@"
-            $!'required="required"' if param.required else ''!$
-            type="@!'hidden' if param.required == 'hidden' else 'text'!@"
-            title="@!param.tip!@"
-            style="width: 4em;"
-            />
-            <!--(end)-->
-            <button class="pure-button pure-button-primary"
-            type="submit" >@!action.name!@</button>
-        </fieldset>
-        </form>
-        <!--(end)-->
-        @!definition_list(class_=class_, view=view)!@
+        @!action_list(class_=class_, view=view)!@
     </li>
     <!--(end)-->
 </ol>
