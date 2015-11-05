@@ -8,10 +8,6 @@ font-family: "Trebuchet MS", Helvetica, sans-serif;
 color: #666666;
 }
 
-.local-indent {
-margin: 1.2em 0 0 7.0em;
-}
-
 .local-nav {
 width: 22em;
 }
@@ -22,10 +18,29 @@ list-style-type: none;
 
 li {
 background-color: clouds;
+padding: 0.1em;
+margin: 0.2em 0.3em 0.4em 0.6em;
+}
+
+li.item {
+background-color: clouds;
 border: 2px solid #BBBBBB;
 border-radius: 0px 20px 15px 15px;
-margin: 0.4em 1.8em 0.4em 0.6em;
-padding: 1em;
+}
+
+li.patter{
+}
+
+li.patter blockquote header::after{
+content: ": ";
+}
+
+li.patter blockquote p::after{
+content: close-quote;
+}
+
+li.patter blockquote p::before{
+content: open-quote;
 }
 
 nav ul li {

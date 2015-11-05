@@ -6,15 +6,14 @@
     <!--(if class_ in ("item",))-->
     <dl>
         <!--(for attr, val in zip(view.fields, view.obj))-->
-            <!--(if attr in ("label", "text", "description"))-->
-            <dt>@! attr !@</dt>
-            <dd class="@!'{0}-{1}'.format(class_, attr)!@">@! val !@</dd>
+            <!--(if attr in ("text", "description"))-->
+            <dt>@!attr!@</dt>
+            <dd class="@!'{0}-{1}'.format(class_, attr)!@">@!val!@</dd>
             <!--(end)-->
         <!--(end)-->
         <!--(if default("view.totals", False))-->
         <dt>total</dt>
-        <dd>@! view.type !@</dd>
-        <dd>@! view.totals[view.obj] !@</dd>
+        <dd>@!view.totals[view.obj]!@</dd>
         <!--(end)-->
         </dl>
     <!--(end)-->
@@ -49,7 +48,6 @@
     <!--(for view in items)-->
     $!setvar("class_", "view.type.lower()")!$
     <li class="@!class_!@">
-        @!definition_list(class_=class_, view=view)!@
         @!block_quote(class_=class_, view=view)!@
         @!figure_item(class_=class_, view=view)!@
         <!--(for action in view.actions.values())-->
@@ -77,6 +75,7 @@
         </fieldset>
         </form>
         <!--(end)-->
+        @!definition_list(class_=class_, view=view)!@
     </li>
     <!--(end)-->
 </ol>
