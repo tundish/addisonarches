@@ -17,6 +17,7 @@
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import OrderedDict
+import datetime
 import logging
 import re
 import time
@@ -210,6 +211,9 @@ def tick(data, session=None, **kwargs):
         obj = Clock.Tick(**data)
     except TypeError:
         obj = data
+
+    t = datetime.datetime.strptime(obj.value, "%Y-%m-%d %H:%M:%S")
+    obj = obj._replace(value="{:%A %H:%M}".format(t))
     return View(obj, actions={})
  
 def via(data, session=None, **kwargs):

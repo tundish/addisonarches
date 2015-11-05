@@ -1,14 +1,15 @@
 <!--(set_escape)-->
     html
 <!--(end)-->
-<!--(macro summary_list)-->
-<ol class="local-items">
-    <!--(for view in items)-->
-    <li>
-        <dl>
+
+<!--(macro definition_list)-->
+    <!--(if class_ in ("item",))-->
+    <dl>
         <!--(for attr, val in zip(view.fields, view.obj))-->
-        <dt>@! attr !@</dt>
-        <dd>@! val !@</dd>
+            <!--(if attr in ("label", "text", "description"))-->
+            <dt>@! attr !@</dt>
+            <dd class="@!'{0}-{1}'.format(class_, attr)!@">@! val !@</dd>
+            <!--(end)-->
         <!--(end)-->
         <!--(if default("view.totals", False))-->
         <dt>total</dt>
@@ -16,6 +17,41 @@
         <dd>@! view.totals[view.obj] !@</dd>
         <!--(end)-->
         </dl>
+    <!--(end)-->
+<!--(end)-->
+
+<!--(macro block_quote)-->
+    <!--(if class_ in ("patter",))-->
+    <blockquote>
+    <header>@!view.obj.actor[1]!@</header>
+    <p>@!view.obj.text!@</p>
+    </blockquote>
+    <!--(end)-->
+<!--(end)-->
+
+<!--(macro figure_item)-->
+    <!--(if class_ in ("tally", "alert", "drama"))-->
+    <figure>
+        $!default("'<p>You\\'ve got {0.units}{0.value} in the kitty.</p>'.format(view.obj)", "")!$
+        $!default("'<p>{}</p>'.format(view.obj.text)", "")!$
+        $!default("'<p>You\\'re in a {} mood.</p>'.format(view.obj.mood)", "")!$
+    </figure>
+    <!--(elif class_ in ("character", "tick"))-->
+    <figure>
+        $!default("'<p>{0.name} is nearby.</p>'.format(view.obj)", "")!$
+        $!default("'<p>{}.</p>'.format(view.obj.value)", "")!$
+    </figure>
+    <!--(end)-->
+<!--(end)-->
+
+<!--(macro summary_list)-->
+<ol class="local-items">
+    <!--(for view in items)-->
+    $!setvar("class_", "view.type.lower()")!$
+    <li class="@!class_!@">
+        @!definition_list(class_=class_, view=view)!@
+        @!block_quote(class_=class_, view=view)!@
+        @!figure_item(class_=class_, view=view)!@
         <!--(for action in view.actions.values())-->
         <form class="pure-form"
         action="@!action.typ.format(*action.ref)!@"
@@ -45,6 +81,7 @@
     <!--(end)-->
 </ol>
 <!--(end)-->
+
 <!--(if exists("unittest"))-->
 @!summary_list(items=items)!@
 <!--(end)-->

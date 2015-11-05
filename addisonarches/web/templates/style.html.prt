@@ -20,23 +20,32 @@ ol.local-items, nav ul {
 list-style-type: none;
 }
 
-ol.local-items > li:before {
-color: #2A98ED;
-font-weight: bold;
-}
-
 li {
 background-color: clouds;
-border:2px solid #BBBBBB;
+border: 2px solid #BBBBBB;
 border-radius: 0px 20px 15px 15px;
 margin: 0.4em 1.8em 0.4em 0.6em;
 padding: 1em;
 }
 
 nav ul li {
-border:0px;
+border: 0px;
 margin: 0.2em 1.0em 0.2em 0.6em;
 padding: 0.3em;
+}
+
+ol.local-items dl dt {
+display: none;
+}
+
+ol.local-items dl dd {
+display:inline-block;
+margin:0.2em;
+}
+
+ol.local-items form {
+display:inline-block;
+margin:0.2em;
 }
 
 </style>
