@@ -3,7 +3,7 @@
 <!--(end)-->
 
 <!--(macro action_list)-->
-    <!--(if class_ in ("item",))-->
+    <!--(if class_ in ("item", "drama"))-->
     <dl>
         <!--(for attr, val in zip(view.fields, view.obj))-->
             <!--(if attr in ("text", "description"))-->
