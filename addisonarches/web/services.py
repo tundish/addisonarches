@@ -258,12 +258,14 @@ class Workflow(Service):
         groups = group_by_type(items)
         totals = Counter(groups[Game.Item])
 
+        location = next(iter(groups[Location]), None)
         items = [item(i, session=session, totals=totals)
                  for i in groups[Game.Item] ]
 
         for view in items:
             del view.actions["buy"]
-            view.actions.pop("split", None)
+            if location is None or location.name != "Addison Arches 18a":
+                view.actions.pop("split", None)
 
         return {
             "info": {
@@ -286,12 +288,13 @@ class Workflow(Service):
         groups = group_by_type(items)
         totals = Counter(groups[Game.Item])
 
-        items = [item(i, session=session, totals=totals)
-                 for i in groups[Game.Item] ]
+        items = OrderedDict([
+                (i, item(i, session=session, totals=totals))
+                for i in groups[Game.Item]])
         location = next(iter(groups[Location]), None)
         pending = getattr(next(iter(groups[Game.Drama]), None), "type", None)
 
-        for view in items:
+        for view in items.values():
             del view.actions["sell"]
             if location.name == "Addison Arches 18a":
                 del view.actions["buy"]
@@ -317,7 +320,7 @@ class Workflow(Service):
                 [ tally(i, session=session) for i in groups[Game.Tally] ] +
                 [ patter(i, session=session) for i in groups[Trader.Patter] ] +
                 [ drama(i, session=session) for i in groups[Game.Drama] ] +
-                items +
+                list(items.values()) +
                 [ alert(i, session=session) for i in groups[Alert] ]
             
         }
