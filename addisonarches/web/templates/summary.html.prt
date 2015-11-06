@@ -9,9 +9,9 @@
             <!--(if attr in ("label",))-->
             <dt class="hide">@!attr!@</dt>
             <dd class="@!'{0}-{1}'.format(class_, attr)!@"><h3>@!val!@</h3></dd>
-            <!--(elif attr in ("description", "text"))-->
+            <!--(elif val and attr in ("description", "text"))-->
             <dt class="hide">@!attr!@</dt>
-            <dd class="@!'{0}-{1}'.format(class_, attr)!@">@!val!@</dd>
+            <dd class="@!'{0}-{1}'.format(class_, attr)!@">@!val.capitalize().rstrip('.') + '.'!@</dd>
             <!--(end)-->
         <!--(end)-->
         <!--(if default("view.totals", False))-->
@@ -73,7 +73,7 @@
 <!--(end)-->
 
 <!--(macro summary_list)-->
-<ol class="local-items">
+<ol class="local-summary">
     <!--(for view in items)-->
     $!setvar("class_", "view.type.lower()")!$
     <li class="@!class_!@">

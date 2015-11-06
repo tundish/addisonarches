@@ -4,23 +4,17 @@
 <!--(macro item_list)-->
 <ol class="local-items">
     <!--(for view in items)-->
-    <li>
+    $!setvar("class_", "view.type.lower()")!$
+    <li class="@!class_!@">
         <dl>
-        <!--(for attr, val in zip(view.fields, view.obj))-->
-        <dt>@! attr !@</dt>
-        <dd>@! val !@</dd>
-        <!--(end)-->
-        <!--(if default("view.totals", False))-->
-        <dt>total</dt>
-        <dd>@! view.type !@</dd>
-        <dd>@! view.totals[view.obj] !@</dd>
-        <!--(end)-->
-        </dl>
+        $!setvar("descr", "' '.join((view.obj.description, view.obj.label.lower())).strip().capitalize()")!$
+        <dt>@!descr!@</dt>
         <!--(for action in view.actions.values())-->
+        <dd class="action">
         <form class="pure-form"
         action="@!action.typ.format(*action.ref)!@"
         method="@!action.method!@">
-        <fieldset style="">
+        <fieldset>
             <!--(for param in action.parameters)-->
                 <!--(if not param.tip.endswith("."))-->
                 <label>@!param.tip!@</label>
@@ -39,8 +33,9 @@
             <button class="pure-button pure-button-primary"
             type="submit" >@!action.name!@</button>
         </fieldset>
-        </form>
+        </form></dd>
         <!--(end)-->
+        </dl>
     </li>
     <!--(end)-->
 </ol>

@@ -20,7 +20,7 @@ display: none;
 width: 22em;
 }
 
-ol.local-items, nav ul {
+ol, nav ul {
 list-style-type: none;
 }
 
@@ -30,7 +30,7 @@ color: #444444;
 border: 2px solid white;
 background-color: #ccc5a7;
 padding: 0.1em;
-margin: 0em 0.3em 0em 0.6em;
+margin: 0em 0.3em 0em 0.3em;
 }
 
 li.tick{
@@ -68,29 +68,41 @@ margin: 0.2em 1.0em 0.2em 0.6em;
 padding: 0.3em;
 }
 
-ol.local-items dl {
+ol dl {
 display:inline-block;
 }
 
-ol.local-items dl dt {
+ol dl dt {
 clear: left;
 float: left;
 padding-left: 2.5em;
+}
+
+ol.local-summary dl dt {
 text-transform: capitalize;
 }
 
-ol.local-items dl dt::after {
+ol.local-summary dl dt::after {
 content: ": ";
 margin-left: 0.5em;
 }
 
-ol.local-items dl dd {
+ol dl dd {
 overflow: hidden;
 text-overflow: ellipsis;
 white-space: nowrap;
 }
 
-ol.local-items dl dd.action {
+ol.local-items dl dt{
+clear: left;
+float: right;
+display: inline;
+}
+
+ol.local-items dl dd{
+clear: left;
+float: right;
+display: inline;
 }
 
 </style>
