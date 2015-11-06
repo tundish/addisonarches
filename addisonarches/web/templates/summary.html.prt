@@ -6,8 +6,11 @@
     <!--(if class_ in ("item", "drama"))-->
     <dl>
         <!--(for attr, val in zip(view.fields, view.obj))-->
-            <!--(if attr in ("text", "description"))-->
-            <dt>@!attr!@</dt>
+            <!--(if attr in ("label",))-->
+            <dt class="hide">@!attr!@</dt>
+            <dd class="@!'{0}-{1}'.format(class_, attr)!@"><h3>@!val!@</h3></dd>
+            <!--(elif attr in ("description", "text"))-->
+            <dt class="hide">@!attr!@</dt>
             <dd class="@!'{0}-{1}'.format(class_, attr)!@">@!val!@</dd>
             <!--(end)-->
         <!--(end)-->
@@ -16,11 +19,11 @@
         <dd>@!view.totals[view.obj]!@</dd>
         <!--(end)-->
         <!--(for action in view.actions.values())-->
-        <dd>
+        <dd class="action">
         <form class="pure-form"
         action="@!action.typ.format(*action.ref)!@"
         method="@!action.method!@">
-        <fieldset style="">
+        <fieldset>
             <!--(for param in action.parameters)-->
                 <!--(if not param.tip.endswith("."))-->
                 <label>@!param.tip!@</label>
