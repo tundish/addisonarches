@@ -23,18 +23,7 @@ import os.path
 DFLT_LOCN = os.path.expanduser(os.path.join("~", ".addisonarches"))
 DFLT_PORT = 8080
 
-def add_common_options(parser):
-    parser.add_argument(
-        "--version", action="store_true", default=False,
-        help="Print the current version number")
-    parser.add_argument(
-        "-v", "--verbose", required=False,
-        action="store_const", dest="log_level",
-        const=logging.DEBUG, default=logging.INFO,
-        help="Increase the verbosity of output")
-    parser.add_argument(
-        "--log", default=None, dest="log_path",
-        help="Set a file path for log output")
+def add_game_options(parser):
     parser.add_argument(
         "--output", default=DFLT_LOCN,
         help="path to output directory [{}]".format(DFLT_LOCN))

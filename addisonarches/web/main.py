@@ -26,10 +26,11 @@ import sys
 
 import aiohttp.web
 
+from turberfield.ipc.cli import add_common_options
 from turberfield.utils.expert import TypesEncoder
 
 from addisonarches import __version__
-from addisonarches.cli import add_common_options
+from addisonarches.cli import add_game_options
 from addisonarches.cli import add_web_options
 import addisonarches.game
 from addisonarches.utils import send
@@ -136,6 +137,7 @@ def run():
         fromfile_prefix_chars="@"
     )
     p = add_common_options(p)
+    p = add_game_options(p)
     p = add_web_options(p)
     args = p.parse_args()
     if args.version:

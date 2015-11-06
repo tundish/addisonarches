@@ -24,7 +24,9 @@ import locale
 import logging
 import sys
 
-from addisonarches.cli import add_common_options
+from turberfield.ipc.cli import add_common_options
+
+from addisonarches.cli import add_game_options
 from addisonarches.cli import add_web_options
 import addisonarches.console
 import addisonarches.web.main
@@ -40,6 +42,7 @@ def parsers(description=__doc__):
         fromfile_prefix_chars="@"
     )
     parser = add_common_options(parser)
+    parser = add_game_options(parser)
     subparsers = parser.add_subparsers(
         dest="command",
         help="Commands:",
