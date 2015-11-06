@@ -8,6 +8,10 @@ font-family: "Trebuchet MS", Helvetica, sans-serif;
 color: #666666;
 }
 
+h3 {
+text-transform: capitalize;
+}
+
 .hide {
 display: none;
 }
@@ -21,6 +25,8 @@ list-style-type: none;
 }
 
 li {
+font-family: "Trebuchet MS", Helvetica, sans-serif;
+color: #444444;
 border: 2px solid white;
 background-color: #ccc5a7;
 padding: 0.1em;
@@ -67,6 +73,8 @@ display:inline-block;
 }
 
 ol.local-items dl dt {
+clear: left;
+float: left;
 padding-left: 2.5em;
 text-transform: capitalize;
 }
