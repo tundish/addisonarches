@@ -88,7 +88,6 @@ margin-left: 0.5em;
 }
 
 ol dl dd {
-overflow: hidden;
 text-overflow: ellipsis;
 white-space: nowrap;
 }
@@ -97,12 +96,15 @@ ol.local-items dl dt{
 clear: left;
 float: right;
 display: inline;
+padding: 0.8em 0 0 1.0em;
 }
 
 ol.local-items dl dd{
 clear: left;
 float: right;
 display: inline;
+padding: 0 0 0 0;
+margin: 0 0.2em 0 0.2em;
 }
 
 </style>

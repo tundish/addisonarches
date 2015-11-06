@@ -396,8 +396,9 @@ class Workflow(Service):
         data = yield from request.post()
         view = item(data, session=session)
         problems = view.rejects("buy")
-        for prob in problems:
-            log.warning(prob)
+        for prob in problems[:]:
+            if prob.name == "description":
+                problems.remove(prob)
 
         if not problems:
             log.debug(view.obj)

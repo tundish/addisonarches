@@ -43,7 +43,7 @@ class Hutch(Compound):
 
 class ShipmentOfTables(Compound):
     """
-    A shipment of tables from the Far East.
+    from the Far East.
     """
 
     @staticmethod

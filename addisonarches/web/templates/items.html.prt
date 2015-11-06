@@ -7,7 +7,7 @@
     $!setvar("class_", "view.type.lower()")!$
     <li class="@!class_!@">
         <dl>
-        $!setvar("descr", "' '.join((view.obj.description, view.obj.label.lower())).strip().capitalize()")!$
+        $!setvar("descr", "', '.join((view.obj.label, view.obj.description.lower())).strip('., ').capitalize()")!$
         <dt>@!descr!@</dt>
         <!--(for action in view.actions.values())-->
         <dd class="action">
