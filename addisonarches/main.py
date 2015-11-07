@@ -34,6 +34,10 @@ import addisonarches.web.main
 
 __doc__ = """
 Main entry point for Addison Arches game.
+
+TODO: Launch game only.
+
+Move invocation of console, web elsewhere.
 """
 
 def parsers(description=__doc__):
