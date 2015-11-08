@@ -226,6 +226,28 @@ class Registration(Service):
         name = data.getone("name")
         loop = asyncio.get_event_loop()
         if session not in Workflow.sessions:
+            #path = Path(root, project, "project.rson")
+            #args = [
+            #    sys.executable,
+            #    "-m", "linkbudget.workflow.main",
+            #    "--input", os.path.join(*path),
+            #    "--output", os.path.join(path.root, path.project),
+            #    "--log", os.path.join(path.root, path.project, "run.log")
+            #]
+            #log.info("Job: {0}".format(args))
+            #try:
+            #    worker = subprocess.Popen(
+            #        args,
+            #        #cwd=app.config.get("args")["output"],
+            #        shell=False
+            #    )
+            #except OSError as e:
+            #    log.error(e)
+            #else:
+            #    log.info("Launched worker {0.pid}".format(worker))
+            #finally:
+            #    bottle.redirect("/")
+            # TODO: Create subprocess
             progress, down, up = addisonarches.game.create(
                 self.config["output"], session, name, loop=loop
             )

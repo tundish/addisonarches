@@ -72,6 +72,7 @@ def add_web_command_parser(subparsers):
         "web", "\n\naddisonarches [OPTIONS] web")
     return rv
 
+# TODO: Move elsewhere for safekeeping
 def subprocess_queue_factory(queue, loop):
 
     def pipe_data_received(self, fd, data):
