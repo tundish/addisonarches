@@ -330,7 +330,7 @@ class Console(cmd.Cmd):
         line = arg.strip()
         data = [i
             for i in get_objects(self.progress._replace(file="inventory.rson"))
-            if i.type == "Compound"
+            if getattr(i, "type", None) == "Compound"
         ]
         view = Counter(data).items()
         if not line:

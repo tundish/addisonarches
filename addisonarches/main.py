@@ -17,19 +17,17 @@
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import argparse
 import asyncio
 import os
-import locale
-import logging
 import sys
 
-from turberfield.ipc.cli import add_common_options
 
-from addisonarches.cli import add_game_options
-from addisonarches.cli import add_web_options
+from addisonarches.cli import add_console_command_parser
+from addisonarches.cli import add_web_command_parser
+from addisonarches.cli import parsers
 import addisonarches.console
 import addisonarches.web.main
+from addisonarches.worker import subprocess_queue_factory
 
 
 __doc__ = """
@@ -39,63 +37,6 @@ TODO: Launch game only.
 
 Move invocation of console, web elsewhere.
 """
-
-def parsers(description=__doc__):
-    parser =  argparse.ArgumentParser(
-        description,
-        fromfile_prefix_chars="@"
-    )
-    parser = add_common_options(parser)
-    parser = add_game_options(parser)
-    subparsers = parser.add_subparsers(
-        dest="command",
-        help="Commands:",
-    )
-    return (parser, subparsers)
-
-def add_console_command_parser(subparsers):
-    rv = subparsers.add_parser(
-        "console", help="Play the game from a text console.",
-        description="", epilog="other commands: web"
-    )
-    rv.usage = rv.format_usage().replace("usage:", "").replace(
-        "console", "\n\naddisonarches [OPTIONS] console")
-    return rv
- 
-def add_web_command_parser(subparsers):
-    rv = subparsers.add_parser(
-        "web", help="Play the game over a web interface.",
-        description="", epilog="other commands: console"
-    )
-    rv = add_web_options(rv)
-    rv.usage = rv.format_usage().replace("usage:", "").replace(
-        "web", "\n\naddisonarches [OPTIONS] web")
-    return rv
-
-# TODO: Move elsewhere for safekeeping
-def subprocess_queue_factory(queue, loop):
-
-    def pipe_data_received(self, fd, data):
-        if fd == 1:
-            name = 'stdout'
-        elif fd == 2:
-            name = 'stderr'
-        text = data.decode(locale.getpreferredencoding(False))
-        print('Received from {}: {}'.format(name, text.strip()))
-
-    def process_exited(self):
-        self.loop.stop()
-
-    return type(
-        "SubprocessQueue",
-        (asyncio.SubprocessProtocol,),
-        dict(
-            loop=loop,
-            pipe_data_received=pipe_data_received,
-            process_exited=process_exited,
-            queue=queue
-        )
-    )
 
 def main(args):
     rv = 0
