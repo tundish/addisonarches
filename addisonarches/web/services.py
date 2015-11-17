@@ -231,9 +231,10 @@ class Registration(Service):
             #path = Path(root, project, "project.rson")
             #args = [
             #    sys.executable,
-            #    "-m", "linkbudget.workflow.main",
+            #    "-m", "addisonarches.main",
             #    "--input", os.path.join(*path),
             #    "--output", os.path.join(path.root, path.project),
+            #    "--session", session,
             #    "--log", os.path.join(path.root, path.project, "run.log")
             #]
             #log.info("Job: {0}".format(args))

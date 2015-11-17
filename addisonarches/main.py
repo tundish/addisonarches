@@ -37,34 +37,47 @@ Move invocation of console, web elsewhere.
 """
 
 def main(args):
-    rv = 0
-    if args.command == "console":
-        rv = addisonarches.console.main(args)
-    elif args.command == "web":
-        if os.name == "nt":
-            loop = asyncio.ProactorEventLoop()
-            asyncio.set_event_loop(loop)
-        else:
-            loop = asyncio.get_event_loop()
+    log = logging.getLogger("addisonarches.main")
+    log.setLevel(args.log_level)
 
-        # TODO: Spawn N==1 web processes
-        # TODO: Create node and invoke Game object in this process
-        queue = asyncio.Queue(loop=loop)
-        transport = loop.run_until_complete(
-            loop.subprocess_exec(
-                subprocess_queue_factory(queue, loop),
-                sys.executable,
-                "-m", "addisonarches.web.main",
-                *["--{}={}".format(i, getattr(args, i))
-                for i in  ("output", "host", "port")] 
-            )
-        )[0]
-        loop.run_forever()
-    return rv
+    formatter = logging.Formatter(
+        "%(asctime)s %(levelname)-7s %(name)s|%(message)s")
+    ch = logging.StreamHandler()
 
+    if args.log_path is None:
+        ch.setLevel(args.log_level)
+    else:
+        fh = WatchedFileHandler(args.log_path)
+        fh.setLevel(args.log_level)
+        fh.setFormatter(formatter)
+        log.addHandler(fh)
+        ch.setLevel(logging.WARNING)
+
+    ch.setFormatter(formatter)
+    log.addHandler(ch)
+
+    loop = asyncio.SelectorEventLoop()
+    asyncio.set_event_loop(loop)
+
+    down = asyncio.Queue(loop=loop)
+    up = asyncio.Queue(loop=loop)
+
+    #TODO: turberfield-ipc must accept service name
+    tok = token(args.connect, APP_NAME)
+    node = create_udp_node(loop, tok, down, up)
+    loop.create_task(node(token=tok))
+
+    progress, down, up = addisonarches.game.create(
+        self.config["output"], session, name,
+        down=self.down, up=self.up, loop=loop
+    )
+    loop.run_forever()
 
 def run():
     p, subs = parsers()
+    p.add_argument(
+        "--session", required=True,
+        help="Unique id of session.")
     args = p.parse_args()
 
     rv = 0
