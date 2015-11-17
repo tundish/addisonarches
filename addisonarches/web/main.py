@@ -27,56 +27,23 @@ import sys
 import aiohttp.web
 
 from turberfield.ipc.cli import add_common_options
-from turberfield.utils.expert import TypesEncoder
+from turberfield.ipc.node import create_udp_node
 
 from addisonarches import __version__
 from addisonarches.cli import add_game_options
 from addisonarches.cli import add_web_options
 import addisonarches.game
-from addisonarches.utils import send
+from turberfield.ipc.fsdb import token
 from addisonarches.web.services import Assets
 from addisonarches.web.services import Registration
 from addisonarches.web.services import Transitions
 from addisonarches.web.services import Workflow
 
+APP_NAME = "addisonarches.web.main"
+
 __doc__ = """
 Runs the web interface for Addison Arches.
 """
-
-#@app.route("/", "GET")
-def home_get():
-    # TODO: Get game name
-    log = logging.getLogger("addisonarches.web.home")
-    userId = authenticated_userid(bottle.request)
-    log.info(userId)
-    args = app.config.get("args")
-    send(args)
-    path = os.path.join(
-        app.config["args"].output, "player.rson"
-    )
-    ts = time.time()
-    actor = None
-    page = {
-        "info": {
-            "actor": actor,
-            "interval": 200,
-            "refresh": None,
-            "time": "{:.1f}".format(ts),
-            "title": "Addison Arches {}".format(__version__),
-            "version": __version__
-        },
-        "nav": [],
-        "items": [],
-        "options": [],
-    }
-    try:
-        pass
-    except Exception as e:
-        log.exception(e)
-    finally:
-        return json.dumps(
-            page, cls=TypesEncoder, indent=4
-        )
 
 def main(args):
     log = logging.getLogger("addisonarches.web")
@@ -101,20 +68,22 @@ def main(args):
     loop = asyncio.SelectorEventLoop()
     asyncio.set_event_loop(loop)
 
-    # TODO: Make a Turberfield-ipc node
-    #tok = token(args.connect, APP_NAME)
-    #node = create_udp_node(loop, tok, down, up)
+    down = asyncio.Queue(loop=loop)
+    up = asyncio.Queue(loop=loop)
+
+    tok = token(args.connect, APP_NAME)
+    node = create_udp_node(loop, tok, down, up)
+    loop.create_task(node(token=tok))
 
     app = aiohttp.web.Application()
     assets = Assets(app, **vars(args))
-    reg = Registration(app, **vars(args))
+    reg = Registration(app, down, up, **vars(args))
     transitions = Transitions(app, **vars(args))
     work = Workflow(app, **vars(args))
     for svc in (assets, reg, transitions, work):
         log.info("{0.__class__.__name__} object serves {1}".format(
             svc, ", ".join(svc.routes.keys())))
 
-    loop = asyncio.get_event_loop()
     handler = app.make_handler()
     f = loop.create_server(handler, args.host, args.port)
     srv = loop.run_until_complete(f)

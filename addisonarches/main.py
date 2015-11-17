@@ -22,8 +22,6 @@ import os
 import sys
 
 
-from addisonarches.cli import add_console_command_parser
-from addisonarches.cli import add_web_command_parser
 from addisonarches.cli import parsers
 import addisonarches.console
 import addisonarches.web.main
@@ -67,8 +65,6 @@ def main(args):
 
 def run():
     p, subs = parsers()
-    add_console_command_parser(subs)
-    add_web_command_parser(subs)
     args = p.parse_args()
 
     rv = 0
@@ -76,10 +72,6 @@ def run():
         sys.stdout.write(addisonarches.__version__ + "\n")
     else:
         rv = main(args)
-
-    if rv == 2:
-        sys.stderr.write("\n Missing command.\n\n")
-        p.print_help()
 
     sys.exit(rv)
 

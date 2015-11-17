@@ -167,8 +167,10 @@ class Registration(Service):
 
     sessions = {}
 
-    def __init__(self, app, **kwargs):
+    def __init__(self, app, down, up, **kwargs):
         super().__init__(app, **kwargs)
+        self.down = down
+        self.up = up
         self.routes = dict(list(self._register(
             app,
             "/start",
@@ -249,7 +251,8 @@ class Registration(Service):
             #    bottle.redirect("/")
             # TODO: Create subprocess
             progress, down, up = addisonarches.game.create(
-                self.config["output"], session, name, loop=loop
+                self.config["output"], session, name,
+                down=self.down, up=self.up, loop=loop
             )
             Workflow.sessions[session] = (progress, down, up)
         return aiohttp.web.HTTPFound("/{}".format(session))

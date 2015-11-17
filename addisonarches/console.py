@@ -40,6 +40,8 @@ from addisonarches.business import Buying
 from addisonarches.business import Selling
 from addisonarches.business import Trader
 
+from addisonarches.cli import parsers
+
 import addisonarches.game
 from addisonarches.game import Clock
 from addisonarches.game import Game
@@ -386,3 +388,22 @@ def main(args):
         loop.close()
 
     return 0
+
+def run():
+    p, subs = parsers()
+    args = p.parse_args()
+
+    rv = 0
+    if args.version:
+        sys.stdout.write(addisonarches.__version__ + "\n")
+    else:
+        rv = main(args)
+
+    if rv == 2:
+        sys.stderr.write("\n Missing command.\n\n")
+        p.print_help()
+
+    sys.exit(rv)
+
+if __name__ == "__main__":
+    run()
