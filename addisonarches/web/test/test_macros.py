@@ -33,8 +33,8 @@ from addisonarches.web.elements import item
 from addisonarches.web.elements import via
 from addisonarches.web.utils import TemplateLoader
 
-item_macro = pyratemp.Template(
-    filename="items.html.prt",
+summary_macro = pyratemp.Template(
+    filename="summary.html.prt",
     loader_class=TemplateLoader,
     data={"unittest": unittest},
 )
@@ -55,7 +55,7 @@ class TestFundamentals(unittest.TestCase):
         groups = group_by_type(msgs)
         totals = Counter(groups[Game.Item])
         views = [typ(i, totals=totals) for typ, i in zip((item, item, alert), msgs)]
-        render = item_macro(items=views)
+        render = summary_macro(items=views)
         self.assertTrue(hasattr(views[0], "totals"))
         self.assertTrue(hasattr(views[1], "totals"))
         self.assertTrue(msgs[-1].text in render)
