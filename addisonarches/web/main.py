@@ -78,9 +78,9 @@ def main(args):
 
     app = aiohttp.web.Application()
     assets = Assets(app, **vars(args))
-    reg = Registration(app, down, up, **vars(args))
+    reg = Registration(app, token, down, up, **vars(args))
     transitions = Transitions(app, **vars(args))
-    work = Workflow(app, **vars(args))
+    work = Workflow(app, token, down, up, **vars(args))
     for svc in (assets, reg, transitions, work):
         log.info("{0.__class__.__name__} object serves {1}".format(
             svc, ", ".join(svc.routes.keys())))

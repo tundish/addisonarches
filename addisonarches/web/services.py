@@ -167,8 +167,9 @@ class Registration(Service):
 
     sessions = {}
 
-    def __init__(self, app, down, up, **kwargs):
+    def __init__(self, app, token, down, up, **kwargs):
         super().__init__(app, **kwargs)
+        self.token = token
         self.down = down
         self.up = up
         self.routes = dict(list(self._register(
@@ -262,8 +263,11 @@ class Workflow(Service):
 
     sessions = {}
 
-    def __init__(self, app, **kwargs):
+    def __init__(self, app, token, down, up, **kwargs):
         super().__init__(app, **kwargs)
+        self.token = token
+        self.down = down
+        self.up = up
         self.routes = dict(list(self._register(
             app,
             "/{session:[a-z0-9]{32}}",
