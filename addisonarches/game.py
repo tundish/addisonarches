@@ -456,7 +456,7 @@ class Game(Persistent):
             if None not in (msg, self.down):
                 msg = Message(
                     msg.header._replace(
-                        src=msg.header.dst,
+                        src=self.player.user,
                         dst=msg.header.src
                     ),
                     []

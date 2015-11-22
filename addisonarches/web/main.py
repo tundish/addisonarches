@@ -34,12 +34,11 @@ from addisonarches.cli import add_game_options
 from addisonarches.cli import add_web_options
 import addisonarches.game
 from turberfield.ipc.fsdb import token
+from addisonarches.web.services import APP_NAME
 from addisonarches.web.services import Assets
 from addisonarches.web.services import Registration
 from addisonarches.web.services import Transitions
 from addisonarches.web.services import Workflow
-
-APP_NAME = "addisonarches.web.main"
 
 __doc__ = """
 Runs the web interface for Addison Arches.

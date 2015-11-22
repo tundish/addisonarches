@@ -60,6 +60,8 @@ from addisonarches.web.elements import tick
 from addisonarches.web.elements import via
 from addisonarches.web.utils import TemplateLoader
 
+APP_NAME = "addisonarches.web.services"
+
 class Service:
 
     verbs = ("get", "head", "options", "post", "put", "delete", "trace", "connect", "patch")
@@ -395,9 +397,9 @@ class Workflow(Service):
         if not problems:
             log.debug(view.obj)
             path, down, up = self.sessions[session]
-            msg = parcel(None, view.obj)
-            yield from up.put(msg)
-            reply = yield from down.get()
+            msg = parcel(self.token, view.obj, src=APP_NAME, dst=session)
+            yield from down.put(msg)
+            reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
@@ -414,9 +416,9 @@ class Workflow(Service):
         if not problems:
             log.debug(view.obj)
             path, down, up = self.sessions[session]
-            msg = parcel(None, view.obj)
-            yield from up.put(msg)
-            reply = yield from down.get()
+            msg = parcel(self.token, view.obj, src=APP_NAME, dst=session)
+            yield from down.put(msg)
+            reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
@@ -434,9 +436,9 @@ class Workflow(Service):
             log.debug(view.obj)
             path, down, up = self.sessions[session]
             drama = Buying(iterable=[view.obj])
-            msg = parcel(None, drama)
-            yield from up.put(msg)
-            reply = yield from down.get()
+            msg = parcel(self.token, drama, src=APP_NAME, dst=session)
+            yield from down.put(msg)
+            reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
@@ -455,9 +457,9 @@ class Workflow(Service):
             log.debug(view.obj)
             path, down, up = self.sessions[session]
             drama = Selling(iterable=[view.obj])
-            msg = parcel(None, drama)
-            yield from up.put(msg)
-            reply = yield from down.get()
+            msg = parcel(self.token, drama, src=APP_NAME, dst=session)
+            yield from down.put(msg)
+            reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
@@ -476,9 +478,9 @@ class Workflow(Service):
         if not problems:
             log.debug(view.obj)
             path, down, up = self.sessions[session]
-            msg = parcel(None, view.obj)
-            yield from up.put(msg)
-            reply = yield from down.get()
+            msg = parcel(self.token, view.obj, src=APP_NAME, dst=session)
+            yield from down.put(msg)
+            reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
@@ -495,9 +497,9 @@ class Workflow(Service):
         if not problems:
             log.debug(view.obj)
             path, down, up = self.sessions[session]
-            msg = parcel(None, view.obj)
-            yield from up.put(msg)
-            reply = yield from down.get()
+            msg = parcel(self.token, view.obj, src=APP_NAME, dst=session)
+            yield from down.put(msg)
+            reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
 
 class Transitions(Service):

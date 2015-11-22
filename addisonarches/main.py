@@ -68,8 +68,8 @@ def main(args):
     loop.create_task(node(token=tok))
 
     progress, down, up = addisonarches.game.create(
-        self.config["output"], session, name,
-        down=self.down, up=self.up, loop=loop
+        self.config["output"], args.session, name,
+        down=down, up=up, loop=loop
     )
     loop.run_forever()
 
