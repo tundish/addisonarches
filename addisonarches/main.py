@@ -18,9 +18,13 @@
 
 
 import asyncio
+import logging
+from logging.handlers import WatchedFileHandler
 import os
 import sys
 
+from turberfield.ipc.fsdb import token
+from turberfield.ipc.node import create_udp_node
 
 from addisonarches.cli import parsers
 import addisonarches.console
@@ -63,12 +67,12 @@ def main(args):
     up = asyncio.Queue(loop=loop)
 
     #TODO: turberfield-ipc must accept service name
-    tok = token(args.connect, APP_NAME)
+    tok = token(args.connect, args.session)
     node = create_udp_node(loop, tok, down, up)
     loop.create_task(node(token=tok))
 
     progress, down, up = addisonarches.game.create(
-        self.config["output"], args.session, name,
+        args.output, args.session, args.name,
         down=down, up=up, loop=loop
     )
     loop.run_forever()
@@ -78,6 +82,9 @@ def run():
     p.add_argument(
         "--session", required=True,
         help="Unique id of session.")
+    p.add_argument(
+        "--name", required=True,
+        help="Player name.")
     args = p.parse_args()
 
     rv = 0

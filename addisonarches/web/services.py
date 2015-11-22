@@ -22,6 +22,7 @@ from collections import Counter
 from collections import OrderedDict
 import logging
 import os
+import subprocess
 import sys
 import time
 import urllib.parse
@@ -41,6 +42,7 @@ from addisonarches.business import Trader
 import addisonarches.game
 from addisonarches.game import Clock
 from addisonarches.game import Game
+from addisonarches.game import Persistent
 from addisonarches.scenario.types import Location
 from addisonarches.scenario.types import Character
 
@@ -207,7 +209,7 @@ class Registration(Service):
     @asyncio.coroutine
     def start_post(self, request):
         data = yield from request.post()
-        log = logging.getLogger("addisonarches.web")
+        log = logging.getLogger("addisonarches.web.services.start_post")
         session = data.getone("session")
         try:
             ts, Registration.sessions[session] = Registration.sessions[session], time.time()
@@ -229,36 +231,31 @@ class Registration(Service):
         #     "Bad value in '{}' field".format(form.invalid[0].name))
 
         name = data.getone("name")
-        loop = asyncio.get_event_loop()
+        root = self.config["output"]
         if session not in Workflow.sessions:
-            #path = Path(root, project, "project.rson")
-            #args = [
-            #    sys.executable,
-            #    "-m", "addisonarches.main",
-            #    "--input", os.path.join(*path),
-            #    "--output", os.path.join(path.root, path.project),
-            #    "--session", session,
-            #    "--log", os.path.join(path.root, path.project, "run.log")
-            #]
-            #log.info("Job: {0}".format(args))
-            #try:
-            #    worker = subprocess.Popen(
-            #        args,
-            #        #cwd=app.config.get("args")["output"],
-            #        shell=False
-            #    )
-            #except OSError as e:
-            #    log.error(e)
-            #else:
-            #    log.info("Launched worker {0.pid}".format(worker))
-            #finally:
-            #    bottle.redirect("/")
-            # TODO: Create subprocess
-            progress, down, up = addisonarches.game.create(
-                self.config["output"], session, name,
-                down=self.down, up=self.up, loop=loop
-            )
-            Workflow.sessions[session] = (progress, down, up)
+            progress = Persistent.make_path(Persistent.recent_slot(
+                Persistent.Path(root, session, None, "progress.rson")
+            ))
+            args = [
+                sys.executable,
+                "-m", "addisonarches.main",
+                "--output", root,
+                "--session", session,
+                "--name", name,
+                "--log", os.path.join(root, session, progress.slot, "run.log")
+            ]
+            log.info("Job: {0}".format(args))
+            try:
+                worker = subprocess.Popen(
+                    args,
+                    #cwd=app.config.get("args")["output"],
+                    shell=False
+                )
+            except OSError as e:
+                log.error(e)
+            else:
+                log.info("Launched worker {0.pid}".format(worker))
+            Workflow.sessions[session] = (progress, self.down, self.up)
         return aiohttp.web.HTTPFound("/{}".format(session))
 
 class Workflow(Service):
