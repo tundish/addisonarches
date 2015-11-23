@@ -31,6 +31,7 @@ import uuid
 import aiohttp.web
 import pkg_resources
 import pyratemp
+from turberfield.ipc.message import Address
 from turberfield.ipc.message import Alert
 from turberfield.ipc.message import parcel
 
@@ -394,7 +395,12 @@ class Workflow(Service):
         if not problems:
             log.debug(view.obj)
             path, down, up = self.sessions[session]
-            msg = parcel(self.token, view.obj, src=APP_NAME, dst=session)
+            msg = parcel(
+                self.token, view.obj,
+                dst=Address(
+                    self.token.namespace, self.token.user, self.token.service, session
+                )
+            )
             yield from down.put(msg)
             reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
@@ -413,7 +419,12 @@ class Workflow(Service):
         if not problems:
             log.debug(view.obj)
             path, down, up = self.sessions[session]
-            msg = parcel(self.token, view.obj, src=APP_NAME, dst=session)
+            msg = parcel(
+                self.token, view.obj,
+                dst=Address(
+                    self.token.namespace, self.token.user, self.token.service, session
+                )
+            )
             yield from down.put(msg)
             reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
@@ -433,7 +444,12 @@ class Workflow(Service):
             log.debug(view.obj)
             path, down, up = self.sessions[session]
             drama = Buying(iterable=[view.obj])
-            msg = parcel(self.token, drama, src=APP_NAME, dst=session)
+            msg = parcel(
+                self.token, drama,
+                dst=Address(
+                    self.token.namespace, self.token.user, self.token.service, session
+                )
+            )
             yield from down.put(msg)
             reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
@@ -454,7 +470,12 @@ class Workflow(Service):
             log.debug(view.obj)
             path, down, up = self.sessions[session]
             drama = Selling(iterable=[view.obj])
-            msg = parcel(self.token, drama, src=APP_NAME, dst=session)
+            msg = parcel(
+                self.token, drama,
+                dst=Address(
+                    self.token.namespace, self.token.user, self.token.service, session
+                )
+            )
             yield from down.put(msg)
             reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
@@ -475,7 +496,12 @@ class Workflow(Service):
         if not problems:
             log.debug(view.obj)
             path, down, up = self.sessions[session]
-            msg = parcel(self.token, view.obj, src=APP_NAME, dst=session)
+            msg = parcel(
+                self.token, view.obj,
+                dst=Address(
+                    self.token.namespace, self.token.user, self.token.service, session
+                )
+            )
             yield from down.put(msg)
             reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))
@@ -494,7 +520,12 @@ class Workflow(Service):
         if not problems:
             log.debug(view.obj)
             path, down, up = self.sessions[session]
-            msg = parcel(self.token, view.obj, src=APP_NAME, dst=session)
+            msg = parcel(
+                self.token, view.obj,
+                dst=Address(
+                    self.token.namespace, self.token.user, self.token.service, session
+                )
+            )
             yield from down.put(msg)
             reply = yield from up.get()
         return aiohttp.web.HTTPFound("/{}".format(session))

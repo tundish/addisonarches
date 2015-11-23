@@ -27,6 +27,7 @@ import sys
 import rson
 
 from turberfield.ipc.message import Alert
+from turberfield.ipc.message import load
 
 from addisonarches.business import Trader
 from addisonarches.game import Clock
@@ -52,8 +53,22 @@ def receive(data):
     payload = ast.literal_eval(data.decode("utf-8").rstrip("\n"))
     return types.get(payload.pop("_type", None), dict)(**payload)
 
+@load.register(Character)
+@load.register(Clock.Tick)
+@load.register(Game.Drama)
+@load.register(Game.Item)
+@load.register(Game.Player)
+@load.register(Game.Tally)
+@load.register(Game.Via)
+@load.register(Location)
+@load.register(Trader.Patter)
+def load_simple_obj(obj):
+    yield obj
+
 def get_objects(path):
     path = os.path.join(*path)
+    if not os.path.isfile(path):
+        return []
     with open(path, 'r') as content:
         data = rson2objs(
             content.read(), (
