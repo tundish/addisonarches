@@ -28,6 +28,8 @@ import rson
 
 from turberfield.ipc.message import Alert
 from turberfield.ipc.message import load
+from turberfield.ipc.message import _public
+from turberfield.utils.misc import type_dict
 
 from addisonarches.business import Trader
 from addisonarches.game import Clock
@@ -36,6 +38,16 @@ from addisonarches.game import Persistent
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 
+_public.update(
+    type_dict(
+        Alert, Character, Clock.Tick, 
+        Game.Drama, Game.Item, Game.Player, Game.Tally, Game.Via,
+        Location, Trader.Patter
+    )
+)
+
+
+print(_public)
 
 def send(obj, stream=sys.stdout):
     msg = dict(vars(obj).items())
@@ -62,7 +74,7 @@ def receive(data):
 @load.register(Game.Via)
 @load.register(Location)
 @load.register(Trader.Patter)
-def load_simple_obj(obj):
+def load_simple_obj(obj, types=_public):
     yield obj
 
 def get_objects(path):
