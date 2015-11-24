@@ -119,7 +119,7 @@ class GameTests(unittest.TestCase):
 
         game, clock, down, up = create_game(
             self.root.name, user=GameTests.user, name="test",
-            down=None, up=None, loop=loop
+            down=down, up=up, loop=loop
         )
         progress, down, up = init_game(
             game, clock, down, up, loop=self.loop

@@ -464,7 +464,7 @@ class Game(Persistent):
                 )
                 yield from self.down.put(msg)
 
-def create_game(parent, user, name, tok=None, down=None, up=None, loop=None):
+def create_game(parent, user, name, token=None, down=None, up=None, loop=None):
 
     if None in (down, up):
         down = asyncio.Queue(loop=loop)
@@ -478,6 +478,7 @@ def create_game(parent, user, name, tok=None, down=None, up=None, loop=None):
         Game.Player(user, name),
         addisonarches.scenario.businesses[:],
         clock,
+        token,
         up,
         down=down,
         loop=loop,
@@ -492,8 +493,8 @@ def init_game(game, clock, down, up, loop=None):
     progress = Persistent.recent_slot(game._services["progress.rson"].path)
     return (progress, down, up)
 
-def create(parent, user, name, tok, down=None, up=None, loop=None):
+def create(parent, user, name, token, down=None, up=None, loop=None):
     return init_game(
-        *create_game(parent, user, name, tok, down, up, loop=loop),
+        *create_game(parent, user, name, token, down, up, loop=loop),
         loop=loop
     )
