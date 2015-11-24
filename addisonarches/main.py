@@ -28,6 +28,7 @@ from turberfield.ipc.node import create_udp_node
 
 from addisonarches.cli import parsers
 import addisonarches.console
+from addisonarches.utils import registry
 import addisonarches.web.main
 from addisonarches.worker import subprocess_queue_factory
 
@@ -68,12 +69,12 @@ def main(args):
 
     #TODO: turberfield-ipc must accept service name
     tok = token(args.connect, args.session)
-    node = create_udp_node(loop, tok, down, up)
+    node = create_udp_node(loop, tok, down, up, types=registry)
     loop.create_task(node(token=tok))
 
     progress, down, up = addisonarches.game.create(
         args.output, args.session, args.name,
-        down=down, up=up, loop=loop
+        tok, down=down, up=up, loop=loop
     )
     loop.run_forever()
 

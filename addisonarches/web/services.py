@@ -519,6 +519,10 @@ class Workflow(Service):
 
         if not problems:
             log.debug(view.obj)
+            dst = Address(
+                self.token.namespace, self.token.user, self.token.service, session
+            )
+            log.debug(dst)
             path, down, up = self.sessions[session]
             msg = parcel(
                 self.token, view.obj,

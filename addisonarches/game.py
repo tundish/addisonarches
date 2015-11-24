@@ -223,11 +223,12 @@ class Game(Persistent):
             )),
         ])
 
-    def __init__(self, player, businesses, clock=None, *args, **kwargs):
+    def __init__(self, player, businesses, clock=None, token=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.player = player
         self.businesses = businesses
         self.clock = clock
+        self.token = token
 
         # Network
         self.down = kwargs.pop("down", None)
@@ -456,14 +457,14 @@ class Game(Persistent):
             if None not in (msg, self.down):
                 msg = Message(
                     msg.header._replace(
-                        src=self.player.user,
+                        src=msg.header.dst._replace(application=self.player.user),
                         dst=msg.header.src
                     ),
                     []
                 )
                 yield from self.down.put(msg)
 
-def create_game(parent, user, name, down=None, up=None, loop=None):
+def create_game(parent, user, name, tok=None, down=None, up=None, loop=None):
 
     if None in (down, up):
         down = asyncio.Queue(loop=loop)
@@ -491,8 +492,8 @@ def init_game(game, clock, down, up, loop=None):
     progress = Persistent.recent_slot(game._services["progress.rson"].path)
     return (progress, down, up)
 
-def create(parent, user, name, down=None, up=None, loop=None):
+def create(parent, user, name, tok, down=None, up=None, loop=None):
     return init_game(
-        *create_game(parent, user, name, down, up, loop=loop),
+        *create_game(parent, user, name, tok, down, up, loop=loop),
         loop=loop
     )

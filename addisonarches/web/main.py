@@ -27,13 +27,14 @@ import sys
 import aiohttp.web
 
 from turberfield.ipc.cli import add_common_options
+from turberfield.ipc.fsdb import token
 from turberfield.ipc.node import create_udp_node
 
 from addisonarches import __version__
 from addisonarches.cli import add_game_options
 from addisonarches.cli import add_web_options
 import addisonarches.game
-from turberfield.ipc.fsdb import token
+from addisonarches.utils import registry
 from addisonarches.web.services import APP_NAME
 from addisonarches.web.services import Assets
 from addisonarches.web.services import Registration
@@ -72,7 +73,7 @@ def main(args):
 
     #TODO: turberfield-ipc must accept service name
     tok = token(args.connect, APP_NAME)
-    node = create_udp_node(loop, tok, down, up)
+    node = create_udp_node(loop, tok, down, up, types=registry)
     loop.create_task(node(token=tok))
 
     app = aiohttp.web.Application()
