@@ -21,28 +21,35 @@ import concurrent.futures
 import logging
 import numbers
 import os.path
+import pathlib
 import sys
 import tempfile
 import unittest
 import uuid
 
+from turberfield.ipc.fsdb import token
 from turberfield.ipc.message import Alert
 from turberfield.ipc.message import parcel
+from turberfield.ipc.node import create_udp_node
 
 from addisonarches.business import Buying
 from addisonarches.business import Trader
+
 from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
 from addisonarches.game import create_game
 from addisonarches.game import init_game
+
+import addisonarches.scenario
 from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
+
 from addisonarches.utils import get_objects
 from addisonarches.utils import group_by_type
 from addisonarches.utils import query_object_chain
+from addisonarches.utils import registry
 from addisonarches.utils import rson2objs
-import addisonarches.scenario
 
 
 class GameTests(unittest.TestCase):
@@ -66,11 +73,19 @@ class GameTests(unittest.TestCase):
 
     def setUp(self):
         self.root = tempfile.TemporaryDirectory()
-        self.loop = asyncio.new_event_loop()
+        self.loop = asyncio.SelectorEventLoop()
         asyncio.set_event_loop(None)
 
         path = Persistent.Path(self.root.name, GameTests.user, None, None)
         Persistent.make_path(path)
+        connect = pathlib.PurePath(
+                os.path.abspath(
+                    os.path.expanduser(
+                        os.path.join("~", ".turberfield")
+                    )
+                )
+            ).as_uri()
+        self.token = token(connect, "addisonarches.test.test_game")
 
     def tearDown(self):
         self.loop.close()
@@ -95,6 +110,12 @@ class GameTests(unittest.TestCase):
                 yield from asyncio.sleep(0, loop=loop)
                 for task in asyncio.Task.all_tasks(loop=loop):
                     task.cancel()
+
+        down = asyncio.Queue(loop=loop)
+        up = asyncio.Queue(loop=loop)
+
+        node = create_udp_node(loop, self.token, down, up, types=registry)
+        loop.create_task(node(token=self.token))
 
         game, clock, down, up = create_game(
             self.root.name, user=GameTests.user, name="test",
