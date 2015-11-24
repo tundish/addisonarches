@@ -55,12 +55,20 @@ from addisonarches.utils import rson2objs
 class GameTests(unittest.TestCase):
 
     user = "someone@somewhere.net"
+    connect = pathlib.PurePath(
+            os.path.abspath(
+                os.path.expanduser(
+                    os.path.join("~", ".turberfield")
+                )
+            )
+        ).as_uri()
 
     @classmethod
     def setUpClass(cls):
         logging.getLogger("asyncio").setLevel(logging.DEBUG)
         cls.asyncioDebug = os.environ.get("PYTHONASYNCIODEBUG", None)
         os.environ["PYTHONASYNCIODEBUG"] = str(True)
+        cls.token = token(GameTests.connect, "addisonarches.test.test_game")
 
     @classmethod
     def tearDownClass(cls):
@@ -70,22 +78,15 @@ class GameTests(unittest.TestCase):
                 os.environ.pop("PYTHONASYNCIODEBUG")
             else:
                 os.environ["PYTHONASYNCIODEBUG"] = cls.asyncioDebug
+        cls.token = None
 
     def setUp(self):
         self.root = tempfile.TemporaryDirectory()
         self.loop = asyncio.SelectorEventLoop()
         asyncio.set_event_loop(None)
 
-        path = Persistent.Path(self.root.name, GameTests.user, None, None)
-        Persistent.make_path(path)
-        connect = pathlib.PurePath(
-                os.path.abspath(
-                    os.path.expanduser(
-                        os.path.join("~", ".turberfield")
-                    )
-                )
-            ).as_uri()
-        self.token = token(connect, "addisonarches.test.test_game")
+        #path = Persistent.Path(self.root.name, GameTests.user, None, None)
+        #self.path = Persistent.make_path(path)
 
     def tearDown(self):
         self.loop.close()
@@ -106,7 +107,7 @@ class GameTests(unittest.TestCase):
             try:
                 yield from coro(progress, down, up, loop=loop)
             finally:
-                yield from up.put(None)
+                yield from down.put(None)
                 yield from asyncio.sleep(0, loop=loop)
                 for task in asyncio.Task.all_tasks(loop=loop):
                     task.cancel()
@@ -114,8 +115,9 @@ class GameTests(unittest.TestCase):
         down = asyncio.Queue(loop=loop)
         up = asyncio.Queue(loop=loop)
 
-        node = create_udp_node(loop, self.token, down, up, types=registry)
-        loop.create_task(node(token=self.token))
+        tok = token(GameTests.connect, "addisonarches.test.game")
+        node = create_udp_node(loop, tok, down, up, types=registry)
+        loop.create_task(node(token=tok))
 
         game, clock, down, up = create_game(
             self.root.name, user=GameTests.user, name="test",
