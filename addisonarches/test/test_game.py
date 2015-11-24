@@ -18,6 +18,7 @@
 
 import asyncio
 import concurrent.futures
+import datetime
 import logging
 import numbers
 import os.path
@@ -28,6 +29,7 @@ import unittest
 import uuid
 
 from turberfield.ipc.fsdb import token
+from turberfield.ipc.message import Address
 from turberfield.ipc.message import Alert
 from turberfield.ipc.message import parcel
 from turberfield.ipc.node import create_udp_node
@@ -56,12 +58,12 @@ class GameTests(unittest.TestCase):
 
     user = "someone@somewhere.net"
     connect = pathlib.PurePath(
-            os.path.abspath(
-                os.path.expanduser(
-                    os.path.join("~", ".turberfield")
-                )
+        os.path.abspath(
+            os.path.expanduser(
+                os.path.join("~", ".turberfield")
             )
-        ).as_uri()
+        )
+    ).as_uri()
 
     @classmethod
     def setUpClass(cls):
@@ -107,7 +109,18 @@ class GameTests(unittest.TestCase):
             try:
                 yield from coro(progress, down, up, loop=loop)
             finally:
-                yield from down.put(None)
+                yield from down.put(
+                    parcel(
+                        self.token,
+                        Alert(datetime.datetime.now(), "Hello World!"),
+                        dst=Address(
+                            self.token.namespace,
+                            self.token.user,
+                            self.token.service,
+                            "addisonarches.test.game"
+                        )
+                    )
+                )
                 yield from asyncio.sleep(0, loop=loop)
                 for task in asyncio.Task.all_tasks(loop=loop):
                     task.cancel()
