@@ -103,7 +103,7 @@ class GameTests(unittest.TestCase):
 
         self.assertTrue(loop)
 
-        def run_then_cancel(coro, down, up, loop):
+        def run_then_cancel(coro, progress, down, up, loop):
             yield from asyncio.sleep(0, loop=loop)
 
             try:
@@ -124,22 +124,33 @@ class GameTests(unittest.TestCase):
                 for task in asyncio.Task.all_tasks(loop=loop):
                     task.cancel()
 
+        def game_setup(loop, output):
+            down = asyncio.Queue(loop=loop)
+            up = asyncio.Queue(loop=loop)
+
+            tok = token(GameTests.connect, "addisonarches.test.game")
+            node = create_udp_node(loop, tok, down, up, types=registry)
+            loop.create_task(node(token=tok))
+
+            game, clock, down, up = create_game(
+                output, user=GameTests.user, name="test",
+                down=down, up=up, loop=loop
+            )
+            progress, down, up = init_game(
+                game, clock, down, up, loop=self.loop
+            )
+
+            return progress
+
+        progress = game_setup(loop, self.root.name)
         down = asyncio.Queue(loop=loop)
         up = asyncio.Queue(loop=loop)
 
-        tok = token(GameTests.connect, "addisonarches.test.game")
-        node = create_udp_node(loop, tok, down, up, types=registry)
-        loop.create_task(node(token=tok))
+        node = create_udp_node(loop, self.token, down, up, types=registry)
+        loop.create_task(node(token=self.token))
 
-        game, clock, down, up = create_game(
-            self.root.name, user=GameTests.user, name="test",
-            down=down, up=up, loop=loop
-        )
-        progress, down, up = init_game(
-            game, clock, down, up, loop=self.loop
-        )
         test = loop.create_task(
-            run_then_cancel(coro, down, up, loop=loop)
+            run_then_cancel(coro, progress, down, up, loop=loop)
         )
         try:
             rv = loop.run_until_complete(asyncio.wait_for(test, 3, loop=loop))
@@ -173,7 +184,6 @@ class GameTests(unittest.TestCase):
             self.run_test_async, stimulus, loop=self.loop
         )
 
-    @unittest.skip("Debug")
     def test_look(self):
 
         @asyncio.coroutine
@@ -199,7 +209,6 @@ class GameTests(unittest.TestCase):
 
         rv = self.run_test_async(stimulus, loop=self.loop)
 
-    @unittest.skip("Debug")
     def test_go(self):
 
         @asyncio.coroutine
@@ -211,9 +220,18 @@ class GameTests(unittest.TestCase):
             self.assertEqual(6, len(objs[Game.Via]))
 
             # Go to Kinh Ship Bulk Buy
-            msg = parcel(None, objs[Game.Via][1])
-            yield from up.put(msg)
-            reply = yield from down.get()
+            msg = parcel(
+                self.token,
+                objs[Game.Via][1],
+                dst=Address(
+                    self.token.namespace,
+                    self.token.user,
+                    self.token.service,
+                    "addisonarches.test.game"
+                )
+            )
+            yield from down.put(msg)
+            reply = yield from up.get()
             self.assertEqual(msg.header.id, reply.header.id)
             
             data = get_objects(progress)
