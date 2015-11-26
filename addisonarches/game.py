@@ -39,6 +39,7 @@ import uuid
 from turberfield.ipc.message import Alert
 from turberfield.ipc.message import Message
 from turberfield.ipc.message import parcel
+from turberfield.ipc.message import reply
 from turberfield.utils.expert import Expert
 from turberfield.utils.expert import TypesEncoder
 
@@ -391,7 +392,6 @@ class Game(Persistent):
         msg = object()
         while msg is not None:
             msg = yield from q.get()
-            print("Watched: ", msg)
             for job in getattr(msg, "payload", []):
                 try:
                     if isinstance(job, Ask):
@@ -456,15 +456,7 @@ class Game(Persistent):
             self.declare(dict(progress=self.progress, inventory=self.inventory))
 
             if None not in (msg, self.down):
-                # FIXME: Must replace Header. Full hop and via.
-                msg = Message(
-                    msg.header._replace(
-                        src=msg.header.dst._replace(application=self.player.user),
-                        dst=msg.header.src
-                    ),
-                    []
-                )
-                print("Sending: ", msg)
+                msg = reply(msg.header)
                 yield from self.down.put(msg)
 
 def create_game(parent, user, name, token=None, down=None, up=None, loop=None):
