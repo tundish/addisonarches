@@ -119,7 +119,7 @@ class GameTests(unittest.TestCase):
                             "addisonarches.test.game"
                         )
                     )
-                yield from down.put(msg)
+                #yield from down.put(msg)
                 yield from asyncio.sleep(0, loop=loop)
                 for task in asyncio.Task.all_tasks(loop=loop):
                     task.cancel()

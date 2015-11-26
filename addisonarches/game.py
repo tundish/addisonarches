@@ -391,6 +391,7 @@ class Game(Persistent):
         msg = object()
         while msg is not None:
             msg = yield from q.get()
+            print("Watched: ", msg)
             for job in getattr(msg, "payload", []):
                 try:
                     if isinstance(job, Ask):
@@ -455,6 +456,7 @@ class Game(Persistent):
             self.declare(dict(progress=self.progress, inventory=self.inventory))
 
             if None not in (msg, self.down):
+                # FIXME: Must replace Header. Full hop and via.
                 msg = Message(
                     msg.header._replace(
                         src=msg.header.dst._replace(application=self.player.user),
@@ -462,6 +464,7 @@ class Game(Persistent):
                     ),
                     []
                 )
+                print("Sending: ", msg)
                 yield from self.down.put(msg)
 
 def create_game(parent, user, name, token=None, down=None, up=None, loop=None):
