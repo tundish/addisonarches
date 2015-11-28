@@ -27,6 +27,7 @@ import sys
 import tempfile
 import unittest
 import uuid
+import warnings
 
 from turberfield.ipc.fsdb import token
 from turberfield.ipc.message import Address
@@ -179,10 +180,12 @@ class GameTests(unittest.TestCase):
             objs = group_by_type(data)
             self.assertEqual(0, len(objs[Location]))
 
-        self.assertRaises(
-            AssertionError,
-            self.run_test_async, stimulus, loop=self.loop
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.assertRaises(
+                AssertionError,
+                self.run_test_async, stimulus, loop=self.loop
+            )
 
     def test_look(self):
 
