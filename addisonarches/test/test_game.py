@@ -249,7 +249,6 @@ class GameTests(unittest.TestCase):
 
         rv = self.run_test_async(stimulus, loop=self.loop)
 
-    @unittest.skip("Debug")
     def test_buy(self):
 
         @asyncio.coroutine
@@ -261,9 +260,18 @@ class GameTests(unittest.TestCase):
             self.assertEqual(6, len(objs[Game.Via]))
 
             # Go to Kinh Ship Bulk Buy
-            msg = parcel(None, objs[Game.Via][1])
-            yield from up.put(msg)
-            reply = yield from down.get()
+            msg = parcel(
+                self.token,
+                objs[Game.Via][1],
+                dst=Address(
+                    self.token.namespace,
+                    self.token.user,
+                    self.token.service,
+                    "addisonarches.test.game"
+                )
+            )
+            yield from down.put(msg)
+            reply = yield from up.get()
             
             data = get_objects(progress)
             objs = group_by_type(data)
@@ -274,9 +282,18 @@ class GameTests(unittest.TestCase):
 
             # TODO: Send Buying drama
             item = objs[Game.Item][0]
-            msg = parcel(None, Buying(iterable=[item]))
-            yield from up.put(msg)
-            reply = yield from down.get()
+            msg = parcel(
+                self.token,
+                Buying(iterable=[item]),
+                dst=Address(
+                    self.token.namespace,
+                    self.token.user,
+                    self.token.service,
+                    "addisonarches.test.game"
+                )
+            )
+            yield from down.put(msg)
+            reply = yield from up.get()
 
             data = get_objects(progress)
             objs = group_by_type(data)

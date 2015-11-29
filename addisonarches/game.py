@@ -392,6 +392,7 @@ class Game(Persistent):
         msg = object()
         while msg is not None:
             msg = yield from q.get()
+            print(msg)
             for job in getattr(msg, "payload", []):
                 try:
                     if isinstance(job, Ask):
