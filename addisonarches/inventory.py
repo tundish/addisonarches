@@ -20,6 +20,10 @@ from collections import Counter
 from collections import namedtuple
 from enum import Enum
 
+from turberfield.ipc.message import dumps
+from turberfield.ipc.message import load
+
+from turberfield.utils.misc import TypesEncoder
 
 class Volume(Enum):
 
@@ -43,6 +47,13 @@ class Volume(Enum):
     pack = 5e-4
     zero = 0
 
+@load.register(Volume)
+def load_volume(obj):
+    yield obj
+
+@dumps.register(Volume)
+def dumps_volume(obj, indent=0):
+    yield str(float(obj.value))
 
 class Inventory:
 
