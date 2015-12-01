@@ -26,6 +26,18 @@ from addisonarches.scenario import Commodity
 
 from tallywallet.common.finance import Note
 
+from turberfield.ipc.message import dumps
+from turberfield.ipc.message import load
+
+
+class SerialisationTests(unittest.TestCase):
+
+    def test_volume_roundtrip(self):
+        vol = Volume.bundle
+        text = "\n".join(dumps(vol))
+        print(text)
+        obj = next(load(text), None)
+        self.assertEqual(vol, obj)
 
 class InventoryTests(unittest.TestCase):
 

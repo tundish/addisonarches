@@ -19,11 +19,15 @@
 from collections import Counter
 from collections import namedtuple
 from enum import Enum
+import json
 
 from turberfield.ipc.message import dumps
 from turberfield.ipc.message import load
 
 from turberfield.utils.misc import TypesEncoder
+from turberfield.utils.misc import type_dict
+
+from addisonarches.utils import registry
 
 class Volume(Enum):
 
@@ -49,11 +53,16 @@ class Volume(Enum):
 
 @load.register(Volume)
 def load_volume(obj):
+    print(obj)
     yield obj
 
 @dumps.register(Volume)
 def dumps_volume(obj, indent=0):
-    yield str(float(obj.value))
+    yield json.dumps(dict(
+        name=obj.name,
+        value=float(obj.value),
+        _type="addisonarches.inventory.Volume"),
+        indent=indent+4)
 
 class Inventory:
 
@@ -67,3 +76,7 @@ class Inventory:
             getattr(c.volume, "value", c.volume) * n
             for c, n in self.contents.items()
         ) / self.capacity
+
+registry.update(
+    type_dict(Volume)
+)
