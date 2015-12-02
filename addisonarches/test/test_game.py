@@ -176,7 +176,7 @@ class GameTests(unittest.TestCase):
         """
         @asyncio.coroutine
         def stimulus(progress, down, up, loop=None):
-            data = get_objects(progress)
+            data = get_objects(progress, types=registry)
             objs = group_by_type(data)
             self.assertEqual(0, len(objs[Location]))
 

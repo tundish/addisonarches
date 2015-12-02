@@ -33,6 +33,7 @@ from turberfield.ipc.message import load
 class SerialisationTests(unittest.TestCase):
 
     def test_volume_roundtrip(self):
+        print(*[dir(i) for i in Volume.__members__.values()])
         vol = Volume.bundle
         text = "\n".join(dumps(vol))
         print(text)

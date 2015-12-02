@@ -73,7 +73,7 @@ def main(args):
 
     #TODO: turberfield-ipc must accept service name
     tok = token(args.connect, APP_NAME)
-    node = create_udp_node(loop, tok, down, up, types=registry)
+    node = create_udp_node(loop, tok, down, up, types=registry.values())
     loop.create_task(node(token=tok))
 
     app = aiohttp.web.Application()

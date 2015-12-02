@@ -28,6 +28,7 @@ from turberfield.utils.misc import TypesEncoder
 from turberfield.utils.misc import type_dict
 
 from addisonarches.utils import registry
+from addisonarches.utils import type_dict
 
 class Volume(Enum):
 
@@ -51,17 +52,10 @@ class Volume(Enum):
     pack = 5e-4
     zero = 0
 
-@load.register(Volume)
-def load_volume(obj):
-    print(obj)
-    yield obj
-
 @dumps.register(Volume)
 def dumps_volume(obj, indent=0):
     yield json.dumps(dict(
-        name=obj.name,
-        value=float(obj.value),
-        _type="addisonarches.inventory.Volume"),
+        _type="addisonarches.inventory.Volume.{0.name}".format(obj)),
         indent=indent+4)
 
 class Inventory:
