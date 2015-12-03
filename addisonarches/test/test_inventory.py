@@ -23,6 +23,7 @@ import unittest
 from addisonarches.inventory import Inventory
 from addisonarches.inventory import Volume
 from addisonarches.scenario import Commodity
+from addisonarches.utils import registry
 
 from tallywallet.common.finance import Note
 
@@ -33,10 +34,11 @@ from turberfield.ipc.message import load
 class SerialisationTests(unittest.TestCase):
 
     def test_volume_roundtrip(self):
-        print(*[dir(i) for i in Volume.__members__.values()])
+        # https://bugs.python.org/issue23572
+        # requires Python 3.5.1
         vol = Volume.bundle
         text = "\n".join(dumps(vol))
-        print(text)
+        print(registry)
         obj = next(load(text), None)
         self.assertEqual(vol, obj)
 

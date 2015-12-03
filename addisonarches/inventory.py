@@ -52,11 +52,19 @@ class Volume(Enum):
     pack = 5e-4
     zero = 0
 
+    @classmethod
+    def factory(cls, name=None, **kwargs):
+        return cls[name]
+
+registry.update(type_dict(Volume))
+
 @dumps.register(Volume)
 def dumps_volume(obj, indent=0):
     yield json.dumps(dict(
-        _type="addisonarches.inventory.Volume.{0.name}".format(obj)),
-        indent=indent+4)
+        _type="addisonarches.inventory.Volume",
+        name=obj.name,
+        value=obj.value),
+    indent=indent + 4)
 
 class Inventory:
 
@@ -70,7 +78,3 @@ class Inventory:
             getattr(c.volume, "value", c.volume) * n
             for c, n in self.contents.items()
         ) / self.capacity
-
-registry.update(
-    type_dict(Volume)
-)
