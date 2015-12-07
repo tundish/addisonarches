@@ -108,7 +108,7 @@ class Persistent(Expert):
             with Expert.declaration(fP) as output:
                 output.write(
                     "\n".join(json.dumps(
-                        dict(_type=type(i).__name__, **vars(i)),
+                        dict(_type=type(i).__name__, **i._asdict()),
                         output, cls=TypesEncoder, indent=0
                         )
                         for i in data.get(each.attr, []))
