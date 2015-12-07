@@ -4,5 +4,5 @@ chardet==2.3.0
 pyratemp==0.3.2
 rson==0.9
 tallywallet-common>=0.009.0
-turberfield-ipc>=0.007.0
-turberfield-utils>=0.014.0
+turberfield-ipc>=0.011.0
+turberfield-utils>=0.017.0

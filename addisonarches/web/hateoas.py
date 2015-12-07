@@ -34,7 +34,10 @@ class View:
         self.actions = actions
 
     def rejects(self, action:str):
-        data = vars(self.obj)
+        try:
+            data = vars(self.obj)
+        except TypeError:
+            data = self.obj._asdict()
         action = self.actions[action]
         missing = [i for i in action.parameters
                    if i.required and i.name not in data]

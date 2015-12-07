@@ -68,7 +68,7 @@ class ValueBook(dict):
             )
             series.extend(
                 [Valuation(*i, currency=obj.currency)
-                 for i in value_series(**vars(obj))]
+                 for i in value_series(**obj._asdict())]
             )
         elif isinstance(obj, (Ask, Bid)):
             series = self[commodity]
