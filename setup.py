@@ -72,8 +72,8 @@ setup(
         "rson>=0.9",
         "pyratemp>=0.3.2",
         "tallywallet-common>=0.009.0",
-        "turberfield-ipc>=0.7.0",
-        "turberfield-utils>=0.014.0",
+        "turberfield-ipc>=0.012.0",
+        "turberfield-utils>=0.017.0",
     ],
     tests_require=[
     ],
