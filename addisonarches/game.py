@@ -53,6 +53,7 @@ from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 from addisonarches.scenario.types import Commodity
 
+from addisonarches.utils import registry
 from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
 
@@ -100,6 +101,7 @@ class Persistent(Expert):
         super().declare(data, loop)
         events = (i for i in self._services.values()
                    if isinstance(i, Persistent.RSON))
+        lookup = {v: k for k, v in registry.items()}
         for each in events:
             path = Persistent.make_path(
                 Persistent.recent_slot(each.path)._replace(file=each.path.file)
@@ -108,10 +110,16 @@ class Persistent(Expert):
             with Expert.declaration(fP) as output:
                 output.write(
                     "\n".join(json.dumps(
-                        dict(_type=type(i).__name__, **i._asdict()),
-                        output, cls=TypesEncoder, indent=0
+                        dict(
+                            _type=lookup.get(type(i), None),
+                            **i._asdict()
+                        ),
+                        output,
+                        cls=TypesEncoder,
+                        indent=0
                         )
-                        for i in data.get(each.attr, []))
+                        for i in data.get(each.attr, [])
+                    )
                 )
         pickles = (i for i in self._services.values()
                    if isinstance(i, Persistent.Pickled)

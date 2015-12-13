@@ -55,7 +55,6 @@ from addisonarches.utils import registry
 from addisonarches.utils import rson2objs
 
 
-# TODO: Narrow test down to identify UDP port reuse. Move to turberfield-ipc
 class TestUsesNode(unittest.TestCase):
 
     user = "someone@somewhere.net"
@@ -110,7 +109,6 @@ class TestUsesNode(unittest.TestCase):
 
             try:
                 rv = yield from coro(progress, down, up, loop=loop)
-                print(rv)
             finally:
                 msg = parcel(
                         self.token,
@@ -184,14 +182,13 @@ class TestUsesNode(unittest.TestCase):
             self.assertEqual(0, len(objs[Location]))
             return objs
 
-        print(registry)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            self.run_test_async(stimulus, loop=self.loop)
-            #self.assertRaises(
-            #    AssertionError,
-            #    self.run_test_async, stimulus, loop=self.loop
-            #)
+            #self.run_test_async(stimulus, loop=self.loop)
+            self.assertRaises(
+                AssertionError,
+                self.run_test_async, stimulus, loop=self.loop
+            )
 
 class GameTests(unittest.TestCase):
 
