@@ -65,7 +65,7 @@ def receive(data):
     return types.get(payload.pop("_type", None), dict)(**payload)
 """
 
-def get_objects(path, types=registry.values()):
+def get_objects(path, types=registry):
     path = os.path.join(*path)
     if not os.path.isfile(path):
         return []
