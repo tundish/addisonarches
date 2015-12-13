@@ -109,7 +109,8 @@ class TestUsesNode(unittest.TestCase):
             yield from asyncio.sleep(0, loop=loop)
 
             try:
-                yield from coro(progress, down, up, loop=loop)
+                rv = yield from coro(progress, down, up, loop=loop)
+                print(rv)
             finally:
                 msg = parcel(
                         self.token,
@@ -181,13 +182,16 @@ class TestUsesNode(unittest.TestCase):
             data = get_objects(progress, types=registry)
             objs = group_by_type(data)
             self.assertEqual(0, len(objs[Location]))
+            return objs
 
+        print(registry)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            self.assertRaises(
-                AssertionError,
-                self.run_test_async, stimulus, loop=self.loop
-            )
+            self.run_test_async(stimulus, loop=self.loop)
+            #self.assertRaises(
+            #    AssertionError,
+            #    self.run_test_async, stimulus, loop=self.loop
+            #)
 
 class GameTests(unittest.TestCase):
 

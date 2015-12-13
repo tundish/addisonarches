@@ -25,7 +25,6 @@ from turberfield.ipc.message import dumps
 from turberfield.ipc.message import load
 
 from turberfield.utils.misc import TypesEncoder
-from turberfield.utils.misc import type_dict
 
 from addisonarches.utils import registry
 from addisonarches.utils import type_dict
