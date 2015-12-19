@@ -22,6 +22,9 @@ from enum import Enum
 import itertools
 import unittest
 
+from turberfield.ipc.message import dumps
+from turberfield.ipc.message import load
+
 from addisonarches.compound import Compound
 from addisonarches.compound import Memory
 
@@ -51,6 +54,19 @@ class Belt(Compound, Memory):
     @staticmethod
     def recipe():
         return {Wampum: Length.metre, Glyph: 1}
+
+class SerialisationTests(unittest.TestCase):
+
+    def test_belt_roundtrip(self):
+        inventory = Counter(
+            itertools.chain((String(1), Glyph("snake")),
+            itertools.repeat(Shell("white"), 64))
+        )
+        inventory[Wampum.build(inventory)] += 1
+        belt = Belt.build(inventory, maxlen=3)
+        text = "\n".join(dumps(belt))
+        obj = next(load(text), None)
+        self.assertEqual(belt, obj)
 
 class BeltTests(unittest.TestCase):
 
