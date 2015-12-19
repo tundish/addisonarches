@@ -54,6 +54,7 @@ from addisonarches.scenario.types import Character
 from addisonarches.scenario.types import Commodity
 
 from addisonarches.utils import registry
+from addisonarches.utils import type_dict
 from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
 
@@ -502,3 +503,7 @@ def create(parent, user, name, token, down=None, up=None, loop=None):
         *create_game(parent, user, name, token, down, up, loop=loop),
         loop=loop
     )
+
+registry.update(type_dict(
+    Clock.Tick, Game.Drama, Game.Item, Game.Tally, Game.Via
+))

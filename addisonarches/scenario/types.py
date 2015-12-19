@@ -108,4 +108,6 @@ class Antiques(Trader):
     """
     pass
 
-registry.update(type_dict(Commodity, Plank, Location))
+registry.update(type_dict(
+    Character, Commodity, Location, Plank, Table
+))
