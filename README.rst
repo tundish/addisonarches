@@ -7,15 +7,38 @@ Addison Arches
 
 A web-based trading game, inspired by dktronics' Minder_. 
 
-Written mainly for self-education in SVG and other technologies.
+Written as a `short` and a technology demonstrator for:
+
+    * distributed design patterns
+    * Python asyncio
+    * web media in games
+    * cinematic CSS
+    * interactive SVG
+    
 The code will change wildly and without warning, then crust over forever.
 
-Full documentation
-==================
+Quick Start
+:::::::::::
 
-Install sphinx::
+Requirements
+============
 
-    $ pip install sphinx
+* Python 3.5.1 or later.
+
+Check out the git repository
+===============================
+
+::
+
+    git clone git@github.com:tundish/addisonarches.git
+    cd addisonarches
+
+Install the package
+===================
+
+Install Addison Arches::
+
+    $ pip install .[dev,docbuild]
 
 Build the docs from source::
 
@@ -24,11 +47,6 @@ Build the docs from source::
 Read the documentation::
 
     $ firefox addisonarches/doc/html/index.html
-
-Requirements
-::::::::::::
-
-* Python 3.4 or later.
 
 :Author: tundish
 :Copyright: 2015 D Haynes

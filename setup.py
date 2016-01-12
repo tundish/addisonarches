@@ -75,6 +75,16 @@ setup(
         "turberfield-ipc>=0.012.0",
         "turberfield-utils>=0.017.0",
     ],
+    extras_require={
+        "dev": [
+            "pep8>=1.6.2",
+        ],
+        "docbuild": [
+            "babel>=2.2.0",
+            "sphinx-argparse>=0.1.15",
+            "sphinxcontrib-seqdiag>=0.8.4",
+        ],
+    },
     tests_require=[
     ],
     entry_points={
