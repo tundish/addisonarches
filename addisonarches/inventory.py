@@ -55,8 +55,6 @@ class Volume(Enum):
     def factory(cls, name=None, **kwargs):
         return cls[name]
 
-registry.update(type_dict(Volume))
-
 @dumps.register(Volume)
 def dumps_volume(obj, indent=0):
     yield json.dumps(dict(
@@ -64,6 +62,8 @@ def dumps_volume(obj, indent=0):
         name=obj.name,
         value=obj.value),
     indent=indent + 4)
+
+registry.update(type_dict(Volume))
 
 class Inventory:
 
