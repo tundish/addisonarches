@@ -22,9 +22,7 @@ from enum import Enum
 import itertools
 import unittest
 
-from turberfield.ipc.message import dumps
-from turberfield.ipc.message import load
-from turberfield.ipc.message import type_dict
+from turberfield.utils.assembly import Assembly
 
 from addisonarches.compound import Compound
 from addisonarches.compound import Memory
@@ -66,8 +64,8 @@ class SerialisationTests(unittest.TestCase):
         )
         inventory[Wampum.build(inventory)] += 1
         belt = Belt.build(inventory, maxlen=3)
-        text = "\n".join(dumps(belt))
-        obj = next(load(text), None)
+        text = "\n".join(Assembly.dumps(belt))
+        obj = next(Assembly.loads(text), None)
         self.assertEqual(belt, obj)
 
 class BeltTests(unittest.TestCase):

@@ -51,7 +51,6 @@ from addisonarches.scenario.types import Character
 from addisonarches.utils import get_objects
 from addisonarches.utils import group_by_type
 from addisonarches.utils import query_object_chain
-from addisonarches.utils import registry
 from addisonarches.utils import rson2objs
 
 
@@ -131,7 +130,7 @@ class TestUsesNode(unittest.TestCase):
             up = asyncio.Queue(loop=loop)
 
             tok = token(TestUsesNode.connect, "addisonarches.test.game")
-            node = create_udp_node(loop, tok, down, up, types=registry)
+            node = create_udp_node(loop, tok, down, up)
             loop.create_task(node(token=tok))
 
             game, clock, down, up = create_game(
@@ -148,7 +147,7 @@ class TestUsesNode(unittest.TestCase):
         down = asyncio.Queue(loop=loop)
         up = asyncio.Queue(loop=loop)
 
-        node = create_udp_node(loop, self.token, down, up, types=registry)
+        node = create_udp_node(loop, self.token, down, up)
         loop.create_task(node(token=self.token))
 
         test = loop.create_task(
@@ -177,7 +176,7 @@ class TestUsesNode(unittest.TestCase):
         """
         @asyncio.coroutine
         def stimulus(progress, down, up, loop=None):
-            data = get_objects(progress, types=registry)
+            data = get_objects(progress)
             objs = group_by_type(data)
             self.assertEqual(0, len(objs[Location]))
             return objs
@@ -265,7 +264,7 @@ class GameTests(unittest.TestCase):
             up = asyncio.Queue(loop=loop)
 
             tok = token(GameTests.connect, "addisonarches.test.game")
-            node = create_udp_node(loop, tok, down, up, types=registry)
+            node = create_udp_node(loop, tok, down, up)
             loop.create_task(node(token=tok))
 
             game, clock, down, up = create_game(
@@ -282,7 +281,7 @@ class GameTests(unittest.TestCase):
         down = asyncio.Queue(loop=loop)
         up = asyncio.Queue(loop=loop)
 
-        node = create_udp_node(loop, self.token, down, up, types=registry)
+        node = create_udp_node(loop, self.token, down, up)
         loop.create_task(node(token=self.token))
 
         test = loop.create_task(
@@ -311,7 +310,7 @@ class GameTests(unittest.TestCase):
         """
         @asyncio.coroutine
         def stimulus(progress, down, up, loop=None):
-            data = get_objects(progress, types=registry)
+            data = get_objects(progress)
             objs = group_by_type(data)
             self.assertEqual(0, len(objs[Location]))
 
@@ -326,7 +325,7 @@ class GameTests(unittest.TestCase):
 
         @asyncio.coroutine
         def stimulus(progress, down, up, loop=None):
-            data = get_objects(progress, types=registry)
+            data = get_objects(progress)
             objs = group_by_type(data)
             self.assertEqual(6, len(objs[Game.Via]))
 

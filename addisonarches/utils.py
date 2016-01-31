@@ -35,7 +35,7 @@ def get_objects(path):
     if not os.path.isfile(path):
         return []
     with open(path, 'r') as content:
-        data = rson2objs(content.read(), types)
+        data = rson2objs(content.read())
         return data
 
 def rson2objs(text):
@@ -81,4 +81,3 @@ def query_object_chain(items, key, value=None, group="", obj=None):
             or value is not None and getattr(p, key, None) == value),
             None
         )
-

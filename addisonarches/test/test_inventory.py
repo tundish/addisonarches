@@ -23,12 +23,10 @@ import unittest
 from addisonarches.inventory import Inventory
 from addisonarches.inventory import Volume
 from addisonarches.scenario import Commodity
-from addisonarches.utils import registry
 
 from tallywallet.common.finance import Note
 
-from turberfield.ipc.message import dumps
-from turberfield.ipc.message import load
+from turberfield.utils.assembly import Assembly
 
 
 class SerialisationTests(unittest.TestCase):
@@ -37,9 +35,9 @@ class SerialisationTests(unittest.TestCase):
         # https://bugs.python.org/issue23572
         # requires Python 3.5.1
         vol = Volume.bundle
-        text = "\n".join(dumps(vol))
+        text = "\n".join(Assembly.dumps(vol))
         print(registry)
-        obj = next(load(text), None)
+        obj = next(Assembly.loads(text), None)
         self.assertEqual(vol, obj)
 
 class InventoryTests(unittest.TestCase):

@@ -30,8 +30,8 @@ from addisonarches.valuation import ValueBook
 
 from tallywallet.common.finance import Note
 
-from turberfield.ipc.message import dumps
-from turberfield.ipc.message import load
+from turberfield.utils.assembly import Assembly
+
 
 class SerialisationTests(unittest.TestCase):
 
@@ -39,11 +39,11 @@ class SerialisationTests(unittest.TestCase):
         now = datetime.date(2015, 4, 1)
         commodity = Commodity("Bricks", "Reclaimed London clay bricks", Volume.load),
         #asset = Asset(commodity, 3, now)
-        print(list(load("\n".join(dumps(commodity)))))
+        print(list(Assembly.loads("\n".join(Assembly.dumps(commodity)))))
 
     def test_roundtrip_volume(self):
         volume =  Volume.load
-        rv = next(load("\n".join(dumps(volume))), None)
+        rv = next(Assembly.loads("\n".join(Assembly.dumps(volume))), None)
         self.assertEqual(volume, rv)
 
 class BusinessTests(unittest.TestCase):
