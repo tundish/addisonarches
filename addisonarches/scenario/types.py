@@ -22,8 +22,8 @@ from enum import Enum
 from addisonarches.business import Trader
 from addisonarches.compound import Compound
 
-from addisonarches.utils import registry
-from addisonarches.utils import type_dict
+from turberfield.utils.assembly import Assembly
+
 
 class Length(Enum):
     metre = 1
@@ -108,6 +108,6 @@ class Antiques(Trader):
     """
     pass
 
-registry.update(type_dict(
+Assembly.register(
     Character, Commodity, Location, Plank, Table
-))
+)

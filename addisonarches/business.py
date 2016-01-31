@@ -25,8 +25,8 @@ import warnings
 from addisonarches.compound import Memory
 from addisonarches.inventory import Inventory
 
-from addisonarches.utils import registry
-from addisonarches.utils import type_dict
+from turberfield.utils.assembly import Assembly
+
 
 class Buying(Memory):
     pass
@@ -215,4 +215,4 @@ class Trader(Handler, CashBusiness):
                     "How much are you asking for a {0.label}?".format(focus)
                 )
 
-registry.update(type_dict(Trader.Patter))
+Assembly.register(Trader.Patter)

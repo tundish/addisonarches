@@ -21,13 +21,7 @@ from collections import namedtuple
 from enum import Enum
 import json
 
-from turberfield.ipc.message import dumps
-from turberfield.ipc.message import load
-
-from turberfield.utils.misc import TypesEncoder
-
-from addisonarches.utils import registry
-from addisonarches.utils import type_dict
+from turberfield.utils.assembly import Assembly
 
 class Volume(Enum):
 
@@ -55,15 +49,6 @@ class Volume(Enum):
     def factory(cls, name=None, **kwargs):
         return cls[name]
 
-@dumps.register(Volume)
-def dumps_volume(obj, indent=0):
-    yield json.dumps(dict(
-        _type="addisonarches.inventory.Volume",
-        name=obj.name,
-        value=obj.value),
-    indent=indent + 4)
-
-registry.update(type_dict(Volume))
 
 class Inventory:
 

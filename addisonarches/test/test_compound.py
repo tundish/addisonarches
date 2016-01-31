@@ -24,6 +24,7 @@ import unittest
 
 from turberfield.ipc.message import dumps
 from turberfield.ipc.message import load
+from turberfield.ipc.message import type_dict
 
 from addisonarches.compound import Compound
 from addisonarches.compound import Memory
@@ -42,6 +43,7 @@ class Pellets(Enum):
 Glyph = namedtuple("Glyph", ["name"])
 Shell = namedtuple("Shell", ["colour"])
 String = namedtuple("String", ["length"])
+
 
 class Wampum(Compound):
 

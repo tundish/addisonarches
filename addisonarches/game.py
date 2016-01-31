@@ -40,8 +40,8 @@ from turberfield.ipc.message import Alert
 from turberfield.ipc.message import Message
 from turberfield.ipc.message import parcel
 from turberfield.ipc.message import reply
+from turberfield.utils.assembly import Assembly
 from turberfield.utils.expert import Expert
-from turberfield.utils.expert import TypesEncoder
 
 from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
@@ -53,8 +53,6 @@ from addisonarches.scenario import Location
 from addisonarches.scenario.types import Character
 from addisonarches.scenario.types import Commodity
 
-from addisonarches.utils import registry
-from addisonarches.utils import type_dict
 from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
 
@@ -102,26 +100,16 @@ class Persistent(Expert):
         super().declare(data, loop)
         events = (i for i in self._services.values()
                    if isinstance(i, Persistent.RSON))
-        lookup = {v: k for k, v in registry.items()}
         for each in events:
             path = Persistent.make_path(
                 Persistent.recent_slot(each.path)._replace(file=each.path.file)
             )
             fP = os.path.join(*path)
             with Expert.declaration(fP) as output:
-                output.write(
-                    "\n".join(json.dumps(
-                        dict(
-                            _type=lookup.get(type(i), None),
-                            **i._asdict()
-                        ),
-                        output,
-                        cls=TypesEncoder,
-                        indent=0
-                        )
-                        for i in data.get(each.attr, [])
-                    )
-                )
+                for i in data.get(each.attr, []):
+                    Assembly.dump(i, output, indent=0)
+                    output.write("\n")
+
         pickles = (i for i in self._services.values()
                    if isinstance(i, Persistent.Pickled)
                    and data.get(i.name, False))
@@ -504,6 +492,6 @@ def create(parent, user, name, token, down=None, up=None, loop=None):
         loop=loop
     )
 
-registry.update(type_dict(
+Assembly.register(
     Clock.Tick, Game.Drama, Game.Item, Game.Tally, Game.Via
-))
+)

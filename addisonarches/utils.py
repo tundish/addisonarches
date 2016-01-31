@@ -27,45 +27,10 @@ import sys
 import rson
 
 from turberfield.ipc.message import Alert
-from turberfield.ipc.message import load
-from turberfield.ipc.message import registry
-from turberfield.utils.misc import type_dict
+from turberfield.utils.assembly import Assembly
 
-#from addisonarches.business import Trader
-#from addisonarches.game import Clock
-#from addisonarches.game import Game
-#from addisonarches.game import Persistent
-#from addisonarches.scenario import Location
-#from addisonarches.scenario.types import Character
 
-# TODO: Each class definition updates registry
-#registry.update(
-#    type_dict(
-#        Alert, Character, Clock.Tick,
-#        Game.Drama, Game.Item, Game.Player, Game.Tally, Game.Via,
-#        Location, Trader.Patter
-#    )
-#)
-
-"""
-def send(obj, stream=sys.stdout):
-    msg = dict(vars(obj).items())
-    msg["_type"] = type(obj).__name__
-    try:
-        pprint(msg, stream=stream, compact=True, width=sys.maxsize)
-    except TypeError:  # 'compact' is new in Python 3.4
-        pprint(msg, stream=stream, width=sys.maxsize)
-    finally:
-        stream.flush()
-    return stream
-
-def receive(data):
-    types = {i.__name__: i for i in (Game.Player,)}
-    payload = ast.literal_eval(data.decode("utf-8").rstrip("\n"))
-    return types.get(payload.pop("_type", None), dict)(**payload)
-"""
-
-def get_objects(path, types=registry):
+def get_objects(path):
     path = os.path.join(*path)
     if not os.path.isfile(path):
         return []
@@ -73,18 +38,13 @@ def get_objects(path, types=registry):
         data = rson2objs(content.read(), types)
         return data
 
-def rson2objs(text, types):
+def rson2objs(text):
     """
     Read an RSON string and return a sequence of data objects.
     """
-    #which = {i.__name__: i for i in types}
-    which = types
-    try:
-        things = rson.loads(text)
-        things = things if isinstance(things, list) else [things]
-    except IndexError:
-        things = []
-    return [which.get(i.pop("_type", None), dict)(**i) for i in things]
+    things = rson.loads(text)
+    things = things if isinstance(things, list) else [things]
+    return [Assembly.object_hook(i) for i in things]
 
 def group_by_type(items):
     return defaultdict(list,
