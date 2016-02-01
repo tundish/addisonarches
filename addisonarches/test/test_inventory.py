@@ -36,7 +36,6 @@ class SerialisationTests(unittest.TestCase):
         # requires Python 3.5.1
         vol = Volume.bundle
         text = "\n".join(Assembly.dumps(vol))
-        print(registry)
         obj = next(Assembly.loads(text), None)
         self.assertEqual(vol, obj)
 

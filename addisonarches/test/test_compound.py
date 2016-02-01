@@ -31,6 +31,10 @@ from addisonarches.compound import Memory
 class Length(Enum):
     metre = 1
 
+    @classmethod
+    def factory(cls, name=None, **kwargs):
+        return cls[name]
+
 class Pellets(Enum):
     one = 1
     handful = 16
@@ -38,6 +42,10 @@ class Pellets(Enum):
     bag = 4800
     sack = 144000
  
+    @classmethod
+    def factory(cls, name=None, **kwargs):
+        return cls[name]
+
 Glyph = namedtuple("Glyph", ["name"])
 Shell = namedtuple("Shell", ["colour"])
 String = namedtuple("String", ["length"])
@@ -56,6 +64,12 @@ class Belt(Compound, Memory):
         return {Wampum: Length.metre, Glyph: 1}
 
 class SerialisationTests(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        Assembly.register(
+            Belt, Glyph, Length, Pellets, Shell, String, Wampum
+        )
 
     def test_belt_roundtrip(self):
         inventory = Counter(
@@ -128,4 +142,3 @@ class BeltTests(unittest.TestCase):
         ))
         w = Wampum.build(inventory)
         self.assertTrue(hasattr(w, "volume"))
-        

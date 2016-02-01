@@ -62,3 +62,5 @@ class Inventory:
             getattr(c.volume, "value", c.volume) * n
             for c, n in self.contents.items()
         ) / self.capacity
+
+Assembly.register(Volume)
