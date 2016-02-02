@@ -73,7 +73,7 @@ setup(
         "pyratemp>=0.3.2",
         "tallywallet-common>=0.009.0",
         "turberfield-ipc>=0.012.0",
-        "turberfield-utils>=0.017.0",
+        "turberfield-utils>=0.21.0",
     ],
     extras_require={
         "dev": [
