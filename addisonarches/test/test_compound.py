@@ -78,9 +78,48 @@ class SerialisationTests(unittest.TestCase):
         )
         inventory[Wampum.build(inventory)] += 1
         belt = Belt.build(inventory, maxlen=3)
-        text = "\n".join(Assembly.dumps(belt))
+        text = Assembly.dumps(belt)
         obj = next(Assembly.loads(text), None)
         self.assertEqual(belt, obj)
+
+    def test_glyph_roundtrip(self):
+        obj = Glyph("eagle")
+        text = Assembly.dumps(obj)
+        rv = Assembly.loads(text)
+        self.assertEqual(obj, rv)
+
+    def test_length_roundtrip(self):
+        obj = Length.metre
+        text = Assembly.dumps(obj)
+        rv = Assembly.loads(text)
+        self.assertEqual(obj, rv)
+
+    def test_pellets_roundtrip(self):
+        obj = Pellets.bag
+        text = Assembly.dumps(obj)
+        rv = Assembly.loads(text)
+        self.assertEqual(obj, rv)
+
+    def test_shell_roundtrip(self):
+        obj = Shell("pink")
+        text = Assembly.dumps(obj)
+        rv = Assembly.loads(text)
+        self.assertEqual(obj, rv)
+
+    def test_string_roundtrip(self):
+        obj = String(3)
+        text = Assembly.dumps(obj)
+        rv = Assembly.loads(text)
+        self.assertEqual(obj, rv)
+
+    def test_wampum_roundtrip(self):
+        inventory = Counter(
+            itertools.chain((String(1), Glyph("snake")),
+            itertools.repeat(Shell("white"), 64))
+        )
+        obj = Wampum.build(inventory)
+        text = Assembly.dumps(obj)
+        print(text)
 
 class BeltTests(unittest.TestCase):
 

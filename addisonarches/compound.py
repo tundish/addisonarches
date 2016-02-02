@@ -72,6 +72,5 @@ class Compound:
     def volume(self):
         return sum(getattr(i, "volume.value", 0) for i in self.components)
 
-    def __init__(self, components, *args, **kwargs):
-        self.components = components
-        super().__init__(*args, **kwargs)
+    def __init__(self, components={}, **kwargs):
+        self.components = Counter(components)
