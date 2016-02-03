@@ -35,9 +35,9 @@ class SerialisationTests(unittest.TestCase):
         # https://bugs.python.org/issue23572
         # requires Python 3.5.1
         vol = Volume.bundle
-        text = "\n".join(Assembly.dumps(vol))
-        obj = next(Assembly.loads(text), None)
-        self.assertEqual(vol, obj)
+        text = Assembly.dumps(vol)
+        rv = Assembly.loads(text)
+        self.assertEqual(vol, rv)
 
 class InventoryTests(unittest.TestCase):
 

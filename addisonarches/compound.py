@@ -74,3 +74,4 @@ class Compound:
 
     def __init__(self, components={}, **kwargs):
         self.components = Counter(components)
+        super().__init__(**kwargs)

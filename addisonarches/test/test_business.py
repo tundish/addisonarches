@@ -37,13 +37,16 @@ class SerialisationTests(unittest.TestCase):
 
     def test_roundtrip_commodity(self):
         now = datetime.date(2015, 4, 1)
-        commodity = Commodity("Bricks", "Reclaimed London clay bricks", Volume.load),
-        #asset = Asset(commodity, 3, now)
-        print(list(Assembly.loads("\n".join(Assembly.dumps(commodity)))))
+        commodity = Commodity("Bricks", "Reclaimed London clay bricks", Volume.load)
+        text = Assembly.dumps(commodity)
+        print(text)
+        rv = Assembly.loads(text)
+        self.assertEqual(commodity, rv)
 
     def test_roundtrip_volume(self):
         volume =  Volume.load
-        rv = next(Assembly.loads("\n".join(Assembly.dumps(volume))), None)
+        text = Assembly.dumps(volume)
+        rv = Assembly.loads(text)
         self.assertEqual(volume, rv)
 
 class BusinessTests(unittest.TestCase):

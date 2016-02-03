@@ -79,7 +79,7 @@ class SerialisationTests(unittest.TestCase):
         inventory[Wampum.build(inventory)] += 1
         belt = Belt.build(inventory, maxlen=3)
         text = Assembly.dumps(belt)
-        obj = next(Assembly.loads(text), None)
+        obj = Assembly.loads(text)
         self.assertEqual(belt, obj)
 
     def test_glyph_roundtrip(self):
