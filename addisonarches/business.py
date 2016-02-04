@@ -215,4 +215,4 @@ class Trader(Handler, CashBusiness):
                     "How much are you asking for a {0.label}?".format(focus)
                 )
 
-Assembly.register(Trader.Patter)
+Assembly.register(Buying, Selling, Trader.Patter)
