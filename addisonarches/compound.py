@@ -23,9 +23,9 @@ import re
 class Memory:
 
     def __init__(self, *args, **kwargs):
-        iterable = kwargs.pop("iterable", [])
-        maxlen = kwargs.pop("maxlen", None)
-        self.memory = deque(iterable, maxlen)
+        memory = kwargs.pop("memory", [])
+        self.maxlen = kwargs.pop("maxlen", None)
+        self.memory = deque(memory, self.maxlen)
 
 class Compound:
 
@@ -72,6 +72,6 @@ class Compound:
     def volume(self):
         return sum(getattr(i, "volume.value", 0) for i in self.components)
 
-    def __init__(self, components={}, **kwargs):
-        self.components = Counter(components)
+    def __init__(self, components=[], **kwargs):
+        self.components = Counter(dict(components))
         super().__init__(**kwargs)

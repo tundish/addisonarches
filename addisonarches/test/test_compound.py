@@ -80,7 +80,10 @@ class SerialisationTests(unittest.TestCase):
         belt = Belt.build(inventory, maxlen=3)
         text = Assembly.dumps(belt)
         obj = Assembly.loads(text)
-        self.assertEqual(belt, obj)
+        self.assertEqual(
+            66, sum(dict(obj.requirements()).values())
+        )
+        self.assertEqual(belt.memory, obj.memory)
 
     def test_glyph_roundtrip(self):
         obj = Glyph("eagle")
@@ -119,7 +122,6 @@ class SerialisationTests(unittest.TestCase):
         )
         obj = Wampum.build(inventory)
         text = Assembly.dumps(obj)
-        print(text)
 
 class BeltTests(unittest.TestCase):
 

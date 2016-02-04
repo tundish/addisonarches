@@ -35,11 +35,10 @@ from turberfield.utils.assembly import Assembly
 
 class SerialisationTests(unittest.TestCase):
 
-    def test_roundtrip_commodity(self):
+    def test_commodity_roundtrip(self):
         now = datetime.date(2015, 4, 1)
         commodity = Commodity("Bricks", "Reclaimed London clay bricks", Volume.load)
         text = Assembly.dumps(commodity)
-        print(text)
         rv = Assembly.loads(text)
         self.assertEqual(commodity, rv)
 
