@@ -69,7 +69,11 @@ class TestUsesNode(unittest.TestCase):
         logging.getLogger("asyncio").setLevel(logging.DEBUG)
         cls.asyncioDebug = os.environ.get("PYTHONASYNCIODEBUG", None)
         os.environ["PYTHONASYNCIODEBUG"] = str(True)
-        cls.token = token(TestUsesNode.connect, "addisonarches.test.test_game")
+        cls.token = token(
+            TestUsesNode.connect,
+            "test",
+            "addisonarches.test.test_game"
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -128,7 +132,11 @@ class TestUsesNode(unittest.TestCase):
             down = asyncio.Queue(loop=loop)
             up = asyncio.Queue(loop=loop)
 
-            tok = token(TestUsesNode.connect, "addisonarches.test.game")
+            tok = token(
+                TestUsesNode.connect,
+                "test",
+                "addisonarches.test.game"
+            )
             node = create_udp_node(loop, tok, down, up)
             loop.create_task(node(token=tok))
 
@@ -204,7 +212,11 @@ class GameTests(unittest.TestCase):
         logging.getLogger("asyncio").setLevel(logging.DEBUG)
         cls.asyncioDebug = os.environ.get("PYTHONASYNCIODEBUG", None)
         os.environ["PYTHONASYNCIODEBUG"] = str(True)
-        cls.token = token(GameTests.connect, "addisonarches.test.test_game")
+        cls.token = token(
+            GameTests.connect,
+            "test",
+            "addisonarches.test.test_game"
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -262,7 +274,11 @@ class GameTests(unittest.TestCase):
             down = asyncio.Queue(loop=loop)
             up = asyncio.Queue(loop=loop)
 
-            tok = token(GameTests.connect, "addisonarches.test.game")
+            tok = token(
+                GameTests.connect,
+                "test",
+                "addisonarches.test.game"
+            )
             node = create_udp_node(loop, tok, down, up)
             loop.create_task(node(token=tok))
 
