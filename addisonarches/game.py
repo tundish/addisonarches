@@ -389,7 +389,6 @@ class Game(Persistent):
         msg = object()
         while msg is not None:
             msg = yield from q.get()
-            print(msg)
             for job in getattr(msg, "payload", []):
                 try:
                     if isinstance(job, Ask):
@@ -397,17 +396,19 @@ class Game(Persistent):
                     elif isinstance(job, Bid):
                         self.drama.memory.append(job)
                     elif isinstance(job, Buying):
-                        ref = job.memory[0]
+                        ref = None
                         try:
+                            ref = job.memory[0]
                             item = next(
                                 i for i in
                                 self.businesses[ref.owner].inventories[ref.location].contents
                                 if i.label == ref.label and i.description == ref.description
                             )
-                        except (KeyError, StopIteration) as e:
-                            self._log.warning(ref)
+                        except (AttributeError, IndexError, KeyError, StopIteration) as e:
+                            self._log.warning(e)
+                            self._log.debug(ref)
                         else:
-                            self.drama = Buying(iterable=[item])
+                            self.drama = Buying(memory=[item])
                     elif isinstance(job, Game.Item):
                         # crafting
                         try:

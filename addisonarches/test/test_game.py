@@ -51,7 +51,6 @@ from addisonarches.scenario.types import Character
 from addisonarches.utils import get_objects
 from addisonarches.utils import group_by_type
 from addisonarches.utils import query_object_chain
-from addisonarches.utils import rson2objs
 
 
 class TestUsesNode(unittest.TestCase):
@@ -418,7 +417,7 @@ class GameTests(unittest.TestCase):
             item = objs[Game.Item][0]
             msg = parcel(
                 self.token,
-                Buying(iterable=[item]),
+                Buying(memory=[item]),
                 dst=Address(
                     self.token.namespace,
                     self.token.user,

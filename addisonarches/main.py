@@ -68,6 +68,8 @@ def main(args):
     up = asyncio.Queue(loop=loop)
 
     #TODO: turberfield-ipc must accept service name
+    #TODO: Read service name from CLI
+    service = "dev"  # Cf qa, demo, prod, etc
     tok = token(args.connect, args.session)
     node = create_udp_node(loop, tok, down, up, types=registry)
     loop.create_task(node(token=tok))
