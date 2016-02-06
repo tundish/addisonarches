@@ -34,7 +34,6 @@ from addisonarches import __version__
 from addisonarches.cli import add_game_options
 from addisonarches.cli import add_web_options
 import addisonarches.game
-from addisonarches.utils import registry
 from addisonarches.web.services import APP_NAME
 from addisonarches.web.services import Assets
 from addisonarches.web.services import Registration
@@ -71,9 +70,10 @@ def main(args):
     down = asyncio.Queue(loop=loop)
     up = asyncio.Queue(loop=loop)
 
-    #TODO: turberfield-ipc must accept service name
-    tok = token(args.connect, APP_NAME)
-    node = create_udp_node(loop, tok, down, up, types=registry.values())
+    #TODO: Read service name from CLI
+    service = "dev"  # Cf qa, demo, prod, etc
+    tok = token(args.connect, service, APP_NAME)
+    node = create_udp_node(loop, tok, down, up)
     loop.create_task(node(token=tok))
 
     app = aiohttp.web.Application()

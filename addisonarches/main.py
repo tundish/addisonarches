@@ -28,9 +28,7 @@ from turberfield.ipc.node import create_udp_node
 
 from addisonarches.cli import parsers
 import addisonarches.console
-from addisonarches.utils import registry
 import addisonarches.web.main
-from addisonarches.worker import subprocess_queue_factory
 
 
 __doc__ = """
@@ -70,7 +68,7 @@ def main(args):
     #TODO: Read service name from CLI
     service = "dev"  # Cf qa, demo, prod, etc
     tok = token(args.connect, service, args.session)
-    node = create_udp_node(loop, tok, down, up, types=registry)
+    node = create_udp_node(loop, tok, down, up)
     loop.create_task(node(token=tok))
 
     progress, down, up = addisonarches.game.create(
