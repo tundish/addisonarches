@@ -21,6 +21,7 @@ import argparse
 import asyncio
 import functools
 import logging
+from logging.handlers import WatchedFileHandler
 import os
 import sys
 
