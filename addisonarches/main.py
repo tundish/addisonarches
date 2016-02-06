@@ -28,8 +28,6 @@ from turberfield.ipc.node import create_udp_node
 
 from addisonarches.cli import parsers
 import addisonarches.console
-import addisonarches.web.main
-
 
 __doc__ = """
 Main entry point for Addison Arches game.
