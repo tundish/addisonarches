@@ -141,7 +141,10 @@ class Trader(Handler, CashBusiness):
                 game.businesses[0].tally -= price
                 self.tally += price
                 game.drama = None
-                yield Trader.Patter(self.proprietor, "I'll have it all sent over.")
+                yield Trader.Patter(
+                    self.proprietor,
+                    "I'll have it all sent over."
+                )
         except (TypeError, NotImplementedError) as e:
             # No offer yet
             yield Trader.Patter(self.proprietor, (

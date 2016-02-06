@@ -51,7 +51,13 @@
 <!--(macro block_quote)-->
     <!--(if class_ in ("patter",))-->
     <blockquote>
-    <header>@!view.obj.actor[1]!@</header>
+    <header>
+        <!--(if "actor" in view.obj)-->
+        @!view.obj["actor"]["name"]!@
+        <!--(else)-->
+        @!view.obj.actor.name!@
+        <!--(end)-->
+    </header>
     <p>@!view.obj.text!@</p>
     </blockquote>
     <!--(end)-->
