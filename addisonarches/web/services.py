@@ -443,7 +443,7 @@ class Workflow(Service):
         if not problems:
             log.debug(view.obj)
             path, down, up = self.sessions[session]
-            drama = Buying(iterable=[view.obj])
+            drama = Buying(memory=[view.obj])
             msg = parcel(
                 self.token, drama,
                 dst=Address(
@@ -469,7 +469,7 @@ class Workflow(Service):
         if not problems:
             log.debug(view.obj)
             path, down, up = self.sessions[session]
-            drama = Selling(iterable=[view.obj])
+            drama = Selling(memory=[view.obj])
             msg = parcel(
                 self.token, drama,
                 dst=Address(

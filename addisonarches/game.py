@@ -448,7 +448,7 @@ class Game(Persistent):
                         except (KeyError, StopIteration) as e:
                             self._log.warning(ref)
                         else:
-                            self.drama = Selling(iterable=[item])
+                            self.drama = Selling(memory=[item])
                 except Exception as e:
                     self._log.error(e)
 

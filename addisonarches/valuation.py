@@ -26,6 +26,8 @@ import warnings
 from tallywallet.common.finance import Note
 from tallywallet.common.finance import value_series
 
+from turberfield.utils.assembly import Assembly
+
 fields = ["ts", "value", "currency"]
 Ask = namedtuple("Ask", fields)
 Bid = namedtuple("Bid", fields)
@@ -98,3 +100,5 @@ class ValueBook(dict):
 
     def update(self, other):
         raise NotImplementedError
+
+Assembly.register(Ask, Bid, Note, Valuation)

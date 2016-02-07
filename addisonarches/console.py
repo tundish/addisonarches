@@ -206,7 +206,7 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             item = menu[int(line)]
-            drama = Buying(iterable=[item])
+            drama = Buying(memory=[item])
             msg = parcel(None, drama)
             return msg
         
@@ -256,7 +256,7 @@ class Console(cmd.Cmd):
             sys.stdout.write("\n")
         elif line.isdigit():
             k, v = list(view)[int(line)]
-            drama = Selling(iterable=[k])
+            drama = Selling(memory=[k])
             msg = parcel(None, drama)
             return msg
 
