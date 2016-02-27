@@ -175,34 +175,8 @@ travel {
 </ul>
 </div>
 <a id="play" class="pure-button pure-button-primary" href="/start">Play</a>
+<script type="text/javascript" src="/js/turberfield_audio.js"></script>
 <script>
-
-function get_loop(name) {
-    var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    var source = audioCtx.createBufferSource();
-    var request = new XMLHttpRequest();
-
-    request.open("GET", "/audio/" + name, true);
-
-    request.responseType = "arraybuffer";
-
-    request.onload = function() {
-        var audioData = request.response;
-
-        audioCtx.decodeAudioData(audioData, function(buffer) {
-            var myBuffer = buffer;
-            source.buffer = myBuffer;
-            source.connect(audioCtx.destination);
-            source.loop = true;
-          },
-
-          function(e){"Error with decoding audio data" + e.err});
-
-    }
-
-    request.send();
-    return source; 
-}
 
 (function() {
     var track = get_loop("beatloop-3x84bpm.wav");
