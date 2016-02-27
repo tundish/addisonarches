@@ -175,32 +175,39 @@ travel {
 </ul>
 </div>
 <a id="play" class="pure-button pure-button-primary" href="/start">Play</a>
-<script type="text/javascript" src="/js/jquery-2.1.1.js"></script>
-<script type="text/javascript" src="/js/SeamlessLoop.js"></script>
-<!-- TODO: Button to mute audio -->
 <script>
-    $(window).load(function(){
-        var soundtrack = new SeamlessLoop();
-        //check if the browser can play MP3's. If not, use ogg.
-        var audio  = document.createElement("audio"),
-        canPlayMP3 = (typeof audio.canPlayType === "function" &&
-                      audio.canPlayType("audio/mpeg") !== "");
-        if (canPlayMP3===true) {
-          soundtrack.addUri("/audio/beatloop-3x84bpm.wav", 5714.29, "beats");
-        } else {
-          soundtrack.addUri("/audio/beatloop-3x84bpm.wav", 5714.29, "beats");
-        }
 
-        function soundsLoaded() {
-          $("body").removeClass("loading").addClass("playing");
-          soundtrack.update("beats");
-        };
+function get_loop(name) {
+    var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    var source = audioCtx.createBufferSource();
+    var request = new XMLHttpRequest();
 
-        soundtrack.callback(soundsLoaded);
-        soundtrack.start("beats");
-        soundtrack.update("beats");
+    request.open("GET", "/audio/" + name, true);
 
-    });
+    request.responseType = "arraybuffer";
+
+    request.onload = function() {
+        var audioData = request.response;
+
+        audioCtx.decodeAudioData(audioData, function(buffer) {
+            var myBuffer = buffer;
+            source.buffer = myBuffer;
+            source.connect(audioCtx.destination);
+            source.loop = true;
+          },
+
+          function(e){"Error with decoding audio data" + e.err});
+
+    }
+
+    request.send();
+    return source; 
+}
+
+(function() {
+    var track = get_loop("beatloop-3x84bpm.wav");
+    track.start(0);
+})();
 </script>
 </body>
 </html>
