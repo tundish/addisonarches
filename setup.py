@@ -41,6 +41,8 @@ setup(
     packages=[
         "addisonarches",
         "addisonarches.test",
+        "addisonarches.direction",
+        "addisonarches.direction.stripeyhole",
     ],
     package_data={
         "addisonarches": [
@@ -65,6 +67,9 @@ setup(
             "static/js/*.js",
             "static/rson/*.rson",
             "templates/*.tpl",
+        ],
+        "addisonarches.direction.stripeyhole": [
+            "*.rst",
         ]
     },
     install_requires=[
