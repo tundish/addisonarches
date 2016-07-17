@@ -92,6 +92,9 @@ setup(
             "addisonarches = addisonarches.main:run",
             "addisonarches-web = addisonarches.web.main:run",
         ],
+        "turberfield.interfaces.scenes": [
+            "stripeyhole = addisonarches.direction.stripeyhole:contents",
+        ],
     },
     zip_safe=False
 )

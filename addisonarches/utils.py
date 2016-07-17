@@ -19,8 +19,10 @@
 
 import ast
 from collections import defaultdict
+from collections import namedtuple
 import itertools
 import os.path
+import pkg_resources
 from pprint import pprint
 import sys
 
@@ -28,6 +30,19 @@ import rson
 
 from turberfield.ipc.message import Alert
 from turberfield.utils.assembly import Assembly
+
+
+Scenes = namedtuple("Scenes", ["pkg", "doc", "paths"])
+
+# TODO: Move to turberfield-utils
+def plugin_interface(key="turberfield.interfaces"):
+    for i in pkg_resources.iter_entry_points(key):
+        try:
+            ep = i.resolve()
+        except Exception as e:
+            continue
+        else:
+            yield (i.name, ep)
 
 
 def get_objects(path):
