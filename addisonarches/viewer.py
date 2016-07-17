@@ -20,5 +20,26 @@
 
 from addisonarches.utils import plugin_interface
 
+import argparse
+import docutils.parsers.rst
+import docutils.utils
+import pkg_resources
+import sys
+
+settings=argparse.Namespace(
+    debug = False, error_encoding="utf-8",
+    error_encoding_error_handler="backslashreplace", halt_level=4,
+    id_prefix="", language_code="en",
+    pep_references=1,
+    report_level=2, rfc_references=1, tab_width=4,
+    warning_stream=sys.stderr
+)
 menu = list(dict(plugin_interface("turberfield.interfaces.scenes")).values())
-print(menu)
+parser = docutils.parsers.rst.Parser()
+scenes = menu[0]
+for path in scenes.paths:
+    name = "{0}:{1}".format(scenes.pkg, path)
+    text = pkg_resources.resource_string(scenes.pkg, path).decode("utf-8")
+    doc = docutils.utils.new_document(name, settings)
+    parser.parse(text, doc)
+    print(doc)
