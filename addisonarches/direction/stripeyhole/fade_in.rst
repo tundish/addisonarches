@@ -7,16 +7,18 @@
 .. section names roles, relationships
 
 WARDER:
-    addisonarches.roles.Regulating: NEWBOY, OLDLAG 
+    * addisonarches.roles.Regulating
+        * NEWBOY
+        * OLDLAG 
 NEWBOY:
-    addisonarches.attitudes.Waiting
+    * addisonarches.attitudes.Waiting
 OLDLAG:
-    addisonarches.attitudes.Resentful
+    * addisonarches.attitudes.Resentful
 
 Fade_in on a prison cell
 ########################
 
-.. Top level section is named like file.
+.. Section-level parameters: duration, etc
 
 
 .. parsed-literal::
