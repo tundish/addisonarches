@@ -26,6 +26,10 @@ import docutils.utils
 import pkg_resources
 import sys
 
+__doc__ = """
+WIP
+"""
+
 settings=argparse.Namespace(
     debug = False, error_encoding="utf-8",
     error_encoding_error_handler="backslashreplace", halt_level=4,
@@ -34,12 +38,40 @@ settings=argparse.Namespace(
     report_level=2, rfc_references=1, tab_width=4,
     warning_stream=sys.stderr
 )
-menu = list(dict(plugin_interface("turberfield.interfaces.scenes")).values())
-parser = docutils.parsers.rst.Parser()
-scenes = menu[0]
-for path in scenes.paths:
-    name = "{0}:{1}".format(scenes.pkg, path)
-    text = pkg_resources.resource_string(scenes.pkg, path).decode("utf-8")
-    doc = docutils.utils.new_document(name, settings)
-    parser.parse(text, doc)
-    print(doc)
+
+def sources(args):
+    menu = list(dict(plugin_interface("turberfield.interfaces.scenes")).values())
+    for scenes in menu:
+        for path in scenes.paths:
+            name = "{0}:{1}".format(scenes.pkg, path)
+            text = pkg_resources.resource_string(scenes.pkg, path).decode("utf-8")
+            yield name, text
+    if args.infile:
+        name = args.infile.name
+        text = args.infile.read()
+        yield name, text
+
+def main(args):
+    parser = docutils.parsers.rst.Parser()
+    for name, text in sources(args):
+        doc = docutils.utils.new_document(name, settings)
+        parser.parse(text, doc)
+        print(doc)
+
+def parser(description=__doc__):
+    rv =  argparse.ArgumentParser(
+        description,
+        fromfile_prefix_chars="@"
+    )
+    rv.add_argument("infile", nargs="?", type=argparse.FileType("r"),
+    default=sys.stdin)
+    return rv
+
+def run():
+    p = parser()
+    args = p.parse_args()
+    rv = main(args)
+    sys.exit(rv)
+
+if __name__ == "__main__":
+    run()
