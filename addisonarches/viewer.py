@@ -30,6 +30,34 @@ __doc__ = """
 WIP
 """
 
+class ActorDirective(docutils.parsers.rst.Directive):
+
+    """
+    http://docutils.sourceforge.net/docutils/parsers/rst/directives/parts.py
+    """
+
+    required_arguments = 0
+    optional_arguments = 0
+    final_argument_whitespace = True
+    option_spec = {}
+    has_content = True
+    node_class = None
+
+    def run(self):
+        # Raise an error if the directive does not have contents.
+        self.assert_has_content()
+        text = '\n'.join(self.content)
+        # Create the admonition node, to be populated by `nested_parse`.
+        #admonition_node = self.node_class(rawsource=text)
+        # Parse the directive contents.
+        #self.state.nested_parse(self.content, self.content_offset,
+        #                       admonition_node)
+        #return [admonition_node]
+        return text
+
+docutils.parsers.rst.directives.register_directive("actor", ActorDirective)
+
+
 settings=argparse.Namespace(
     debug = False, error_encoding="utf-8",
     error_encoding_error_handler="backslashreplace", halt_level=4,

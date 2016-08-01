@@ -6,7 +6,7 @@
 
 .. section names roles, relationships
 
-WARDER:
+|WARDER|:
     * addisonarches.roles.Regulating
         * NEWBOY
         * OLDLAG 
@@ -27,3 +27,4 @@ Fade_in on a prison cell
 
 
 .. substitution definitions for Actor names?
+.. |WARDER| actor:: addisonarches.roles.Regulating=NEWBOY
