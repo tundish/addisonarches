@@ -22,6 +22,7 @@ from addisonarches.utils import plugin_interface
 
 import argparse
 import docutils.parsers.rst
+from docutils.parsers.rst.directives.body import ParsedLiteral
 import docutils.utils
 import pkg_resources
 import sys
@@ -41,19 +42,24 @@ class ActorDirective(docutils.parsers.rst.Directive):
     final_argument_whitespace = True
     option_spec = {}
     has_content = True
-    node_class = None
+    node_class = ParsedLiteral
 
     def run(self):
         # Raise an error if the directive does not have contents.
         self.assert_has_content()
-        text = '\n'.join(self.content)
+        #text = '\n'.join(self.content)
         # Create the admonition node, to be populated by `nested_parse`.
-        #admonition_node = self.node_class(rawsource=text)
+        kwargs = {
+            i: getattr(self, i, None)
+            for i in (
+                "name", "arguments", "options", "content", "lineno", "content_offset",
+                "block_text", "state", "state_machine"
+            )
+        }
+        dialogueNode = self.node_class(**kwargs)
         # Parse the directive contents.
-        #self.state.nested_parse(self.content, self.content_offset,
-        #                       admonition_node)
-        #return [admonition_node]
-        return text
+        self.state.nested_parse(self.content, self.content_offset, dialogueNode)
+        return [dialogueNode]
 
 docutils.parsers.rst.directives.register_directive("actor", ActorDirective)
 
