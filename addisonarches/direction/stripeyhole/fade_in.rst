@@ -6,22 +6,22 @@
 
 .. roles, relationships
 
-.. part:: warder
-   :addisonarches.roles.Regulating: NEWBOY
+.. part:: WARDER
+   :addisonarches.roles.Regulating: newboy
 
    An ex-military policeman who now runs a prison wing.
 
-.. part:: newboy
+.. part:: NEWBOY
    :addisonarches.attitudes.Waiting:
 
    A first-time prisoner.
 
-.. part:: oldlag
+.. part:: OLDLAG
    :addisonarches.attitudes.Resentful:
 
    A hardened recidivist.
 
-Fade_in on a prison cell
+Fade in on a prison cell
 ########################
 
 [WARDER]_
