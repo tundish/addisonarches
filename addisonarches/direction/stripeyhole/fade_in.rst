@@ -4,7 +4,7 @@
 :author: Tundish
 :author: JunkDLC
 
-.. section names roles, relationships
+.. roles, relationships
 
 .. part:: warder
    :addisonarches.roles.Regulating: NEWBOY
@@ -24,13 +24,10 @@
 Fade_in on a prison cell
 ########################
 
-.. |WARDER| role:: warder
+[WARDER]_
 
-::
+    Up, up, up, there's a good lad!
 
-    OK, Just text.
+[WARDER]_
 
-.. parsed-literal::
-
-   Up, up, up, there's a good lad!
-
+    **Up, up, up**, there's a good lad!

@@ -38,7 +38,7 @@ class RoleDirective(docutils.parsers.rst.Directive):
     http://docutils.sourceforge.net/docutils/parsers/rst/directives/parts.py
     """
 
-    required_arguments = 0
+    required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec = {}
@@ -73,7 +73,7 @@ docutils.parsers.rst.directives.register_directive("part", RoleDirective)
 settings=argparse.Namespace(
     debug = False, error_encoding="utf-8",
     error_encoding_error_handler="backslashreplace", halt_level=4,
-    id_prefix="", language_code="en",
+    auto_id_prefix="", id_prefix="", language_code="en",
     pep_references=1,
     report_level=2, rfc_references=1, tab_width=4,
     warning_stream=sys.stderr
