@@ -32,7 +32,7 @@ __doc__ = """
 WIP
 """
 
-class ActorDirective(docutils.parsers.rst.Directive):
+class RoleDirective(docutils.parsers.rst.Directive):
 
     """
     http://docutils.sourceforge.net/docutils/parsers/rst/directives/parts.py
@@ -67,7 +67,7 @@ class ActorDirective(docutils.parsers.rst.Directive):
         self.state.nested_parse(self.content, self.content_offset, dialogueNode)
         return [dialogueNode]
 
-docutils.parsers.rst.directives.register_directive("actor", ActorDirective)
+docutils.parsers.rst.directives.register_directive("part", RoleDirective)
 
 
 settings=argparse.Namespace(

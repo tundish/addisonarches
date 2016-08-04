@@ -6,16 +6,17 @@
 
 .. section names roles, relationships
 
-.. |WARDER| actor:: warder
+.. part:: warder
    :addisonarches.roles.Regulating: NEWBOY
 
    An ex-military policeman who now runs a prison wing.
 
-.. |NEWBOY| actor:: newboy
+.. part:: newboy
    :addisonarches.attitudes.Waiting:
 
    A first-time prisoner.
-.. |OLDLAG| actor:: 
+
+.. part:: oldlag
    :addisonarches.attitudes.Resentful:
 
    A hardened recidivist.
@@ -23,15 +24,13 @@
 Fade_in on a prison cell
 ########################
 
-.. Section-level parameters: duration, etc
+.. |WARDER| role:: warder
 
-|WARDER|
+::
 
     OK, Just text.
 
-.. parsed-literal
+.. parsed-literal::
 
    Up, up, up, there's a good lad!
 
-
-.. substitution definitions for Actor names?
