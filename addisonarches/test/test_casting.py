@@ -23,8 +23,6 @@ import enum
 import unittest
 import uuid
 
-from turberfield.machina.stage import Stage
-
 NPC = namedtuple("NPC", ["uuid", "name"])
 Player = namedtuple("Player", ["uuid", "name"])
 
@@ -129,11 +127,6 @@ class PrototypeCasting(unittest.TestCase):
             for counterparty, relationships in dramas:
                 for rel in relationships:
                     print(rel)
-
-    def test_scene_discovery(self):
-        stage = Stage(
-            id=uuid.uuid4().hex,
-            scenes=[PayingOff])
 
     def test_playing_the_scene(self):
         scene = PayingOff
