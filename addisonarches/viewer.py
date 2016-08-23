@@ -67,17 +67,28 @@ class RoleDirective(docutils.parsers.rst.Directive):
         self.state.nested_parse(self.content, self.content_offset, dialogueNode)
         return [dialogueNode]
 
-docutils.parsers.rst.directives.register_directive("part", RoleDirective)
 
+class Scenes:
 
-settings=argparse.Namespace(
-    debug = False, error_encoding="utf-8",
-    error_encoding_error_handler="backslashreplace", halt_level=4,
-    auto_id_prefix="", id_prefix="", language_code="en",
-    pep_references=1,
-    report_level=2, rfc_references=1, tab_width=4,
-    warning_stream=sys.stderr
-)
+    settings=argparse.Namespace(
+        debug = False, error_encoding="utf-8",
+        error_encoding_error_handler="backslashreplace", halt_level=4,
+        auto_id_prefix="", id_prefix="", language_code="en",
+        pep_references=1,
+        report_level=2, rfc_references=1, tab_width=4,
+        warning_stream=sys.stderr
+    )
+
+    def __init__(self):
+        docutils.parsers.rst.directives.register_directive(
+            "part", RoleDirective
+        )
+
+    def read(self, text, name=None):
+        doc = docutils.utils.new_document(name, Scenes.settings)
+        parser = docutils.parsers.rst.Parser()
+        parser.parse(text, doc)
+        return doc
 
 def sources(args):
     menu = list(dict(plugin_interface("turberfield.interfaces.scenes")).values())
@@ -86,16 +97,16 @@ def sources(args):
             name = "{0}:{1}".format(scenes.pkg, path)
             text = pkg_resources.resource_string(scenes.pkg, path).decode("utf-8")
             yield name, text
-    if args.infile:
+    if not menu:
         name = args.infile.name
         text = args.infile.read()
         yield name, text
 
 def main(args):
-    parser = docutils.parsers.rst.Parser()
+    scenes = Scenes()
     for name, text in sources(args):
-        doc = docutils.utils.new_document(name, settings)
-        parser.parse(text, doc)
+        #doc = scenes.read(text, name=name)
+        doc = scenes.read(text)
         print(doc)
 
 def parser(description=__doc__):
