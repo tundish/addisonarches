@@ -18,11 +18,11 @@
 
 # TODO: Move to turberfield-utils
 
+from addisonarches.direction.directives import RoleDirective
 from addisonarches.utils import plugin_interface
 
 import argparse
 import docutils
-from docutils.parsers.rst.directives.body import ParsedLiteral
 import docutils.utils
 import pkg_resources
 import sys
@@ -51,7 +51,7 @@ class Scenes:
         doc = docutils.utils.new_document(name, Scenes.settings)
         parser = docutils.parsers.rst.Parser()
         parser.parse(text, doc)
-        return doc
+        return doc.children
 
 def sources(args):
     menu = list(dict(plugin_interface("turberfield.interfaces.scenes")).values())

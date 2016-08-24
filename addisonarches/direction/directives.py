@@ -17,7 +17,9 @@
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from collections import namedtuple
 import docutils.parsers.rst
+from docutils.parsers.rst.directives.body import ParsedLiteral
 
 class RoleDirective(docutils.parsers.rst.Directive):
 
@@ -25,12 +27,12 @@ class RoleDirective(docutils.parsers.rst.Directive):
     http://docutils.sourceforge.net/docutils/parsers/rst/directives/parts.py
     """
 
+    Node = namedtuple("Role", ["name", "note", "relationships"])
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = True
     option_spec = {}
     has_content = True
-    node_class = ParsedLiteral
 
     def run(self):
         # Raise an error if the directive does not have contents.

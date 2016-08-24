@@ -16,9 +16,33 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
+import textwrap
 import unittest
+
+from addisonarches.direction.directives import RoleDirective
+from addisonarches.viewer import Scenes
+from addisonarches.utils import group_by_type
 
 class RoleDirectiveTests(unittest.TestCase):
 
     def test_role(self):
-        self.fail()
+        content = textwrap.dedent("""
+            .. part:: WARDER
+               :addisonarches.roles.Regulating: newboy
+
+               An ex-military policeman who now runs a prison wing.
+
+            .. part:: NEWBOY
+               :addisonarches.attitudes.Waiting:
+
+               A first-time prisoner.
+
+            .. part:: OLDLAG
+               :addisonarches.attitudes.Resentful:
+
+               A hardened recidivist.
+            """)
+        s = Scenes()
+        objs = s.read(content)
+        groups = group_by_type(objs)
+        self.assertEqual(3, len(groups[RoleDirective.Node]), groups)
