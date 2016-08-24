@@ -22,7 +22,6 @@ from addisonarches.utils import plugin_interface
 
 import argparse
 import docutils
-import docutils.parsers.rst
 from docutils.parsers.rst.directives.body import ParsedLiteral
 import docutils.utils
 import pkg_resources
@@ -31,42 +30,6 @@ import sys
 __doc__ = """
 WIP
 """
-
-class RoleDirective(docutils.parsers.rst.Directive):
-
-    """
-    http://docutils.sourceforge.net/docutils/parsers/rst/directives/parts.py
-    """
-
-    required_arguments = 1
-    optional_arguments = 0
-    final_argument_whitespace = True
-    option_spec = {}
-    has_content = True
-    node_class = ParsedLiteral
-
-    def run(self):
-        # Raise an error if the directive does not have contents.
-        self.assert_has_content()
-        # Create the admonition node, to be populated by `nested_parse`.
-        text = '\n'.join(self.content)
-        text_nodes, messages = self.state.inline_text(text, self.lineno)
-        node = docutils.nodes.literal_block(text, '', *text_nodes, **self.options)
-        node.line = self.content_offset + 1
-        self.add_name(node)
-        return [node] + messages
-        kwargs = {
-            i: getattr(self, i, None)
-            for i in (
-                "name", "arguments", "options", "content", "lineno", "content_offset",
-                "block_text", "state", "state_machine"
-            )
-        }
-        dialogueNode = self.node_class(**kwargs)
-        # Parse the directive contents.
-        self.state.nested_parse(self.content, self.content_offset, dialogueNode)
-        return [dialogueNode]
-
 
 class Scenes:
 
@@ -108,6 +71,10 @@ def main(args):
         #doc = scenes.read(text, name=name)
         doc = scenes.read(text)
         print(doc)
+        for node in doc.children:
+            print(type(node))
+            if isinstance(node, ParsedLiteral):
+                print(node)
 
 def parser(description=__doc__):
     rv =  argparse.ArgumentParser(

@@ -42,6 +42,7 @@ setup(
         "addisonarches",
         "addisonarches.test",
         "addisonarches.direction",
+        "addisonarches.direction.test",
         "addisonarches.direction.stripeyhole",
     ],
     package_data={
