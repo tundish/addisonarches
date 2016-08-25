@@ -18,40 +18,17 @@
 
 # TODO: Move to turberfield-utils
 
-from addisonarches.direction.directives import RoleDirective
-from addisonarches.utils import plugin_interface
-
 import argparse
-import docutils
 import docutils.utils
 import pkg_resources
 import sys
 
+from addisonarches.direction.scenes import Scenes
+from addisonarches.utils import plugin_interface
+
 __doc__ = """
 WIP
 """
-
-class Scenes:
-
-    settings=argparse.Namespace(
-        debug = False, error_encoding="utf-8",
-        error_encoding_error_handler="backslashreplace", halt_level=4,
-        auto_id_prefix="", id_prefix="", language_code="en",
-        pep_references=1,
-        report_level=2, rfc_references=1, tab_width=4,
-        warning_stream=sys.stderr
-    )
-
-    def __init__(self):
-        docutils.parsers.rst.directives.register_directive(
-            "part", RoleDirective
-        )
-
-    def read(self, text, name=None):
-        doc = docutils.utils.new_document(name, Scenes.settings)
-        parser = docutils.parsers.rst.Parser()
-        parser.parse(text, doc)
-        return doc.children
 
 def sources(args):
     menu = list(dict(plugin_interface("turberfield.interfaces.scenes")).values())
