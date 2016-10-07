@@ -19,7 +19,7 @@
 import textwrap
 import unittest
 
-from addisonarches.direction.directives import RoleDirective
+from addisonarches.sequences.directives import RoleDirective
 from addisonarches.viewer import Scenes
 from addisonarches.utils import group_by_type
 
@@ -44,5 +44,6 @@ class RoleDirectiveTests(unittest.TestCase):
             """)
         s = Scenes()
         objs = s.read(content)
+        print(objs)
         groups = group_by_type(objs)
         self.assertEqual(3, len(groups[RoleDirective.Node]), groups)

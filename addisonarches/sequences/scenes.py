@@ -19,10 +19,12 @@
 import argparse
 import sys
 
-from addisonarches.direction.directives import RoleDirective
+# TODO: move to turberfield.dialogue
+from addisonarches.sequences.directives import RoleDirective
 
 import docutils
 
+# TODO: SceneSequence
 class Scenes:
 
     settings=argparse.Namespace(

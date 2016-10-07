@@ -23,7 +23,7 @@ import docutils.utils
 import pkg_resources
 import sys
 
-from addisonarches.direction.scenes import Scenes
+from addisonarches.sequences.scenes import Scenes
 from addisonarches.utils import plugin_interface
 
 __doc__ = """

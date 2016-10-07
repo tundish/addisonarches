@@ -41,9 +41,9 @@ setup(
     packages=[
         "addisonarches",
         "addisonarches.test",
-        "addisonarches.direction",
-        "addisonarches.direction.test",
-        "addisonarches.direction.stripeyhole",
+        "addisonarches.sequences",
+        "addisonarches.sequences.test",
+        "addisonarches.sequences.stripeyhole",
     ],
     package_data={
         "addisonarches": [
@@ -69,7 +69,7 @@ setup(
             "static/rson/*.rson",
             "templates/*.tpl",
         ],
-        "addisonarches.direction.stripeyhole": [
+        "addisonarches.sequences.stripeyhole": [
             "*.rst",
         ]
     },
@@ -98,8 +98,8 @@ setup(
             "addisonarches = addisonarches.main:run",
             "addisonarches-web = addisonarches.web.main:run",
         ],
-        "turberfield.interfaces.scenes": [
-            "stripeyhole = addisonarches.direction.stripeyhole:contents",
+        "turberfield.interfaces.sequence": [
+            "stripeyhole = addisonarches.sequences.stripeyhole:contents",
         ],
     },
     zip_safe=False
