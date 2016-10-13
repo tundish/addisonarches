@@ -178,7 +178,7 @@ Karen talks of her work
 
 [KAREN]_
 
-    And I keep my bag in the back and it's further away now and I can't sse it from
+    And I keep my bag in the back and it's further away now and I can't see it from
     where I am.
 
 [MARTIN]_
