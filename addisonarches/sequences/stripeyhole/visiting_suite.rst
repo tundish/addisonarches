@@ -31,7 +31,34 @@ In the Visiting Suite
    :addisonarches.locations.Pentonville.Suite: daytime
 
 
+First positions
+~~~~~~~~~~~~~~~
+
 [RAY]_
 
-    Up, up, up, there's a good lad!
+    OK, there's no one else here. Looks like they've left me to supervise you on my own.
+
+    Mrs Sheppey, you and Martin have a longer visit today while we're conducting an inspection of the cell.
+
+    |HERO|, I'm going to ask you into the Guard's Office in a moment. Please wait right here while I open
+    up.
+
+    .. direction::
+       :addisonarches.locations.Pentonville.Office: enter
+
+[KAREN]_
+
+    Oooh, we can choose our own table today!
+
+[MARTIN]_
+
+    No, I'm sitting here again.
+
+
+Karen is excited
+~~~~~~~~~~~~~~~~
+
+:phase:
+:frame:
+
 
