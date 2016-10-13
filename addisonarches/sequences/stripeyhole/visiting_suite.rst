@@ -219,3 +219,24 @@ Karen talks of the keys
 
 :frame:
 
+
+[KAREN]_
+
+    Which reminds me. What are these for?
+
+    .. direction::
+       :addisonarches.artifacts.keys jingle
+
+[MARTIN]_
+
+    What?
+
+    Don't know.
+
+    But don't wave them around.
+
+[KAREN]_
+
+    They came in the post the other day.
+
+    With some documents. They were addressed to you.
