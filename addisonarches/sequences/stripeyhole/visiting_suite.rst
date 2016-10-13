@@ -79,7 +79,7 @@ First positions
 
 [MARTIN]_
 
-    No, I'm sitting here again.
+    No, this one's ours.
 
 
 Karen talks of the journey
