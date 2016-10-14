@@ -38,6 +38,8 @@
 
 .. object:: KEYS
 
+   :type: addisonarches.types.Keys
+
 In the Visiting Suite
 ~~~~~~~~~~~~~~~~~~~~~
 
