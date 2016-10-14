@@ -7,20 +7,6 @@
 :author: D Haynes
 :date: 2016-09-13
 
-.. character:: HINT
-
-   Actors can take this role to give helpful information. Breaks fourth wall.
-
-.. character:: RAY
-
-   :name: Ray Farington
-
-   A Prison Officer. We first meet him on the day he retires.
-
-    * Honest and concientious
-    * Bruised by too many years in the service
-    * Often upset by inefficiency and lack of structure
-
 .. character:: KAREN
 
    :name: Karen Sheppey
@@ -46,6 +32,12 @@
 
    The player character.
 
+.. character:: HINT
+
+   Actors can take this role to give helpful information. Breaks fourth wall.
+
+.. object:: KEYS
+
 In the Visiting Suite
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -54,32 +46,6 @@ In the Visiting Suite
    :addisonarches.locations.Pentonville.Suite: daytime
 
    HM Prison Pentonville, J Wing.
-
-
-First positions
----------------
-
-[RAY]_
-
-    OK, there's no one else here. Looks like they've left me to supervise you on my
-    own.
-
-    Mrs Sheppey, you and Martin have a longer visit today while we're conducting an
-    inspection of the cell.
-
-    |HERO|, I'm going to ask you into the Guard's Office in a moment. Please wait
-    right here while I open up.
-
-    .. direction::
-       :addisonarches.locations.Pentonville.Office: enter
-
-[KAREN]_
-
-    Oooh, we can choose our own table today!
-
-[MARTIN]_
-
-    No, this one's ours.
 
 
 Karen talks of the journey
@@ -218,8 +184,7 @@ Karen talks of the keys
 
     Which reminds me. What are these for?
 
-    .. direction::
-       :addisonarches.artifacts.keys jingle
+    .. direction:: jingle |KEYS|
 
 [MARTIN]_
 
@@ -240,5 +205,4 @@ Karen talks of the keys
     It's nothing.
 
 
-.. branch::
-   :turberfield.dialog.conditions.true: `Karen talks of the journey`_
+.. All characters remain. Looping scene.
