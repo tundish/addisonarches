@@ -85,9 +85,6 @@ First positions
 Karen talks of the journey
 --------------------------
 
-:phase:
-:frame:
-
 
 [KAREN]_
 
@@ -138,7 +135,6 @@ Karen talks of the journey
 Karen talks of her work
 -----------------------
 
-:frame:
 
 [KAREN]_
 
@@ -217,8 +213,6 @@ Karen talks of her work
 Karen talks of the keys
 -----------------------
 
-:frame:
-
 
 [KAREN]_
 
@@ -240,3 +234,11 @@ Karen talks of the keys
     They came in the post the other day.
 
     With some documents. They were addressed to you.
+
+[MARTIN]_
+
+    It's nothing.
+
+
+.. branch::
+   :turberfield.dialog.conditions.true: `Karen talks of the journey`_
