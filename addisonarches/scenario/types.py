@@ -32,6 +32,19 @@ Commodity = namedtuple("Commodity", ["label", "description", "volume"])
 Plank = namedtuple("Plank", Commodity._fields)
 Table = namedtuple("Table", Commodity._fields)
 
+class DataObject:
+
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+class Persona(DataObject):
+    pass
+
+class Prisoner(Persona): pass
+class PrisonOfficer(Persona): pass
+class PrisonVisitor(Persona): pass
+
 class Pallet(Compound):
 
     @staticmethod

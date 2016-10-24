@@ -30,6 +30,9 @@ from addisonarches.scenario.types import HouseClearance
 from addisonarches.scenario.types import Location
 from addisonarches.scenario.types import MarketStall
 from addisonarches.scenario.types import Pallet
+from addisonarches.scenario.types import Prisoner
+from addisonarches.scenario.types import PrisonOfficer
+from addisonarches.scenario.types import PrisonVisitor
 from addisonarches.scenario.types import Plank
 from addisonarches.scenario.types import Recycling
 from addisonarches.scenario.types import ShipmentOfTables
@@ -57,6 +60,12 @@ characters = [
     "Rashid Khan",
     "Itta Metz",
 )]
+
+cast = {
+    Prisoner(id=uuid.uuid4(), name="Martin Sheppey"),
+    PrisonOfficer(id=uuid.uuid4(), name="Ray Farington"),
+    PrisonVisitor(id=uuid.uuid4(), name="Karen Sheppey"),
+}
 
 locations = [
     Location("Addison Arches 18a", 100),
