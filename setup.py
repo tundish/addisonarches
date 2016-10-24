@@ -101,6 +101,9 @@ setup(
         "turberfield.interfaces.sequence": [
             "stripeyhole = addisonarches.sequences.stripeyhole:contents",
         ],
+        "turberfield.interfaces.cast": [
+            "stripeyhole = addisonarches.scenario.cast",
+        ],
     },
     zip_safe=False
 )
