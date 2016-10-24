@@ -18,6 +18,7 @@
 
 from collections import namedtuple
 from enum import Enum
+import random
 
 from addisonarches.business import Trader
 from addisonarches.compound import Compound
@@ -46,6 +47,10 @@ class Persona(DataObject):
         bits = kwargs.pop("name").split()
         self.name = Persona.Name(bits[0], bits[1], bits[2:-1], bits[-1])
         super().__init__(**kwargs)
+
+    @property
+    def nickname(self):
+        return random.choice(self.name.nicknames)
 
 
 class Prisoner(Persona): pass
