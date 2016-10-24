@@ -62,9 +62,9 @@ characters = [
 )]
 
 cast = {
-    Prisoner(id=uuid.uuid4(), name="Martin Sheppey"),
-    PrisonOfficer(id=uuid.uuid4(), name="Ray Farington"),
-    PrisonVisitor(id=uuid.uuid4(), name="Karen Sheppey"),
+    Prisoner(id=uuid.uuid4(), name="Mr Martin Sheppey"),
+    PrisonOfficer(id=uuid.uuid4(), name="Mr Ray Farington"),
+    PrisonVisitor(id=uuid.uuid4(), name="Mrs Karen Sheppey"),
 }
 
 locations = [

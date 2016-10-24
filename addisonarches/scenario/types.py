@@ -39,7 +39,14 @@ class DataObject:
             setattr(self, k, v)
 
 class Persona(DataObject):
-    pass
+
+    Name = namedtuple("Name", ["title", "firstname", "nicknames", "surname"])
+
+    def __init__(self, **kwargs):
+        bits = kwargs.pop("name").split()
+        self.name = Persona.Name(bits[0], bits[1], bits[2:-1], bits[-1])
+        super().__init__(**kwargs)
+
 
 class Prisoner(Persona): pass
 class PrisonOfficer(Persona): pass
