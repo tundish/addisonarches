@@ -41,6 +41,7 @@ setup(
     packages=[
         "addisonarches",
         "addisonarches.test",
+        "addisonarches.scenario",
         "addisonarches.sequences",
         "addisonarches.sequences.test",
         "addisonarches.sequences.stripeyhole",
@@ -102,7 +103,7 @@ setup(
             "stripeyhole = addisonarches.sequences.stripeyhole:contents",
         ],
         "turberfield.interfaces.cast": [
-            "stripeyhole = addisonarches.scenario.cast",
+            "series_01 = addisonarches.scenario:cast",
         ],
     },
     zip_safe=False
