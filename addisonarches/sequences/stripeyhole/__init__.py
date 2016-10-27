@@ -1,11 +1,12 @@
-from addisonarches.utils import Scenes
+from turberfield.dialogue.model import SceneScript
+
 
 __doc__ = """
 The very first scripted scenes to appear in Addison Arches.
 
 """
 
-contents = Scenes(
+contents = SceneScript.Folder(
     "addisonarches.sequences.stripeyhole",
     __doc__,
     ["first_positions.rst", "visiting_suite.rst"],

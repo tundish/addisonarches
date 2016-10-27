@@ -32,8 +32,6 @@ from turberfield.ipc.message import Alert
 from turberfield.utils.assembly import Assembly
 
 
-Scenes = namedtuple("Scenes", ["pkg", "doc", "paths"])
-
 # TODO: Move to turberfield-utils
 def plugin_interface(key="turberfield.interfaces"):
     for i in pkg_resources.iter_entry_points(key):
