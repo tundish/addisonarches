@@ -23,6 +23,7 @@ import random
 from addisonarches.business import Trader
 from addisonarches.compound import Compound
 
+from turberfield.dialogue.types import Stateful
 from turberfield.utils.assembly import Assembly
 
 
@@ -53,9 +54,9 @@ class Persona(DataObject):
         return random.choice(self.name.nicknames)
 
 
-class Prisoner(Persona): pass
-class PrisonOfficer(Persona): pass
-class PrisonVisitor(Persona): pass
+class Prisoner(Stateful, Persona): pass
+class PrisonOfficer(Stateful, Persona): pass
+class PrisonVisitor(Stateful, Persona): pass
 
 class Pallet(Compound):
 

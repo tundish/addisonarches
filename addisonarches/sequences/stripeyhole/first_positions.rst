@@ -1,5 +1,3 @@
-..  vim: textwidth=84
-
 ..  Titling ##++::==~~--''``
     Scene ~~
     Shot --
@@ -8,8 +6,7 @@
 :date: 2016-09-13
 
 .. character:: RAY
-
-   :name: Ray Farington
+   :types: addisonarches.scenario.types.PrisonOfficer
 
    A Prison Officer. We first meet him on the day he retires.
 
@@ -19,8 +16,6 @@
 
 .. character:: KAREN
 
-   :name: Karen Sheppey
-
    A beautician in her late forties.
 
     * Works in `Sandy Hair`, Leysdown-on-Sea.
@@ -28,8 +23,6 @@
     * Has always looked after |MARTIN|.
 
 .. character:: MARTIN
-
-   :name: Martin Sheppey
 
    A small-time offender in his mid forties.
 
