@@ -8,8 +8,7 @@
 :date: 2016-09-13
 
 .. character:: KAREN
-
-   :name: Karen Sheppey
+   :types: addisonarches.scenario.types.PrisonVisitor
 
    A beautician in her late forties.
 
@@ -19,8 +18,7 @@
     * Grateful to |HERO| for being good cellmate. Worried about what comes next.
 
 .. character:: MARTIN
-
-   :name: Martin Sheppey
+   :types: addisonarches.scenario.types.Prisoner
 
    A small-time offender in his mid forties.
 
@@ -29,25 +27,16 @@
     * Misbehaved at Standford Hill to see less of |KAREN|.
 
 .. character:: HERO
+   :types: turberfield.dialogue.types.Player
 
    The player character.
 
-.. character:: HINT
-
-   Actors can take this role to give helpful information. Breaks fourth wall.
-
-.. object:: KEYS
-
-   :type: addisonarches.types.Keys
 
 In the Visiting Suite
 ~~~~~~~~~~~~~~~~~~~~~
 
 
-.. location::
-   :addisonarches.locations.Pentonville.Suite: daytime
-
-   HM Prison Pentonville, J Wing.
+HM Prison Pentonville, J Wing.
 
 
 Karen talks of the journey
@@ -138,7 +127,7 @@ Karen talks of her work
 
 [MARTIN]_
 
-    No.
+    Yep.
 
 [KAREN]_
 
@@ -147,7 +136,7 @@ Karen talks of her work
 
 [MARTIN]_
 
-    Yep.
+    No.
 
 
 [KAREN]_
@@ -159,12 +148,14 @@ Karen talks of her work
 
 [MARTIN]_
 
+    ..,
+
     So now you're working at the fair?
 
 
 [KAREN]_
 
-    No, |MARTIN| I work at Sandy Hair.
+    No, |MARTIN_FIRSTNAME| I work at Sandy Hair.
 
     Next to the fair.
 
@@ -172,11 +163,13 @@ Karen talks of her work
 
     I thought you said you worked at the fair.
 
-    Did they sack you from the cleaning?
+    Did you get sacked from the cleaning?
 
 [KAREN]_
 
     No, I still do the cleaning.
+
+.. |MARTIN_FIRSTNAME| property:: MARTIN.name.firstname
 
 Karen talks of the keys
 -----------------------
@@ -186,7 +179,7 @@ Karen talks of the keys
 
     Which reminds me. What are these for?
 
-    .. direction:: jingle |KEYS|
+    .. jingle |KEYS|
 
 [MARTIN]_
 

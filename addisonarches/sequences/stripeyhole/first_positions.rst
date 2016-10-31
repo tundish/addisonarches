@@ -40,10 +40,7 @@
 First positions
 ~~~~~~~~~~~~~~~
 
-.. location::
-   :addisonarches.locations.Pentonville.Suite: daytime
-
-   HM Prison Pentonville, J Wing.
+HM Prison Pentonville, J Wing.
 
 
 Ray does the intros
@@ -54,13 +51,13 @@ Ray does the intros
     OK, there's no one else here. Looks like they've left me to supervise you on my
     own.
 
-    Mrs Sheppey, you and Martin have a longer visit today while we're conducting an
-    inspection of the cell.
+    |KAREN_TITLE| |KAREN_SURNAME|, you and |MARTIN_FIRSTNAME| have a longer visit today
+    while we're conducting an inspection of the cell.
 
     |HERO_TITLE| |HERO_SURNAME|, I'm going to ask you into the Guard's Office in a moment.
     Please wait right here while I open up.
 
-    .. property:: RAY.state turberfield.dialogue.sequences.battle_royal.types.Availability.passive
+    .. property:: RAY.state turberfield.dialogue.sequences.battle_royal.types.Availability.mist
 
 [KAREN]_
 
@@ -72,5 +69,8 @@ Ray does the intros
 
 .. Ray's exit means this cannot loop
 
+.. |MARTIN_FIRSTNAME| property:: MARTIN.name.firstname
 .. |HERO_TITLE| property:: HERO.name.title
 .. |HERO_SURNAME| property:: HERO.name.surname
+.. |KAREN_TITLE| property:: KAREN.name.title
+.. |KAREN_SURNAME| property:: KAREN.name.surname
