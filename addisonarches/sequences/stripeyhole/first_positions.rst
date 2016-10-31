@@ -15,6 +15,7 @@
     * Often upset by inefficiency and lack of structure
 
 .. character:: KAREN
+   :types: addisonarches.scenario.types.PrisonVisitor
 
    A beautician in her late forties.
 
@@ -23,6 +24,7 @@
     * Has always looked after |MARTIN|.
 
 .. character:: MARTIN
+   :types: addisonarches.scenario.types.Prisoner
 
    A small-time offender in his mid forties.
 
@@ -31,6 +33,7 @@
     * Misbehaved at Standford Hill to see less of |KAREN|.
 
 .. character:: HERO
+   :types: turberfield.dialogue.types.Player
 
    The player character.
 
@@ -54,11 +57,10 @@ Ray does the intros
     Mrs Sheppey, you and Martin have a longer visit today while we're conducting an
     inspection of the cell.
 
-    |HERO|, I'm going to ask you into the Guard's Office in a moment. Please wait
-    right here while I open up.
+    |HERO_TITLE| |HERO_SURNAME|, I'm going to ask you into the Guard's Office in a moment.
+    Please wait right here while I open up.
 
-    .. direction::
-       :addisonarches.locations.Pentonville.Office: enter
+    .. property:: RAY.state turberfield.dialogue.sequences.battle_royal.types.Availability.passive
 
 [KAREN]_
 
@@ -69,3 +71,6 @@ Ray does the intros
     No, this one's ours.
 
 .. Ray's exit means this cannot loop
+
+.. |HERO_TITLE| property:: HERO.name.title
+.. |HERO_SURNAME| property:: HERO.name.surname

@@ -23,6 +23,7 @@ import random
 from addisonarches.business import Trader
 from addisonarches.compound import Compound
 
+from turberfield.dialogue.types import Persona
 from turberfield.dialogue.types import Stateful
 from turberfield.utils.assembly import Assembly
 
@@ -33,26 +34,6 @@ class Length(Enum):
 Commodity = namedtuple("Commodity", ["label", "description", "volume"])
 Plank = namedtuple("Plank", Commodity._fields)
 Table = namedtuple("Table", Commodity._fields)
-
-class DataObject:
-
-    def __init__(self, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-class Persona(DataObject):
-
-    Name = namedtuple("Name", ["title", "firstname", "nicknames", "surname"])
-
-    def __init__(self, **kwargs):
-        bits = kwargs.pop("name").split()
-        self.name = Persona.Name(bits[0], bits[1], bits[2:-1], bits[-1])
-        super().__init__(**kwargs)
-
-    @property
-    def nickname(self):
-        return random.choice(self.name.nicknames)
-
 
 class Prisoner(Stateful, Persona): pass
 class PrisonOfficer(Stateful, Persona): pass
