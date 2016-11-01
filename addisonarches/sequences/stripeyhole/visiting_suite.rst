@@ -95,7 +95,8 @@ Karen talks of her work
 
 [KAREN]_
 
-    Mandy left, so I've got the chair by the window now.
+    Mandy left finally, and we had a move round.
+    So I've got the chair by the window now.
 
 [MARTIN]_
 
@@ -148,7 +149,7 @@ Karen talks of her work
 
 [MARTIN]_
 
-    ..,
+    . . .
 
     So now you're working at the fair?
 
