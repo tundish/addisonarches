@@ -5,7 +5,11 @@
 :author: D Haynes
 :date: 2016-09-13
 
-.. character:: RAY
+.. |HERO| property:: HERO.name.firstname
+.. |KAREN| property:: KAREN.name.firstname
+.. |MARTIN| property:: MARTIN.name.firstname
+
+.. entity:: RAY
    :types: addisonarches.scenario.types.PrisonOfficer
 
    A Prison Officer. We first meet him on the day he retires.
@@ -14,7 +18,7 @@
     * Bruised by too many years in the service
     * Often upset by inefficiency and lack of structure
 
-.. character:: KAREN
+.. entity:: KAREN
    :types: addisonarches.scenario.types.PrisonVisitor
 
    A beautician in her late forties.
@@ -23,7 +27,7 @@
     * Very organised.
     * Has always looked after |MARTIN|.
 
-.. character:: MARTIN
+.. entity:: MARTIN
    :types: addisonarches.scenario.types.Prisoner
 
    A small-time offender in his mid forties.
@@ -32,10 +36,11 @@
     * Does what he's told. Wants a quiet life.
     * Misbehaved at Standford Hill to see less of |KAREN|.
 
-.. character:: HERO
+.. entity:: HERO
    :types: turberfield.dialogue.types.Player
 
-   The player character.
+   The player entity.
+
 
 First positions
 ~~~~~~~~~~~~~~~
@@ -45,6 +50,7 @@ HM Prison Pentonville, J Wing.
 
 Ray does the intros
 -------------------
+
 
 [RAY]_
 
@@ -57,15 +63,13 @@ Ray does the intros
     |HERO_TITLE| |HERO_SURNAME|, I'm going to ask you into the Guard's Office in a moment.
     Please wait right here while I open up.
 
-    .. property:: RAY.state turberfield.dialogue.sequences.battle_royal.types.Availability.mist
-
 [KAREN]_
 
     Oooh, we can choose our own table today!
 
 [MARTIN]_
 
-    No, this one's ours.
+    No, let's sit here again.
 
 .. Ray's exit means this cannot loop
 

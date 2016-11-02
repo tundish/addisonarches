@@ -7,7 +7,11 @@
 :author: D Haynes
 :date: 2016-09-13
 
-.. character:: KAREN
+.. |HERO| property:: HERO.name.firstname
+.. |KAREN| property:: KAREN.name.firstname
+.. |MARTIN| property:: MARTIN.name.firstname
+
+.. entity:: KAREN
    :types: addisonarches.scenario.types.PrisonVisitor
 
    A beautician in her late forties.
@@ -17,7 +21,7 @@
     * Has always looked after |MARTIN|.
     * Grateful to |HERO| for being good cellmate. Worried about what comes next.
 
-.. character:: MARTIN
+.. entity:: MARTIN
    :types: addisonarches.scenario.types.Prisoner
 
    A small-time offender in his mid forties.
@@ -26,10 +30,10 @@
     * Does what he's told. Wants a quiet life.
     * Misbehaved at Standford Hill to see less of |KAREN|.
 
-.. character:: HERO
+.. entity:: HERO
    :types: turberfield.dialogue.types.Player
 
-   The player character.
+   The player entity.
 
 
 In the Visiting Suite
@@ -156,7 +160,7 @@ Karen talks of her work
 
 [KAREN]_
 
-    No, |MARTIN_FIRSTNAME| I work at Sandy Hair.
+    No, |MARTIN| I work at Sandy Hair.
 
     Next to the fair.
 
@@ -170,8 +174,6 @@ Karen talks of her work
 
     No, I still do the cleaning.
 
-.. |MARTIN_FIRSTNAME| property:: MARTIN.name.firstname
-
 Karen talks of the keys
 -----------------------
 
@@ -180,7 +182,7 @@ Karen talks of the keys
 
     Which reminds me. What are these for?
 
-    .. jingle |KEYS|
+    .. |KEYS| visible
 
 [MARTIN]_
 
@@ -201,4 +203,4 @@ Karen talks of the keys
     It's nothing.
 
 
-.. All characters remain. Looping scene.
+.. All entitys remain. Looping scene.
