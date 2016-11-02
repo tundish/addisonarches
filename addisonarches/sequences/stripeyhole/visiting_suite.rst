@@ -35,6 +35,11 @@
 
    The player entity.
 
+.. entity:: KEYS
+   :types: addisonarches.scenario.types.Keys
+
+   The keys to Addison Arches.
+
 
 In the Visiting Suite
 ~~~~~~~~~~~~~~~~~~~~~
@@ -182,7 +187,7 @@ Karen talks of the keys
 
     Which reminds me. What are these for?
 
-    .. |KEYS| visible
+.. property:: KEYS.presence turberfield.dialogue.types.Presence.shine
 
 [MARTIN]_
 

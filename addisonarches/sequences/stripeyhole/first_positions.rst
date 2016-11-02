@@ -63,6 +63,8 @@ Ray does the intros
     |HERO_TITLE| |HERO_SURNAME|, I'm going to ask you into the Guard's Office in a moment.
     Please wait right here while I open up.
 
+.. property:: RAY.presence turberfield.dialogue.types.Presence.invisible
+
 [KAREN]_
 
     Oooh, we can choose our own table today!
@@ -70,8 +72,6 @@ Ray does the intros
 [MARTIN]_
 
     No, let's sit here again.
-
-.. Ray's exit means this cannot loop
 
 .. |MARTIN_FIRSTNAME| property:: MARTIN.name.firstname
 .. |HERO_TITLE| property:: HERO.name.title

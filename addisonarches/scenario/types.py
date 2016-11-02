@@ -23,6 +23,7 @@ import random
 from addisonarches.business import Trader
 from addisonarches.compound import Compound
 
+from turberfield.dialogue.types import DataObject
 from turberfield.dialogue.types import Persona
 from turberfield.dialogue.types import Stateful
 from turberfield.utils.assembly import Assembly
@@ -38,6 +39,7 @@ Table = namedtuple("Table", Commodity._fields)
 class Prisoner(Stateful, Persona): pass
 class PrisonOfficer(Stateful, Persona): pass
 class PrisonVisitor(Stateful, Persona): pass
+class Keys(Stateful, DataObject): pass
 
 class Pallet(Compound):
 
