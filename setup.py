@@ -45,6 +45,7 @@ setup(
         "addisonarches.sequences",
         "addisonarches.sequences.test",
         "addisonarches.sequences.stripeyhole",
+        "addisonarches.web",
     ],
     package_data={
         "addisonarches": [
@@ -62,12 +63,14 @@ setup(
             "doc/html/_static/*.png",
         ],
         "addisonarches.web": [
+            "static/audio/*.wav",
             "static/css/*.css",
             "static/css/*/*.css",
             "static/img/*.jpg",
             "static/img/*.png",
             "static/js/*.js",
             "static/rson/*.rson",
+            "templates/*.prt",
             "templates/*.tpl",
         ],
         "addisonarches.sequences.stripeyhole": [
