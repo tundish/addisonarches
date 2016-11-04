@@ -205,7 +205,32 @@ Karen talks of the keys
 
 [MARTIN]_
 
-    It's nothing.
+    It's nothing. Shut up about it.
+
+[MARTIN]_
+
+    The big one is for the front doors. Silver one is the office key.
+    And this one opens the padlock on the cage.
+
+    Flog as much of that gear as you can, but don't get caught with
+    it, right?
+
+.. memory:: turberfield.dialogue.types.Ownership.acquired
+   :subject: HERO
+   :object: KEYS
+
+   The keys to 18A Addison Arches. Big one is for the front doors.
+   Padlock for the cage. Key to the office.
 
 
-.. All entitys remain. Looping scene.
+[MARTIN]_
+
+    If you get any faces sniffing around there, just tell 'em you're
+    looking after it for Frankie Drum. They'll get the idea.
+
+.. memory:: turberfield.dialogue.types.Vocabulary.prompted
+   :subject: MARTIN
+   :object: HERO
+
+   This place belongs to Frankie Drum. Now go away.
+
