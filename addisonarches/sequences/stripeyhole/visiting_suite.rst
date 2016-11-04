@@ -225,8 +225,10 @@ Karen talks of the keys
 
 [MARTIN]_
 
-    If you get any faces sniffing around there, just tell 'em you're
-    looking after it for Frankie Drum. They'll get the idea.
+    If you see any faces sniffing around there, just tell 'em you're
+    looking after it for Frankie Drum.
+
+    They'll get the idea.
 
 .. memory:: turberfield.dialogue.types.Vocabulary.prompted
    :subject: MARTIN
