@@ -10,4 +10,5 @@ contents = SceneScript.Folder(
     "addisonarches.sequences.stripeyhole",
     __doc__,
     ["first_positions.rst", "visiting_suite.rst"],
+    [None, None]
 )
