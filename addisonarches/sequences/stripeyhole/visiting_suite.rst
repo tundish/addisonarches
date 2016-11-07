@@ -203,7 +203,7 @@ Karen talks of the keys
 
     With some documents. They were addressed to you.
 
-    Why is your name on a property deed, |MARTIN|, where did the money come from for that?
+    How is your name on a property deed, |MARTIN|? Where did the money come from for that?
 
 [MARTIN]_
 
@@ -211,9 +211,9 @@ Karen talks of the keys
 
 [KAREN]_
 
-    Oh, tell me about it! The only money we have is what I earn!
+    Oh, tell me about it! The only money we have is what I earn.
 
-    And what bank would give you a loan? You're in prison and you can't even read.
+    Then which bank gave you another loan? You're in prison for theft and you can't read.
 
 [MARTIN]_
 
@@ -224,7 +224,7 @@ Karen talks of the keys
     A favour? Oh my God, what are you mixed up in now?
 
     Every chance that comes along you go and fall for some dodgy scheme. And it's not
-    you that suffers, it's me and the kids.
+    you that suffers in the end, it's me and the kids.
 
 [MARTIN]_
 
@@ -244,23 +244,22 @@ Karen talks of the keys
     Then |HERO| can have them. And |HERO| had better not turn up at my door, either.
     I don't want any more of your prison mates hanging around.
 
-.. memory:: turberfield.dialogue.types.Ownership.acquired
-   :subject: HERO
-   :object: KEYS
-
-   The keys to 18A Addison Arches. Big one is for the front doors.
-   Padlock for the cage. Key to the office.
-
-
 [MARTIN]_
 
-    Quick, |HERO| do me a favour until I get out.
+    Hey, |HERO| do me a favour until I get out.
 
     The big one is for the front doors. Silver one is the office key.
     And this one opens the padlock on the cage.
 
     Flog as much of that gear as you can, but don't get caught with
     it, right?
+
+.. memory:: turberfield.dialogue.types.Ownership.acquired
+   :subject: HERO
+   :object: KEYS
+
+   The keys to 18A Addison Arches. Big one is for the front doors.
+   Padlock for the cage. Key to the office.
 
 [MARTIN]_
 
