@@ -27,6 +27,7 @@ from addisonarches.scenario.types import Character
 from addisonarches.scenario.types import Commodity
 from addisonarches.scenario.types import Hobbyist
 from addisonarches.scenario.types import HouseClearance
+from addisonarches.scenario.types import FormB107
 from addisonarches.scenario.types import Keys
 from addisonarches.scenario.types import Location
 from addisonarches.scenario.types import MarketStall
@@ -66,6 +67,7 @@ ensemble = {
     Prisoner(id=uuid.uuid4(), name="Mr Martin Sheppey"),
     PrisonOfficer(id=uuid.uuid4(), name="Mr Ray Farington"),
     PrisonVisitor(id=uuid.uuid4(), name="Mrs Karen Sheppey"),
+    FormB107(id=uuid.uuid4()),
     Keys(id=uuid.uuid4(), label="Addison Arches 18A"),
 }
 

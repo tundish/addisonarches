@@ -1,5 +1,3 @@
-..  vim: textwidth=84
-
 ..  Titling ##++::==~~--''``
     Scene ~~
     Shot --
@@ -248,18 +246,18 @@ Karen talks of the keys
 
     Hey, |HERO| do me a favour until I get out.
 
+    .. memory:: turberfield.dialogue.types.Ownership.acquired
+       :subject: HERO
+       :object: KEYS
+
+       The keys to 18A Addison Arches. Big one is for the front doors.
+       Padlock for the cage. Key to the office.
+
     The big one is for the front doors. Silver one is the office key.
     And this one opens the padlock on the cage.
 
     Flog as much of that gear as you can, but don't get caught with
     it, right?
-
-.. memory:: turberfield.dialogue.types.Ownership.acquired
-   :subject: HERO
-   :object: KEYS
-
-   The keys to 18A Addison Arches. Big one is for the front doors.
-   Padlock for the cage. Key to the office.
 
 [MARTIN]_
 

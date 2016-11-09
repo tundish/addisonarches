@@ -39,6 +39,7 @@ Table = namedtuple("Table", Commodity._fields)
 class Prisoner(Stateful, Persona): pass
 class PrisonOfficer(Stateful, Persona): pass
 class PrisonVisitor(Stateful, Persona): pass
+class FormB107(Stateful, DataObject): pass
 class Keys(Stateful, DataObject): pass
 
 class Pallet(Compound):

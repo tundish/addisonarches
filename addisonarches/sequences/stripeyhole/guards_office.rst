@@ -6,75 +6,72 @@
 :date: 2016-09-13
 
 .. |HERO| property:: HERO.name.firstname
-.. |KAREN| property:: KAREN.name.firstname
-.. |MARTIN| property:: MARTIN.name.firstname
 
 .. entity:: RAY
    :types: addisonarches.scenario.types.PrisonOfficer
 
-   A Prison Officer. We first meet him on the day he retires.
-
-    * Honest and concientious
-    * Bruised by too many years in the service
-    * Often upset by inefficiency and lack of structure
-
-.. entity:: KAREN
-   :types: addisonarches.scenario.types.PrisonVisitor
-
-   A beautician in her late forties.
-
-    * Works in `Sandy Hair`, Leysdown-on-Sea.
-    * Very organised.
-    * Has always looked after |MARTIN|.
-
 .. entity:: MARTIN
    :types: addisonarches.scenario.types.Prisoner
-
-   A small-time offender in his mid forties.
-
-    * Can't read. Dislocated.
-    * Does what he's told. Wants a quiet life.
-    * Misbehaved at Standford Hill to see less of |KAREN|.
 
 .. entity:: HERO
    :types: turberfield.dialogue.types.Player
 
    The player entity.
 
+.. entity:: B107
+   :types: addisonarches.scenario.types.FormB107
 
-First positions
-~~~~~~~~~~~~~~~
+   A personality profile of |HERO|.
+
+
+
+Guards' Office
+~~~~~~~~~~~~~~
 
 HM Prison Pentonville, J Wing.
 
+Ray complains about the service
+-------------------------------
 
-Ray does the intros
--------------------
+.. property:: MARTIN.presence turberfield.dialogue.types.Presence.invisible
 
 
 [RAY]_
 
-    OK, there's no one else here. Looks like they've left me to supervise you on my
-    own.
+    Dear oh dear, what a mess today. I'm the only one who tidies this place up.
 
-    |KAREN_TITLE| |KAREN_SURNAME|, you and |MARTIN_FIRSTNAME| have a longer visit today
-    while we're conducting an inspection of the cell.
+    No-one replaces the stationery here you know. I had to bring in a load of rubber bands
+    this morning from home.
 
-    |HERO_TITLE| |HERO_SURNAME|, I'm going to ask you into the Guard's Office in a moment.
-    Please wait right here while I open up.
+    The only thing we've got left here is pens. Ironically no one seems to steal those.
 
-.. property:: RAY.presence turberfield.dialogue.types.Presence.invisible
+Ray says goodbye
+----------------
 
-[KAREN]_
 
-    Oooh, we can choose our own table today!
+[RAY]_
 
-[MARTIN]_
+    Well, now, let's have you on your way.
 
-    No, let's sit here again.
+.. property:: B107.presence turberfield.dialogue.types.Presence.shine
 
-.. |MARTIN_FIRSTNAME| property:: MARTIN.name.firstname
+[RAY]_
+
+    It isn't usual to read a form B107 to its subject, |HERO_TITLE| |HERO_SURNAME|, but
+    it looks like you've been playing it straight.
+
+    I can see you have a difficult family background. Very easy to find yourself in prison
+    the first time.
+
+    But I'd like to say, I've been impressed by your influence on |MARTIN_FIRSTNAME| |MARTIN_SURNAME|.
+    His literacy is very much improved. And he's been practicing his handwriting too, I understand.
+
+    Well done for making it so far.
+
+    Take every opportunity you find out there.
+
+
 .. |HERO_TITLE| property:: HERO.name.title
 .. |HERO_SURNAME| property:: HERO.name.surname
-.. |KAREN_TITLE| property:: KAREN.name.title
-.. |KAREN_SURNAME| property:: KAREN.name.surname
+.. |MARTIN_FIRSTNAME| property:: MARTIN.name.firstname
+.. |MARTIN_SURNAME| property:: MARTIN.name.surname
