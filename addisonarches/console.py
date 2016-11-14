@@ -47,7 +47,7 @@ from addisonarches.game import Clock
 from addisonarches.game import Game
 from addisonarches.game import Persistent
 
-from addisonarches.scenario import Location
+from addisonarches.scenario.types import Location
 from addisonarches.scenario.types import Character
 
 from addisonarches.utils import get_objects
