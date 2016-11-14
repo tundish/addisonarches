@@ -23,7 +23,7 @@ import unittest
 from addisonarches.business import Asset
 from addisonarches.business import Business
 from addisonarches.inventory import Volume
-import addisonarches.scenario
+import addisonarches.scenario.common
 from addisonarches.scenario.types import Commodity
 from addisonarches.valuation import Valuation
 from addisonarches.valuation import ValueBook
@@ -62,12 +62,12 @@ class BusinessTests(unittest.TestCase):
         then = datetime.date(2015, 4, 1)
         credit = (datetime.timedelta(days=30), Decimal("0.050"))
         self.business = harry = Business(
-            addisonarches.scenario.characters[0],
+            addisonarches.scenario.common.characters[0],
             ValueBook(),
-            addisonarches.scenario.locations[1:2],
+            addisonarches.scenario.common.locations[1:2],
         )
         self.assertIn(
-            addisonarches.scenario.locations[1].name,
+            addisonarches.scenario.common.locations[1].name,
             harry.inventories
         )
         self.assertEqual(

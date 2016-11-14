@@ -21,6 +21,9 @@ import datetime
 from decimal import Decimal
 
 from addisonarches.inventory import Volume
+from addisonarches.scenario.common import blue_monday
+from addisonarches.scenario.common import characters
+from addisonarches.scenario.common import locations
 from addisonarches.scenario.types import Antiques
 from addisonarches.scenario.types import Commodity
 from addisonarches.scenario.types import Hobbyist
@@ -48,7 +51,7 @@ businesses = [
         })),
         3,
         Note(
-            date=then,
+            date=blue_monday,
             principal=200,
             currency="£",
             term=datetime.timedelta(days=30),
@@ -63,7 +66,7 @@ businesses = [
         })),
         12,
         Note(
-            date=then,
+            date=blue_monday,
             principal=7,
             currency="£",
             term=datetime.timedelta(days=30),

@@ -24,7 +24,7 @@ import unittest
 
 from addisonarches.game import Game
 from addisonarches.game import Persistent
-import addisonarches.scenario
+import addisonarches.scenario.easy
 
 
 class PersistentTests(unittest.TestCase):
@@ -131,7 +131,7 @@ class GameTests(unittest.TestCase):
         )
         game = Game(
             Game.Player(GameTests.user, "Player 1"),
-            addisonarches.scenario.businesses,
+            addisonarches.scenario.easy.businesses,
             **options
         )
         nBusinesses = len(game.businesses)

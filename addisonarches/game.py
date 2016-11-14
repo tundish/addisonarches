@@ -48,8 +48,8 @@ from addisonarches.business import CashBusiness
 from addisonarches.business import Selling
 from addisonarches.business import Trader
 
-import addisonarches.scenario
-from addisonarches.scenario import Location
+import addisonarches.scenario.easy
+from addisonarches.scenario.common import Location
 from addisonarches.scenario.types import Character
 from addisonarches.scenario.types import Commodity
 
@@ -470,7 +470,7 @@ def create_game(parent, user, name, token=None, down=None, up=None, loop=None):
     options = Game.options(Game.Player(user, name), parent=parent)
     game = Game(
         Game.Player(user, name),
-        addisonarches.scenario.businesses[:],
+        addisonarches.scenario.easy.businesses[:],
         clock,
         token,
         up,

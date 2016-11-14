@@ -44,8 +44,7 @@ from addisonarches.game import Persistent
 from addisonarches.game import create_game
 from addisonarches.game import init_game
 
-import addisonarches.scenario
-from addisonarches.scenario import Location
+from addisonarches.scenario.common import Location
 from addisonarches.scenario.types import Character
 
 from addisonarches.utils import get_objects
