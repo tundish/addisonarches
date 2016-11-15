@@ -210,6 +210,11 @@ class Game(Persistent):
                 "inventory",
                 Persistent.Path(parent, player.user, slot, "inventory.rson")
             )),
+            ("frame.rson", Persistent.RSON(
+                "frame.rson",
+                "frame",
+                Persistent.Path(parent, player.user, slot, "frame.rson")
+            )),
             ("progress.rson", Persistent.RSON(
                 "progress.rson",
                 "progress",
@@ -271,6 +276,7 @@ class Game(Persistent):
 
     @property
     def destinations(self):
+        # TODO: separate Map expert
         return [
             nearby for nearby in self.here.inventories
             if nearby != self.location
@@ -280,6 +286,7 @@ class Game(Persistent):
 
     @property
     def here(self):
+        # TODO: separate Map expert
         return next(
             (b for b in self.businesses
             if self.location in b.inventories),
@@ -305,6 +312,10 @@ class Game(Persistent):
             Location(self.location, self.here.inventories[self.location].capacity)
         )
         return rv
+
+    @property
+    def frame(self):
+        return []
 
     @property
     def progress(self):
@@ -375,6 +386,7 @@ class Game(Persistent):
             yield from Clock.public.active.wait()
             self.declare(
                 dict(
+                    frame=self.frame,
                     progress=self.progress,
                     inventory=self.inventory,
                     businesses=self.businesses
@@ -449,6 +461,9 @@ class Game(Persistent):
                             self._log.warning(ref)
                         else:
                             self.drama = Selling(memory=[item])
+                    else:
+                        #TODO: Continue with dialogue
+                        pass
                 except Exception as e:
                     self._log.error(e)
 
