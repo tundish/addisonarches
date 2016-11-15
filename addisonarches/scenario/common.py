@@ -63,6 +63,7 @@ locations = [
     Location("White City Non-ferrous Recovery Ltd.", 1000),
     Location("Indigent St. Open Market", 1000),
     Location("Itta's Antiques", 30),
+    Location("HM Prison Pentonville, J Wing", None),
 ]
 
 blue_monday = datetime.date(1978, 1, 16)
