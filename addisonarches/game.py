@@ -401,6 +401,7 @@ class Game(Persistent):
         msg = object()
         while msg is not None:
             msg = yield from q.get()
+            self._log.debug(msg)
             for job in getattr(msg, "payload", []):
                 try:
                     if isinstance(job, Ask):
@@ -463,7 +464,7 @@ class Game(Persistent):
                             self.drama = Selling(memory=[item])
                     else:
                         #TODO: Continue with dialogue
-                        pass
+                        self._log.info(job)
                 except Exception as e:
                     self._log.error(e)
 

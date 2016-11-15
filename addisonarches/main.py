@@ -38,7 +38,7 @@ Move invocation of console, web elsewhere.
 """
 
 def main(args):
-    log = logging.getLogger("addisonarches.main")
+    log = logging.getLogger("turberfield")
     log.setLevel(args.log_level)
 
     formatter = logging.Formatter(

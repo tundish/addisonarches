@@ -375,15 +375,24 @@ class Workflow(Service):
     @asyncio.coroutine
     def session_get(self, request):
         session = request.match_info["session"]
+        path, down, up = self.sessions[session]
+
         tmplt = pyratemp.Template(
             filename="session.html.prt",
             loader_class=TemplateLoader
         )
+        text = tmplt(**self.frame(session))
 
-        # TODO: Send None, expect no reply
+        msg = parcel(
+            self.token, None,
+            dst=Address(
+                self.token.namespace, self.token.user, self.token.service, session
+            )
+        )
+        yield from down.put(msg)
         return aiohttp.web.Response(
             content_type="text/html",
-            text=tmplt(**self.frame(session))
+            text=text
         )
 
     @asyncio.coroutine
