@@ -387,22 +387,21 @@ class Game(Persistent):
         choice = next(iter(seqList.keys()), None)
         self._log.info("Selected sequence '{0}'.".format(choice))
         folder = seqList[choice]
-        self._log.info(folder)
         self.dialogueQueue = asyncio.Queue(maxsize=1, loop=loop)
         player = self.businesses[0].proprietor
 
         while not Clock.public.running:
             await asyncio.sleep(0, loop=loop)
 
-        if self.here is None: # Not at a a business
-            while folder:
-                folder = await run_through(
-                    folder, {player} | ensemble, self.dialogueQueue, loop=loop)
-            else:
-                self._log.info("Dialogue complete.")
-                self.dialogueQueue.put_nowait(None)
-
         while Clock.public.running:
+            if self.here is None: # Not at a a business
+                while folder:
+                    folder = await run_through(
+                        folder, {player} | ensemble, self.dialogueQueue, loop=loop)
+                else:
+                    self._log.info("Dialogue complete.")
+                    self.dialogueQueue.put_nowait(None)
+
             await Clock.public.active.wait()
             self.declare(
                 dict(
