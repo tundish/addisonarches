@@ -36,12 +36,14 @@ import tempfile
 import time
 import uuid
 
+from turberfield.dialogue.viewer import run_through
 from turberfield.ipc.message import Alert
 from turberfield.ipc.message import Message
 from turberfield.ipc.message import parcel
 from turberfield.ipc.message import reply
 from turberfield.utils.assembly import Assembly
 from turberfield.utils.expert import Expert
+from turberfield.utils.misc import gather_installed
 
 from addisonarches.business import Buying
 from addisonarches.business import CashBusiness
@@ -49,6 +51,7 @@ from addisonarches.business import Selling
 from addisonarches.business import Trader
 
 import addisonarches.scenario.easy
+from addisonarches.scenario.common import ensemble
 from addisonarches.scenario.common import Location
 from addisonarches.scenario.types import Character
 from addisonarches.scenario.types import Commodity
@@ -241,6 +244,7 @@ class Game(Persistent):
         self.location = None
         self.drama = None
         self.alerts = []
+        self.dialogueQueue = None
         self._log.info("Initialized.")
 
     def load(self):
@@ -378,13 +382,28 @@ class Game(Persistent):
             self.alerts = []
         return rv
 
-    @asyncio.coroutine
-    def __call__(self, loop=None):
+    async def __call__(self, loop=None):
+        seqList = OrderedDict(gather_installed("turberfield.interfaces.sequence", log=self._log))
+        choice = next(iter(seqList.keys()), None)
+        self._log.info("Selected sequence '{0}'.".format(choice))
+        folder = seqList[choice]
+        self._log.info(folder)
+        self.dialogueQueue = asyncio.Queue(maxsize=1, loop=loop)
+        player = self.businesses[0].proprietor
+
         while not Clock.public.running:
-            yield from asyncio.sleep(0, loop=loop)
+            await asyncio.sleep(0, loop=loop)
+
+        if self.here is None: # Not at a a business
+            while folder:
+                folder = await run_through(
+                    folder, {player} | ensemble, self.dialogueQueue, loop=loop)
+            else:
+                self._log.info("Dialogue complete.")
+                self.dialogueQueue.put_nowait(None)
 
         while Clock.public.running:
-            yield from Clock.public.active.wait()
+            await Clock.public.active.wait()
             self.declare(
                 dict(
                     frame=self.frame,
@@ -394,7 +413,7 @@ class Game(Persistent):
                 ),
                 loop=loop
             )
-            yield from Clock.public.inactive.wait()
+            await Clock.public.inactive.wait()
 
     @asyncio.coroutine
     def watch(self, q, **kwargs):
