@@ -241,6 +241,7 @@ class Game(Persistent):
         self.location = None
         self.drama = None
         self.alerts = []
+        self._log.info("Initialized.")
 
     def load(self):
         name, pickler = next(

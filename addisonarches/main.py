@@ -25,6 +25,7 @@ import sys
 
 from turberfield.ipc.fsdb import token
 from turberfield.ipc.node import create_udp_node
+from turberfield.utils.misc import log_setup
 
 from addisonarches.cli import parsers
 import addisonarches.console
@@ -38,26 +39,8 @@ Move invocation of console, web elsewhere.
 """
 
 def main(args):
-    log = logging.getLogger("turberfield")
-    log.setLevel(args.log_level)
-
-    formatter = logging.Formatter(
-        "%(asctime)s %(levelname)-7s %(name)s|%(message)s")
-    ch = logging.StreamHandler()
-
-    if args.log_path is None:
-        ch.setLevel(args.log_level)
-    else:
-        fh = WatchedFileHandler(args.log_path)
-        fh.setLevel(args.log_level)
-        fh.setFormatter(formatter)
-        log.addHandler(fh)
-        ch.setLevel(logging.WARNING)
-
-    ch.setFormatter(formatter)
-    log.addHandler(ch)
-
     loop = asyncio.SelectorEventLoop()
+    log = logging.getLogger(log_setup(args, loop=loop))
     asyncio.set_event_loop(loop)
 
     down = asyncio.Queue(loop=loop)
