@@ -310,6 +310,10 @@ class Workflow(Service):
             "items": items,
         }
 
+    def frame(self, session, items=[]):
+        rv = self.progress(session, items)
+        return rv
+
     def progress(self, session, items=[]):
         log = logging.getLogger("addisonarches.web.progress")
         ts = time.time()
@@ -376,9 +380,10 @@ class Workflow(Service):
             loader_class=TemplateLoader
         )
 
+        # TODO: Send None, expect no reply
         return aiohttp.web.Response(
             content_type="text/html",
-            text=tmplt(**self.progress(session))
+            text=tmplt(**self.frame(session))
         )
 
     @asyncio.coroutine
