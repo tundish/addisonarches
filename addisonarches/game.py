@@ -514,7 +514,8 @@ class Game(Persistent):
                             self._log.info("Waiting for dialogue...")
                             shot, item = yield from self.dialogueQueue.get()
                             self._log.info(item)
-                            self.dialogue.append(item)
+                            if isinstance(item, Model.Line):
+                                self.dialogue.append(item)
                             self.dialogueQueue.task_done()
                 except Exception as e:
                     self._log.error(e)
