@@ -125,7 +125,7 @@ class Antiques(Trader):
 
 Assembly.register(
     Name,
-    Ownership, Presence, Vocabulary
+    Ownership, Presence, Vocabulary,
     Character, Commodity, Location, Plank, Table,
     FormB107, Keys, Location, Prisoner, PrisonOfficer, PrisonVisitor,
 )
