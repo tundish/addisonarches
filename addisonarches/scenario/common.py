@@ -48,11 +48,11 @@ characters = [
 )]
 
 ensemble = {
-    Prisoner(id=uuid.uuid4(), name="Mr Martin Sheppey"),
-    PrisonOfficer(id=uuid.uuid4(), name="Mr Ray Farington"),
-    PrisonVisitor(id=uuid.uuid4(), name="Mrs Karen Sheppey"),
-    FormB107(id=uuid.uuid4()),
-    Keys(id=uuid.uuid4(), label="Addison Arches 18A"),
+    Prisoner(id=uuid.uuid4().hex, name="Mr Martin Sheppey"),
+    PrisonOfficer(id=uuid.uuid4().hex, name="Mr Ray Farington"),
+    PrisonVisitor(id=uuid.uuid4().hex, name="Mrs Karen Sheppey"),
+    FormB107(id=uuid.uuid4().hex),
+    Keys(id=uuid.uuid4().hex, label="Addison Arches 18A"),
 }
 
 locations = [

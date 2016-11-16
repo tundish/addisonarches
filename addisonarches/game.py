@@ -18,13 +18,13 @@
 
 import ast
 import asyncio
+from collections import deque
 from collections import OrderedDict
 from collections import namedtuple
 import datetime
 from decimal import Decimal
 import getpass
 import itertools
-import json
 import logging
 import operator
 import os
@@ -36,6 +36,7 @@ import tempfile
 import time
 import uuid
 
+from turberfield.dialogue.model import Model
 from turberfield.dialogue.types import Player
 from turberfield.dialogue.viewer import run_through
 from turberfield.ipc.message import Alert
@@ -52,10 +53,18 @@ from addisonarches.business import Selling
 from addisonarches.business import Trader
 
 import addisonarches.scenario.easy
+from addisonarches.scenario.common import blue_monday
 from addisonarches.scenario.common import ensemble
 from addisonarches.scenario.common import locations
 from addisonarches.scenario.common import Location
+
 from addisonarches.scenario.types import Commodity
+from addisonarches.scenario.types import FormB107
+from addisonarches.scenario.types import Keys
+from addisonarches.scenario.types import Location
+from addisonarches.scenario.types import Prisoner
+from addisonarches.scenario.types import PrisonOfficer
+from addisonarches.scenario.types import PrisonVisitor
 
 from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
@@ -111,8 +120,12 @@ class Persistent(Expert):
             fP = os.path.join(*path)
             with Expert.declaration(fP) as output:
                 for i in data.get(each.attr, []):
-                    Assembly.dump(i, output, indent=0)
-                    output.write("\n")
+                    try:
+                        Assembly.dump(i, output, indent=0)
+                    except Exception as e:
+                        self._log.error(". ".join(getattr(e, "args", e) or e))
+                    finally:
+                        output.write("\n")
 
         pickles = (i for i in self._services.values()
                    if isinstance(i, Persistent.Pickled)
@@ -246,6 +259,7 @@ class Game(Persistent):
         self.drama = None
         self.alerts = []
         self.dialogueQueue = None
+        self.dialogue = deque(maxlen=4)
         self._log.info("Initialized.")
 
     def load(self):
@@ -322,7 +336,7 @@ class Game(Persistent):
 
     @property
     def frame(self):
-        return []
+        return list(self.dialogue)
 
     @property
     def progress(self):
@@ -496,12 +510,16 @@ class Game(Persistent):
                         else:
                             self.drama = Selling(memory=[item])
                     else:
-                        #TODO: Continue with dialogue
-                        self._log.info(job)
+                        if self.dialogueQueue is not None:
+                            self._log.info("Waiting for dialogue...")
+                            shot, item = yield from self.dialogueQueue.get()
+                            self._log.info(item)
+                            self.dialogue.append(item)
+                            self.dialogueQueue.task_done()
                 except Exception as e:
                     self._log.error(e)
 
-            self.declare(dict(progress=self.progress, inventory=self.inventory))
+            self.declare(dict(frame=self.frame, progress=self.progress, inventory=self.inventory))
 
             if None not in (msg, self.down):
                 msg = reply(msg.header)
@@ -543,5 +561,6 @@ def create(parent, user, name, token, down=None, up=None, loop=None):
     )
 
 Assembly.register(
-    Clock.Tick, Game.Drama, Game.Item, Game.Tally, Game.Via
+    Clock.Tick, Game.Drama, Game.Item, Game.Tally, Game.Via,
+    Model.Line,
 )

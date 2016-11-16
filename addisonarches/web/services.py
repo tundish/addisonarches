@@ -231,6 +231,7 @@ class Registration(Service):
         # raise HTTPBadRequest(
         #     "Bad value in '{}' field".format(form.invalid[0].name))
 
+        # TODO: turberfield.dialogue.types.Name
         name = data.getone("name")
         root = self.config["output"]
         if session not in Workflow.sessions:

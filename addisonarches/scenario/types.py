@@ -24,8 +24,13 @@ from addisonarches.business import Trader
 from addisonarches.compound import Compound
 
 from turberfield.dialogue.types import DataObject
+from turberfield.dialogue.types import Name
+from turberfield.dialogue.types import Ownership
 from turberfield.dialogue.types import Persona
+from turberfield.dialogue.types import Presence
 from turberfield.dialogue.types import Stateful
+from turberfield.dialogue.types import Vocabulary
+
 from turberfield.utils.assembly import Assembly
 
 
@@ -119,5 +124,8 @@ class Antiques(Trader):
     pass
 
 Assembly.register(
-    Character, Commodity, Location, Plank, Table
+    Name,
+    Ownership, Presence, Vocabulary
+    Character, Commodity, Location, Plank, Table,
+    FormB107, Keys, Location, Prisoner, PrisonOfficer, PrisonVisitor,
 )
