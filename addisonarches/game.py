@@ -36,6 +36,7 @@ import tempfile
 import time
 import uuid
 
+from turberfield.dialogue.types import Player
 from turberfield.dialogue.viewer import run_through
 from turberfield.ipc.message import Alert
 from turberfield.ipc.message import Message
@@ -54,7 +55,6 @@ import addisonarches.scenario.easy
 from addisonarches.scenario.common import ensemble
 from addisonarches.scenario.common import locations
 from addisonarches.scenario.common import Location
-from addisonarches.scenario.types import Character
 from addisonarches.scenario.types import Commodity
 
 from addisonarches.valuation import Ask
@@ -262,7 +262,7 @@ class Game(Persistent):
             self._services[name] = self._services[name]._replace(path=path)
             fP = os.path.join(*path)
             if not os.path.isfile(fP):
-                proprietor = Character(uuid.uuid4().hex, self.player.name)
+                proprietor = Player(id=uuid.uuid4().hex, name=self.player.name)
                 locns = [Location("Addison Arches 18a", 100)]
                 
                 self.businesses.insert(

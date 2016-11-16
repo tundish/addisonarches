@@ -106,7 +106,7 @@ setup(
             "stripeyhole = addisonarches.sequences.stripeyhole:contents",
         ],
         "turberfield.interfaces.ensemble": [
-            "sequence_01 = addisonarches.scenario:ensemble",
+            "sequence_01 = addisonarches.scenario.common:ensemble",
         ],
     },
     zip_safe=False
