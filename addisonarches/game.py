@@ -52,6 +52,7 @@ from addisonarches.business import Trader
 
 import addisonarches.scenario.easy
 from addisonarches.scenario.common import ensemble
+from addisonarches.scenario.common import locations
 from addisonarches.scenario.common import Location
 from addisonarches.scenario.types import Character
 from addisonarches.scenario.types import Commodity
@@ -262,17 +263,18 @@ class Game(Persistent):
             fP = os.path.join(*path)
             if not os.path.isfile(fP):
                 proprietor = Character(uuid.uuid4().hex, self.player.name)
-                locations = [Location("Addison Arches 18a", 100)]
+                locns = [Location("Addison Arches 18a", 100)]
                 
                 self.businesses.insert(
-                    0, CashBusiness(proprietor, None, locations, tally=1000))
+                    0, CashBusiness(proprietor, None, locns, tally=1000))
             else:
                 with open(fP, "rb") as fObj:
                     self.businesses = pickle.load(fObj)
 
             self.path = path._replace(file=None)
 
-        self.location = self.home
+        #self.location = self.home
+        self.location = locations[-1].name
         return self
 
     @property
@@ -282,7 +284,7 @@ class Game(Persistent):
     @property
     def destinations(self):
         # TODO: separate Map expert
-        return [
+        return [self.home] if self.here is None else [
             nearby for nearby in self.here.inventories
             if nearby != self.location
         ] or [self.home] if self.location != self.home else [
@@ -300,21 +302,22 @@ class Game(Persistent):
 
     @property
     def inventory(self):
+        capacity = self.here.inventories[self.location].capacity if self.here else None
         rv = [
-            Game.Item("Compound", k.label, k.description, locn, 0) 
+            Game.Item("Compound", k.label, k.description, locn, 0)
             for locn, i in self.businesses[0].inventories.items()
             for k, v in i.contents.items()
             for n in range(v)
             if getattr(k, "components", None)
         ] + [
-            Game.Item("Commodity", k.label, k.description, locn, 0) 
+            Game.Item("Commodity", k.label, k.description, locn, 0)
             for locn, i in self.businesses[0].inventories.items()
             for k, v in i.contents.items()
             for n in range(v)
             if not getattr(k, "components", None)
         ]
         rv.append(
-            Location(self.location, self.here.inventories[self.location].capacity)
+            Location(self.location, capacity)
         )
         return rv
 
@@ -324,9 +327,11 @@ class Game(Persistent):
 
     @property
     def progress(self):
+        capacity = self.here.inventories[self.location].capacity if self.here else None
+
         rv = [
             Clock.Tick(time.time(), Clock.public.value),
-            Location(self.location, self.here.inventories[self.location].capacity),
+            Location(self.location, capacity),
             Game.Tally(None, "cash", self.businesses[0].tally, "\xa3"),
             Game.Drama(
                 self.drama.__class__.__name__,
@@ -339,55 +344,60 @@ class Game(Persistent):
         ] + [
             Game.Via(n, i, None) for n, i in enumerate(self.destinations)
         ]
-        iBusiness = self.businesses.index(self.here)
-        rv.extend([
-            Game.Item("Compound", k.label, k.description, self.location, iBusiness) 
-            for k, v in self.here.inventories[self.location].contents.items()
-            for i in range(v)
-            if getattr(k, "components", None)
-        ])
-        rv.extend([
-            Game.Item("Commodity", k.label, k.description, self.location, iBusiness) 
-            for k, v in self.here.inventories[self.location].contents.items()
-            for i in range(v)
-            if not getattr(k, "components", None)
-        ])
 
-        if self.here != self.businesses[0]:
-            rv.append(self.here.proprietor)
+        if self.here is not None:
+            iBusiness = self.businesses.index(self.here)
+            rv.extend([
+                Game.Item("Compound", k.label, k.description, self.location, iBusiness) 
+                for k, v in self.here.inventories[self.location].contents.items()
+                for i in range(v)
+                if getattr(k, "components", None)
+            ])
+            rv.extend([
+                Game.Item("Commodity", k.label, k.description, self.location, iBusiness) 
+                for k, v in self.here.inventories[self.location].contents.items()
+                for i in range(v)
+                if not getattr(k, "components", None)
+            ])
 
-        try:
-            handler = self.here.handler(self.drama)
-            reaction = handler(self.drama, self)
-            rv.extend(list(reaction))
-        except AttributeError:
-            # Player business is not a Handler subclass
-            self.alerts.append(Alert(
-                datetime.datetime.now(),
-                "Earache and fisticuffs? Take them elsewhere.")
-            )
-        except TypeError:
-            rv.append(Trader.Patter(
-                self.here.proprietor,
-                random.choice([
-                    "Hello, {0.name}".format(self.businesses[0].proprietor),
-                    "What can I do for you?"
-                ])
-            ))
-        except Exception as e:
-            print(e)
+            if self.here != self.businesses[0]:
+                rv.append(self.here.proprietor)
 
-        finally:
-            rv.extend(self.alerts)
-            self.alerts = []
+            try:
+                handler = self.here.handler(self.drama)
+                reaction = handler(self.drama, self)
+                rv.extend(list(reaction))
+            except AttributeError:
+                # Player business is not a Handler subclass
+                self.alerts.append(Alert(
+                    datetime.datetime.now(),
+                    "Earache and fisticuffs? Take them elsewhere.")
+                )
+            except TypeError:
+                rv.append(Trader.Patter(
+                    self.here.proprietor,
+                    random.choice([
+                        "Hello, {0.name}".format(self.businesses[0].proprietor),
+                        "What can I do for you?"
+                    ])
+                ))
+            except Exception as e:
+                print(e)
+
+            finally:
+                rv.extend(self.alerts)
+                self.alerts = []
+
         return rv
 
     async def __call__(self, loop=None):
-        seqList = OrderedDict(gather_installed("turberfield.interfaces.sequence", log=self._log))
-        choice = next(iter(seqList.keys()), None)
-        self._log.info("Selected sequence '{0}'.".format(choice))
-        folder = seqList[choice]
-        self.dialogueQueue = asyncio.Queue(maxsize=1, loop=loop)
+        """
+        In a business location, the game is driven by user interaction.
+        Clock ticks operate the game calendar.
+
+        Outside of business locations, we wait for a clock tick and offer dialogue.
+
+        """
         player = self.businesses[0].proprietor
 
         while not Clock.public.running:
@@ -395,12 +405,17 @@ class Game(Persistent):
 
         while Clock.public.running:
             if self.here is None: # Not at a a business
+                seqList = OrderedDict(gather_installed("turberfield.interfaces.sequence", log=self._log))
+                choice = next(iter(seqList.keys()), None)
+                self._log.info("Selected sequence '{0}'.".format(choice))
+                folder = seqList[choice]
+                self.dialogueQueue = asyncio.Queue(maxsize=1, loop=loop)
                 while folder:
                     folder = await run_through(
                         folder, {player} | ensemble, self.dialogueQueue, loop=loop)
                 else:
                     self._log.info("Dialogue complete.")
-                    self.dialogueQueue.put_nowait(None)
+                    self.dialogueQueue = None
 
             await Clock.public.active.wait()
             self.declare(
