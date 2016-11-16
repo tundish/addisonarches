@@ -273,7 +273,6 @@ class Game(Persistent):
 
             self.path = path._replace(file=None)
 
-        #self.location = self.home
         self.location = locations[-1].name
         return self
 

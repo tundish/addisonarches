@@ -147,6 +147,9 @@ class TestUsesNode(unittest.TestCase):
                 game, clock, down, up, loop=self.loop
             )
 
+            # Tests start at Addison Arches
+            game.location = game.home
+
             return progress
 
         progress = game_setup(loop, self.root.name)
@@ -189,7 +192,6 @@ class TestUsesNode(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            #self.run_test_async(stimulus, loop=self.loop)
             self.assertRaises(
                 AssertionError,
                 self.run_test_async, stimulus, loop=self.loop
@@ -288,6 +290,9 @@ class GameTests(unittest.TestCase):
             progress, down, up = init_game(
                 game, clock, down, up, loop=self.loop
             )
+
+            # Tests start at Addison Arches
+            game.location = game.home
 
             return progress
 
