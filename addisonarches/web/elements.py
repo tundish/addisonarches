@@ -22,6 +22,7 @@ import logging
 import re
 import time
 
+from turberfield.dialogue.model import Model
 from turberfield.ipc.message import Alert
 
 from addisonarches.business import Buying
@@ -124,6 +125,13 @@ def character(data, session=None, **kwargs):
         obj = data
     return View(obj, actions={})
  
+def dialogue(data, session=None, **kwargs):
+    try:
+        obj = Model.Line(**data)
+    except TypeError:
+        obj = data
+    return View(obj, actions={})
+
 def drama(data, session=None, **kwargs):
     try:
         obj = Game.Drama(**data)

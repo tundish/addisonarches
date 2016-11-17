@@ -55,6 +55,7 @@ from addisonarches.web.elements import alert
 from addisonarches.web.elements import ask
 from addisonarches.web.elements import bid
 from addisonarches.web.elements import character
+from addisonarches.web.elements import dialogue
 from addisonarches.web.elements import drama
 from addisonarches.web.elements import item
 from addisonarches.web.elements import patter
@@ -312,10 +313,18 @@ class Workflow(Service):
         }
 
     def frame(self, session, items=[]):
+        log = logging.getLogger("addisonarches.web.frame")
         rv = self.progress(session, items)
+        path, down, up = self.sessions[session]
+        items = items or get_objects(path._replace(file="frame.rson"))
+        rv["items"].extend([dialogue(i, session=session) for i in items])
         return rv
 
     def progress(self, session, items=[]):
+        """
+        Metadata about the game session.
+
+        """
         log = logging.getLogger("addisonarches.web.progress")
         ts = time.time()
         path, down, up = self.sessions[session]
@@ -327,6 +336,8 @@ class Workflow(Service):
                 (i, item(i, session=session, totals=totals))
                 for i in groups[Game.Item]])
         location = next(iter(groups[Location]), None)
+
+        # TODO: Needs to go in business layer
         pending = getattr(next(iter(groups[Game.Drama]), None), "type", None)
 
         for view in items.values():
