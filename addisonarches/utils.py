@@ -55,6 +55,8 @@ def rson2objs(text):
     """
     Read an RSON string and return a sequence of data objects.
     """
+    if not text:
+        return []
     things = rson.loads(text)
     things = things if isinstance(things, list) else [things]
     return [Assembly.object_hook(i) for i in things]

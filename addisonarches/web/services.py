@@ -355,7 +355,7 @@ class Workflow(Service):
         return {
             "info": {
                 "args": self.config.get("args"),
-                "interval": 200,
+                "interval": 2 if location is None else 6,
                 "session": session,
                 "time": "{:.1f}".format(ts),
                 "title": "Addison Arches {}".format(__version__),

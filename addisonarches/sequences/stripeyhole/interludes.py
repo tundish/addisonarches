@@ -20,3 +20,8 @@ async def default(folder, ensemble, log=None, loop=None):
     if log is not None:
         log.debug("No activity during interlude")
     return folder
+
+async def stop(folder, ensemble, log=None, loop=None):
+    if log is not None:
+        log.debug("Interlude stops dialogue")
+    return None

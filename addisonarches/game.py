@@ -260,6 +260,7 @@ class Game(Persistent):
         self.alerts = []
         self.dialogueQueue = None
         self.dialogue = deque(maxlen=4)
+        self.shot = None
         self._log.info("Initialized.")
 
     def load(self):
@@ -417,7 +418,7 @@ class Game(Persistent):
             await asyncio.sleep(0, loop=loop)
 
         while Clock.public.running:
-            if self.here is None: # Not at a a business
+            if self.here is None: # Not at a business
                 seqList = OrderedDict(gather_installed("turberfield.interfaces.sequence", log=self._log))
                 choice = next(iter(seqList.keys()), None)
                 self._log.info("Selected sequence '{0}'.".format(choice))
@@ -429,6 +430,8 @@ class Game(Persistent):
                 else:
                     self._log.info("Dialogue complete.")
                     self.dialogueQueue = None
+                    self.shot = None
+                    self.location = self.home
 
             await Clock.public.active.wait()
             self.declare(
@@ -513,10 +516,14 @@ class Game(Persistent):
                         if self.dialogueQueue is not None:
                             self._log.info("Waiting for dialogue...")
                             shot, item = yield from self.dialogueQueue.get()
-                            self._log.info(item)
+                            if shot is not self.shot:
+                                self.dialogue.clear()
                             if isinstance(item, Model.Line):
                                 self.dialogue.append(item)
+                            self.shot = shot
                             self.dialogueQueue.task_done()
+                        else:
+                            self.dialogue.clear()
                 except Exception as e:
                     self._log.error(e)
 
