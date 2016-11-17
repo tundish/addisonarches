@@ -317,7 +317,9 @@ class Workflow(Service):
         rv = self.progress(session, items)
         path, down, up = self.sessions[session]
         items = items or get_objects(path._replace(file="frame.rson"))
-        rv["items"].extend([dialogue(i, session=session) for i in items])
+        if items:
+            rv["info"]["interval"] = 1.5 + 0.2 * items[-1].text.count(" ")
+            rv["items"].extend([dialogue(i, session=session) for i in items])
         return rv
 
     def progress(self, session, items=[]):

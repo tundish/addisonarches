@@ -11,8 +11,8 @@
 <link rel="stylesheet" href="/css/pure/pure-min.css" media="screen" />
 <link rel="stylesheet" href="/css/pure/grids-responsive-min.css" media="screen" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!--(if default("info['refresh']", None) is not None)-->
-    <meta http-equiv="refresh" content="@!info['refresh']!@" />
+    <!--(if default("info['interval']", None) is not None)-->
+    <meta http-equiv="refresh" content="@!info['interval']!@" />
     <!--(end)-->
 </head>
 <!--(end)-->
