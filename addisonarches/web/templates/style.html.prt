@@ -45,19 +45,19 @@ li.item {
 background-color: #d1f274;
 }
 
-li.patter{
+li.patter, li.line{
 background-color: #fff9e0;
 }
 
-li.patter blockquote header::after{
+li.patter blockquote header::after, li.line blockquote header::after{
 content: ": ";
 }
 
-li.patter blockquote p::after{
+li.patter blockquote p::after, li.line blockquote p::after{
 content: close-quote;
 }
 
-li.patter blockquote p::before{
+li.patter blockquote p::before, li.line blockquote p::before{
 content: open-quote;
 }
 
