@@ -1,0 +1,20 @@
+<!--(set_escape)-->
+    html
+<!--(end)-->
+
+<!--(macro diorama_list)-->
+<ol class="local-diorama">
+    <!--(for avatar in items)-->
+    <li style="display: inline; overflow: hidden">
+        <img
+            alt="@! default("' '.join((avatar.entity.name.firstname, avatar.entity.name.surname))", avatar.entity.id) !@"
+            src="@!'/img/{0}'.format(avatar.image)!@" height="@!600 // len(items)!@"
+        />
+    </li>
+    <!--(end)-->
+</ol>
+<!--(end)-->
+
+<!--(if exists("unittest"))-->
+@!diorama_list(items=items)!@
+<!--(end)-->

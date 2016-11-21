@@ -208,6 +208,7 @@ class Clock(Persistent):
 
 class Game(Persistent):
 
+    Avatar = namedtuple("Feature", ["entity", "image"])
     Drama = namedtuple("Drama", ["type", "mood"])
     Item = namedtuple("Item", ["type", "label", "description", "location", "owner"])
     Player = namedtuple("Player", ["user", "name"])
@@ -346,9 +347,7 @@ class Game(Persistent):
         Ordered dictionary of entity: image asset
 
         """
-        return OrderedDict([
-            (i, "qmark-306x515.jpg") for i in self.ensemble
-        ]).items()
+        return [Game.Avatar(i, "qmark-306x515.jpg") for i in self.ensemble]
 
     @property
     def frame(self):
@@ -593,6 +592,6 @@ def create(parent, user, name, token, down=None, up=None, loop=None):
     )
 
 Assembly.register(
-    Clock.Tick, Game.Drama, Game.Item, Game.Tally, Game.Via,
+    Clock.Tick, Game.Avatar, Game.Drama, Game.Item, Game.Tally, Game.Via,
     Model.Line, Player
 )

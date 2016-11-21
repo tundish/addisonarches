@@ -320,6 +320,8 @@ class Workflow(Service):
         if items:
             rv["info"]["interval"] = 1.5 + 0.2 * items[-1].text.count(" ")
             rv["items"].extend([dialogue(i, session=session) for i in items])
+        avatars = get_objects(path._replace(file="diorama.rson"))
+        rv["diorama"] = avatars
         return rv
 
     def progress(self, session, items=[]):
