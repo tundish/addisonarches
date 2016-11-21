@@ -53,8 +53,8 @@ from addisonarches.business import Selling
 from addisonarches.business import Trader
 
 import addisonarches.scenario.easy
+import addisonarches.scenario.common
 from addisonarches.scenario.common import blue_monday
-from addisonarches.scenario.common import ensemble
 from addisonarches.scenario.common import locations
 from addisonarches.scenario.common import Location
 
@@ -222,15 +222,20 @@ class Game(Persistent):
     ):
         # No need for HATEOAS until knockout.js
         return OrderedDict([
-            ("inventory.rson", Persistent.RSON(
-                "inventory.rson",
-                "inventory",
-                Persistent.Path(parent, player.user, slot, "inventory.rson")
+            ("diorama.rson", Persistent.RSON(
+                "diorama.rson",
+                "diorama",
+                Persistent.Path(parent, player.user, slot, "diorama.rson")
             )),
             ("frame.rson", Persistent.RSON(
                 "frame.rson",
                 "frame",
                 Persistent.Path(parent, player.user, slot, "frame.rson")
+            )),
+            ("inventory.rson", Persistent.RSON(
+                "inventory.rson",
+                "inventory",
+                Persistent.Path(parent, player.user, slot, "inventory.rson")
             )),
             ("progress.rson", Persistent.RSON(
                 "progress.rson",
@@ -336,6 +341,16 @@ class Game(Persistent):
         return rv
 
     @property
+    def diorama(self):
+        """
+        Ordered dictionary of entity: image asset
+
+        """
+        return OrderedDict([
+            (i, "qmark-306x515.jpg") for i in self.ensemble
+        ]).items()
+
+    @property
     def frame(self):
         return list(self.dialogue)
 
@@ -413,6 +428,7 @@ class Game(Persistent):
 
         """
         player = self.businesses[0].proprietor
+        self.ensemble = [player] + addisonarches.scenario.common.ensemble
 
         while not Clock.public.running:
             await asyncio.sleep(0, loop=loop)
@@ -426,7 +442,7 @@ class Game(Persistent):
                 self.dialogueQueue = asyncio.Queue(maxsize=1, loop=loop)
                 while folder:
                     folder = await run_through(
-                        folder, {player} | ensemble, self.dialogueQueue, loop=loop)
+                        folder, self.ensemble, self.dialogueQueue, loop=loop)
                 else:
                     self._log.info("Dialogue complete.")
                     self.dialogueQueue = None
@@ -436,6 +452,7 @@ class Game(Persistent):
             await Clock.public.active.wait()
             self.declare(
                 dict(
+                    diorama=self.diorama,
                     frame=self.frame,
                     progress=self.progress,
                     inventory=self.inventory,
@@ -527,7 +544,14 @@ class Game(Persistent):
                 except Exception as e:
                     self._log.error(e)
 
-            self.declare(dict(frame=self.frame, progress=self.progress, inventory=self.inventory))
+            self.declare(
+                dict(
+                    diorama=self.diorama,
+                    frame=self.frame,
+                    progress=self.progress,
+                    inventory=self.inventory
+                )
+            )
 
             if None not in (msg, self.down):
                 msg = reply(msg.header)
@@ -570,5 +594,5 @@ def create(parent, user, name, token, down=None, up=None, loop=None):
 
 Assembly.register(
     Clock.Tick, Game.Drama, Game.Item, Game.Tally, Game.Via,
-    Model.Line,
+    Model.Line, Player
 )

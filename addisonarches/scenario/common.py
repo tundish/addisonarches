@@ -47,13 +47,13 @@ characters = [
     "Itta Metz",
 )]
 
-ensemble = {
+ensemble = [
     Prisoner(id=uuid.uuid4().hex, name="Mr Martin Sheppey"),
     PrisonOfficer(id=uuid.uuid4().hex, name="Mr Ray Farington"),
     PrisonVisitor(id=uuid.uuid4().hex, name="Mrs Karen Sheppey"),
     FormB107(id=uuid.uuid4().hex),
     Keys(id=uuid.uuid4().hex, label="Addison Arches 18A"),
-}
+]
 
 locations = [
     Location("Addison Arches 18a", 100),
