@@ -349,7 +349,9 @@ class Game(Persistent):
 
         """
         lookup = {i.name: i for i in addisonarches.scenario.icons.icons}
-        return [Game.Avatar(i, lookup.get(i.__class__.__name__.lower())) for i in self.ensemble]
+        return [a for a in (
+            Game.Avatar(i, lookup.get(i.__class__.__name__.lower())) for i in self.ensemble)
+            if a.icon is not None]
 
     @property
     def frame(self):

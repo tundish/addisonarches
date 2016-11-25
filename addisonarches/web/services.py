@@ -136,7 +136,7 @@ class Assets(Service):
             )
 
     @asyncio.coroutine
-    def font_path_get(self, request):
+    def fonts_path_get(self, request):
         path = request.match_info["path"]
         if ".." in path:
             return aiohttp.web.HTTPForbidden()
