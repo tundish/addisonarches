@@ -1,0 +1,23 @@
+
+@font-face {
+    font-family: "addisonarches";
+    src:  url("/fonts/addisonarches.woff");
+    font-weight: normal;
+    font-style: normal;
+}
+
+.diorama:before, .diorama {
+    display: inline-block;
+    font-family: "addisonarches";
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    line-height: 1;
+    text-transform: none;
+    text-rendering: auto;
+    speak: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.diorama-prisonofficer:before{content: "Ş"}
