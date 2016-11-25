@@ -6,10 +6,9 @@
 <ol class="local-diorama">
     <!--(for avatar in items)-->
     <li style="display: inline; overflow: hidden">
-        <img
-            alt="@! default("' '.join((avatar.entity.name.firstname, avatar.entity.name.surname))", avatar.entity.id) !@"
-            src="@!'/img/{0}'.format(avatar.image)!@" height="@!600 // len(items)!@"
-        />
+        <span class="@! avatar.icon.prefix !@ @! avatar.icon.prefix !@-@! avatar.icon.name !@">
+        @! default("' '.join((avatar.entity.name.firstname, avatar.entity.name.surname))", avatar.entity.id) !@
+        </span>
     </li>
     <!--(end)-->
 </ol>

@@ -100,6 +100,7 @@ class Assets(Service):
             app,
             "/audio/{path}",
             "/css/{path:[^{}]+}",
+            "/fonts/{path:[^{}]+}",
             "/img/{path}",
             "/js/{path}"
         )))
@@ -132,6 +133,22 @@ class Assets(Service):
             return aiohttp.web.Response(
                 body=data,
                 content_type="text/css"
+            )
+
+    @asyncio.coroutine
+    def font_path_get(self, request):
+        path = request.match_info["path"]
+        if ".." in path:
+            return aiohttp.web.HTTPForbidden()
+        else:
+            data = pkg_resources.resource_string(
+                "addisonarches.web",
+                "static/fonts/{}".format(path)
+            )
+
+            return aiohttp.web.Response(
+                body=data,
+                content_type="application/font-ttf" if path.endswith("ttf") else "application/font-woff"
             )
 
     @asyncio.coroutine

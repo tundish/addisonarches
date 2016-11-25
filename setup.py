@@ -66,6 +66,8 @@ setup(
             "static/audio/*.wav",
             "static/css/*.css",
             "static/css/*/*.css",
+            "static/fonts/*.ttf",
+            "static/fonts/*.woff",
             "static/img/*.jpg",
             "static/img/*.png",
             "static/js/*.js",

@@ -54,6 +54,7 @@ from addisonarches.business import Trader
 
 import addisonarches.scenario.easy
 import addisonarches.scenario.common
+import addisonarches.scenario.icons
 from addisonarches.scenario.common import blue_monday
 from addisonarches.scenario.common import locations
 from addisonarches.scenario.common import Location
@@ -208,7 +209,7 @@ class Clock(Persistent):
 
 class Game(Persistent):
 
-    Avatar = namedtuple("Feature", ["entity", "image"])
+    Avatar = namedtuple("Feature", ["entity", "icon"])
     Drama = namedtuple("Drama", ["type", "mood"])
     Item = namedtuple("Item", ["type", "label", "description", "location", "owner"])
     Player = namedtuple("Player", ["user", "name"])
@@ -347,7 +348,8 @@ class Game(Persistent):
         Ordered dictionary of entity: image asset
 
         """
-        return [Game.Avatar(i, "qmark-306x515.jpg") for i in self.ensemble]
+        lookup = {i.name: i for i in addisonarches.scenario.icons.icons}
+        return [Game.Avatar(i, lookup.get(i.__class__.__name__.lower())) for i in self.ensemble]
 
     @property
     def frame(self):
