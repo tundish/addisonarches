@@ -1,7 +1,7 @@
 
 @font-face {
     font-family: "addisonarches";
-    src:  url("/fonts/addisonarches.woff");
+    src:  url("../fonts/addisonarches.woff");
     font-weight: normal;
     font-style: normal;
 }
@@ -20,4 +20,8 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
-.diorama-prisonofficer:before{content: "Ş"}
+.diorama-formb107:before{content: "Ş"}
+.diorama-keys:before{content: "ş"}
+.diorama-prisoner:before{content: "Š"}
+.diorama-prisonofficer:before{content: "š"}
+.diorama-prisonvisitor:before{content: "Ţ"}
