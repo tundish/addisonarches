@@ -3,15 +3,12 @@
 <!--(end)-->
 
 <!--(macro diorama_list)-->
-<ol class="local-diorama">
+<dl class="diorama">
     <!--(for avatar in items)-->
-    <li style="display: inline; overflow: hidden">
-        <span class="@! avatar.icon.prefix !@ @! avatar.icon.prefix !@-@! avatar.icon.name !@">
-        @! default("' '.join((avatar.entity.name.firstname, avatar.entity.name.surname))", avatar.entity.id) !@
-        </span>
-    </li>
+    <dt class="@! avatar.icon.prefix !@ @! avatar.icon.prefix !@-@! avatar.icon.name !@"></dt>
+    <dd>@! default("' '.join((avatar.entity.name.firstname, avatar.entity.name.surname))", avatar.entity.id) !@</dd>
     <!--(end)-->
-</ol>
+</dl>
 <!--(end)-->
 
 <!--(if exists("unittest"))-->
