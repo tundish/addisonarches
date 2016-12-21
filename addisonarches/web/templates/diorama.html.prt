@@ -6,7 +6,7 @@
 <dl class="diorama">
     <!--(for avatar in items)-->
     <dt class="@! avatar.icon.prefix !@ @! avatar.icon.prefix !@-@! avatar.icon.name !@"></dt>
-    <dd>@! default("' '.join((avatar.entity.name.firstname, avatar.entity.name.surname))", avatar.entity.id) !@</dd>
+    <dd>@! default("' '.join((avatar.entity.name.firstname, avatar.entity.name.surname))", avatar.icon.name.capitalize()) !@</dd>
     <!--(end)-->
 </dl>
 <!--(end)-->

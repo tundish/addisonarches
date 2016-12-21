@@ -209,7 +209,7 @@ class Clock(Persistent):
 
 class Game(Persistent):
 
-    Avatar = namedtuple("Feature", ["entity", "icon"])
+    Avatar = namedtuple("Avatar", ["entity", "icon"])
     Drama = namedtuple("Drama", ["type", "mood"])
     Item = namedtuple("Item", ["type", "label", "description", "location", "owner"])
     Player = namedtuple("Player", ["user", "name"])
