@@ -91,6 +91,7 @@ setup(
     extras_require={
         "dev": [
             "pep8>=1.6.2",
+            "pygeohash>=1.2.0",
         ],
         "docbuild": [
             "babel>=2.2.0",
