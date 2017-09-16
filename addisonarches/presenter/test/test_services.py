@@ -19,7 +19,7 @@
 import unittest
 from unittest.mock import Mock
 
-from addisonarches.web.services import Service
+from addisonarches.presenter.services import Service
 
 class RegisterTests(unittest.TestCase):
 

@@ -28,10 +28,10 @@ from turberfield.ipc.message import Alert
 
 from addisonarches.game import Game
 from addisonarches.utils import group_by_type
-from addisonarches.web.elements import alert
-from addisonarches.web.elements import item
-from addisonarches.web.elements import via
-from addisonarches.web.utils import TemplateLoader
+from addisonarches.presenter.elements import alert
+from addisonarches.presenter.elements import item
+from addisonarches.presenter.elements import via
+from addisonarches.presenter.utils import TemplateLoader
 
 summary_macro = pyratemp.Template(
     filename="summary.html.prt",

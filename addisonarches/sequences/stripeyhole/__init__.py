@@ -11,6 +11,7 @@ The very first scripted scenes to appear in Addison Arches.
 contents = SceneScript.Folder(
     "addisonarches.sequences.stripeyhole",
     __doc__,
+    None,
     ["first_positions.rst", "visiting_suite.rst", "guards_office.rst"],
     [default, default, stop]
 )

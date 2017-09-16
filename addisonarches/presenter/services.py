@@ -51,18 +51,18 @@ from addisonarches.utils import get_objects
 from addisonarches.utils import group_by_type
 from addisonarches.utils import query_object_chain
 
-from addisonarches.web.elements import alert
-from addisonarches.web.elements import ask
-from addisonarches.web.elements import bid
-from addisonarches.web.elements import character
-from addisonarches.web.elements import dialogue
-from addisonarches.web.elements import drama
-from addisonarches.web.elements import item
-from addisonarches.web.elements import patter
-from addisonarches.web.elements import tally
-from addisonarches.web.elements import tick
-from addisonarches.web.elements import via
-from addisonarches.web.utils import TemplateLoader
+from addisonarches.presenter.elements import alert
+from addisonarches.presenter.elements import ask
+from addisonarches.presenter.elements import bid
+from addisonarches.presenter.elements import character
+from addisonarches.presenter.elements import dialogue
+from addisonarches.presenter.elements import drama
+from addisonarches.presenter.elements import item
+from addisonarches.presenter.elements import patter
+from addisonarches.presenter.elements import tally
+from addisonarches.presenter.elements import tick
+from addisonarches.presenter.elements import via
+from addisonarches.presenter.utils import TemplateLoader
 
 APP_NAME = "addisonarches.web.services"
 

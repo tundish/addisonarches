@@ -80,11 +80,11 @@ setup(
         ]
     },
     install_requires=[
-        "aiohttp>=0.17.4",
+        "aiohttp>=2.2.5",
         "rson>=0.9",
         "pyratemp>=0.3.2",
         "tallywallet-common>=0.009.0",
-        "turberfield-dialogue>=0.4.0",
+        "turberfield-dialogue>=0.9.0",
         "turberfield-ipc>=0.13.0",
         "turberfield-utils>=0.21.0",
     ],

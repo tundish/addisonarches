@@ -37,8 +37,8 @@ import time
 import uuid
 
 from turberfield.dialogue.model import Model
+from turberfield.dialogue.player import run_through
 from turberfield.dialogue.types import Player
-from turberfield.dialogue.viewer import run_through
 from turberfield.ipc.message import Alert
 from turberfield.ipc.message import Message
 from turberfield.ipc.message import parcel

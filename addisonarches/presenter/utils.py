@@ -25,13 +25,13 @@ import pyratemp
 class TemplateLoader(pyratemp.LoaderFile):
 
     def __init__(self, *args, encoding="utf=8", **kwargs):
-        path = pkg_resources.resource_filename("addisonarches.web", "templates")
+        path = pkg_resources.resource_filename("addisonarches.presenter", "templates")
         super().__init__(path, encoding, **kwargs)
 
     @functools.lru_cache(maxsize=16)
     def load(self, name):
         return pkg_resources.resource_string(
-            "addisonarches.web",
+            "addisonarches.presenter",
             "templates/{}".format(name)
         ).decode(self.encoding)
 

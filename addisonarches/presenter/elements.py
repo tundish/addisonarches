@@ -30,13 +30,13 @@ from addisonarches.business import Selling
 from addisonarches.business import Trader
 from addisonarches.game import Game
 from addisonarches.game import Clock
+from addisonarches.presenter.hateoas import Action
+from addisonarches.presenter.hateoas import Parameter
+from addisonarches.presenter.hateoas import View
 from addisonarches.scenario.types import Location
 from addisonarches.scenario.types import Character
 from addisonarches.valuation import Ask
 from addisonarches.valuation import Bid
-from addisonarches.web.hateoas import Action
-from addisonarches.web.hateoas import Parameter
-from addisonarches.web.hateoas import View
 
 
 def alert(data, session=None, **kwargs):
