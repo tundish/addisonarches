@@ -40,12 +40,14 @@ setup(
     ],
     packages=[
         "addisonarches",
-        "addisonarches.test",
+        "addisonarches.model",
+        "addisonarches.model.test",
         "addisonarches.scenario",
         "addisonarches.sequences",
         "addisonarches.sequences.test",
         "addisonarches.sequences.stripeyhole",
         "addisonarches.presenter",
+        "addisonarches.presenter.test",
     ],
     package_data={
         "addisonarches": [
