@@ -26,12 +26,12 @@ import pyratemp
 
 from turberfield.ipc.message import Alert
 
-from addisonarches.game import Game
-from addisonarches.utils import group_by_type
+from addisonarches.model.game import Game
 from addisonarches.presenter.elements import alert
 from addisonarches.presenter.elements import item
 from addisonarches.presenter.elements import via
 from addisonarches.presenter.utils import TemplateLoader
+from addisonarches.utils import group_by_type
 
 summary_macro = pyratemp.Template(
     filename="summary.html.prt",

@@ -20,7 +20,8 @@ from collections import Counter
 import datetime
 from decimal import Decimal
 
-from addisonarches.inventory import Volume
+from addisonarches.model.inventory import Volume
+from addisonarches.model.valuation import ValueBook
 from addisonarches.scenario.common import blue_monday
 from addisonarches.scenario.common import characters
 from addisonarches.scenario.common import locations
@@ -35,7 +36,6 @@ from addisonarches.scenario.types import Recycling
 from addisonarches.scenario.types import ShipmentOfTables
 from addisonarches.scenario.types import Table
 from addisonarches.scenario.types import Wholesale
-from addisonarches.valuation import ValueBook
 
 from tallywallet.common.finance import Note
 

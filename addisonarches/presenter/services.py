@@ -36,14 +36,14 @@ from turberfield.ipc.message import Alert
 from turberfield.ipc.message import parcel
 
 from addisonarches import __version__
-from addisonarches.business import Buying
-from addisonarches.business import Selling
-from addisonarches.business import Trader
+from addisonarches.model.business import Buying
+from addisonarches.model.business import Selling
+from addisonarches.model.business import Trader
 
-import addisonarches.game
-from addisonarches.game import Clock
-from addisonarches.game import Game
-from addisonarches.game import Persistent
+import addisonarches.model.game
+from addisonarches.model.game import Clock
+from addisonarches.model.game import Game
+from addisonarches.model.game import Persistent
 from addisonarches.scenario.types import Location
 from addisonarches.scenario.types import Character
 

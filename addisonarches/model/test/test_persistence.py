@@ -22,8 +22,8 @@ import pickle
 import tempfile
 import unittest
 
-from addisonarches.game import Game
-from addisonarches.game import Persistent
+from addisonarches.model.game import Game
+from addisonarches.model.game import Persistent
 import addisonarches.scenario.easy
 
 

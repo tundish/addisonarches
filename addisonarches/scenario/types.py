@@ -20,8 +20,8 @@ from collections import namedtuple
 from enum import Enum
 import random
 
-from addisonarches.business import Trader
-from addisonarches.compound import Compound
+from addisonarches.model.business import Trader
+from addisonarches.model.compound import Compound
 
 from turberfield.dialogue.types import DataObject
 from turberfield.dialogue.types import Name

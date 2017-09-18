@@ -25,18 +25,18 @@ import time
 from turberfield.dialogue.model import Model
 from turberfield.ipc.message import Alert
 
-from addisonarches.business import Buying
-from addisonarches.business import Selling
-from addisonarches.business import Trader
-from addisonarches.game import Game
-from addisonarches.game import Clock
+from addisonarches.model.business import Buying
+from addisonarches.model.business import Selling
+from addisonarches.model.business import Trader
+from addisonarches.model.game import Game
+from addisonarches.model.game import Clock
+from addisonarches.model.valuation import Ask
+from addisonarches.model.valuation import Bid
 from addisonarches.presenter.hateoas import Action
 from addisonarches.presenter.hateoas import Parameter
 from addisonarches.presenter.hateoas import View
 from addisonarches.scenario.types import Location
 from addisonarches.scenario.types import Character
-from addisonarches.valuation import Ask
-from addisonarches.valuation import Bid
 
 
 def alert(data, session=None, **kwargs):
