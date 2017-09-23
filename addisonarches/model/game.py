@@ -47,10 +47,12 @@ from turberfield.utils.assembly import Assembly
 from turberfield.utils.expert import Expert
 from turberfield.utils.misc import gather_installed
 
-from addisonarches.business import Buying
-from addisonarches.business import CashBusiness
-from addisonarches.business import Selling
-from addisonarches.business import Trader
+from addisonarches.model.business import Buying
+from addisonarches.model.business import CashBusiness
+from addisonarches.model.business import Selling
+from addisonarches.model.business import Trader
+from addisonarches.model.valuation import Ask
+from addisonarches.model.valuation import Bid
 
 import addisonarches.scenario.easy
 import addisonarches.scenario.common
@@ -66,9 +68,6 @@ from addisonarches.scenario.types import Location
 from addisonarches.scenario.types import Prisoner
 from addisonarches.scenario.types import PrisonOfficer
 from addisonarches.scenario.types import PrisonVisitor
-
-from addisonarches.valuation import Ask
-from addisonarches.valuation import Bid
 
 
 __doc__ = """

@@ -22,7 +22,7 @@ import unittest
 from multidict import MultiDict
 from turberfield.ipc.message import Alert
 
-from addisonarches.game import Game
+from addisonarches.model.game import Game
 from addisonarches.presenter.elements import alert
 from addisonarches.presenter.elements import via
 

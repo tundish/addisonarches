@@ -35,14 +35,14 @@ from turberfield.ipc.message import Alert
 from turberfield.ipc.message import parcel
 from turberfield.ipc.node import create_udp_node
 
-from addisonarches.business import Buying
-from addisonarches.business import Trader
+from addisonarches.model.business import Buying
+from addisonarches.model.business import Trader
 
-from addisonarches.game import Clock
-from addisonarches.game import Game
-from addisonarches.game import Persistent
-from addisonarches.game import create_game
-from addisonarches.game import init_game
+from addisonarches.model.game import Clock
+from addisonarches.model.game import Game
+from addisonarches.model.game import Persistent
+from addisonarches.model.game import create_game
+from addisonarches.model.game import init_game
 
 from addisonarches.scenario.common import Location
 from addisonarches.scenario.types import Character

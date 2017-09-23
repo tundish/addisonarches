@@ -22,12 +22,12 @@ import unittest
 
 from tallywallet.common.finance import Note
 
-from addisonarches.business import Asset
-from addisonarches.inventory import Volume
+from addisonarches.model.business import Asset
+from addisonarches.model.inventory import Volume
+from addisonarches.model.valuation import Ask
+from addisonarches.model.valuation import Bid
+from addisonarches.model.valuation import ValueBook
 from addisonarches.scenario.types import Commodity
-from addisonarches.valuation import Ask
-from addisonarches.valuation import Bid
-from addisonarches.valuation import ValueBook
 
 
 class ValueBookTests(unittest.TestCase):

@@ -22,8 +22,8 @@ import random
 import re
 import warnings
 
-from addisonarches.compound import Memory
-from addisonarches.inventory import Inventory
+from addisonarches.model.compound import Memory
+from addisonarches.model.inventory import Inventory
 
 from turberfield.utils.assembly import Assembly
 

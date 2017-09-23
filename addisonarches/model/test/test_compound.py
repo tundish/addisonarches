@@ -24,8 +24,8 @@ import unittest
 
 from turberfield.utils.assembly import Assembly
 
-from addisonarches.compound import Compound
-from addisonarches.compound import Memory
+from addisonarches.model.compound import Compound
+from addisonarches.model.compound import Memory
 
 
 class Length(Enum):

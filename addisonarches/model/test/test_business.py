@@ -20,13 +20,13 @@ import datetime
 from decimal import Decimal
 import unittest
 
-from addisonarches.business import Asset
-from addisonarches.business import Business
-from addisonarches.inventory import Volume
+from addisonarches.model.business import Asset
+from addisonarches.model.business import Business
+from addisonarches.model.inventory import Volume
+from addisonarches.model.valuation import Valuation
+from addisonarches.model.valuation import ValueBook
 import addisonarches.scenario.common
 from addisonarches.scenario.types import Commodity
-from addisonarches.valuation import Valuation
-from addisonarches.valuation import ValueBook
 
 from tallywallet.common.finance import Note
 

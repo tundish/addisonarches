@@ -18,10 +18,10 @@
 
 import unittest
 
-from addisonarches.script import phrases
-from addisonarches.script import Trigger
-from addisonarches.script import Reply
-from addisonarches.script import Script
+from addisonarches.model.script import phrases
+from addisonarches.model.script import Trigger
+from addisonarches.model.script import Reply
+from addisonarches.model.script import Script
 
 class FuzzTests(unittest.TestCase):
 
