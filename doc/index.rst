@@ -1,20 +1,16 @@
-.. Addison Arches documentation master file, created by
-   sphinx-quickstart on Sat Sep 23 10:33:39 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Addison Arches
+::::::::::::::
 
-Welcome to Addison Arches's documentation!
-==========================================
+:Author: tundish
+:Copyright: 2016 D Haynes
+:Licence: `GNU Affero General Public License`_
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
 
+   rpc
 
-
-Indices and tables
-==================
 
 * :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+
+.. _GNU Affero General Public License: http://www.gnu.org/licenses/agpl.html

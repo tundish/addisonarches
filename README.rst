@@ -49,7 +49,7 @@ Read the documentation::
     $ firefox addisonarches/doc/html/index.html
 
 :Author: tundish
-:Copyright: 2015 D Haynes
+:Copyright: 2017 D Haynes
 :Licence: `GNU Affero General Public License`_
 
 .. _Minder: http://www.minder.org/mindplay/mindgame.htm
