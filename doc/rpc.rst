@@ -16,6 +16,7 @@ Remote Procedure Calls
         "Initiator" <- "Processor" [label="json"];
         "Initiator" -> "Initiator" [note="Load events from JSON"];
         "Initiator" -> "Initiator" [note="Calculate page refresh (to audio or end)."];
+        "User" <- "Initiator" [leftnote="200 OK\n<meta http-equiv=\"refresh\"\ncontent=\"5;\nurl=http://localhost:8080/\nsession?pause=&dwell=\">"];
     }
    }
 
