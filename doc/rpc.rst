@@ -18,6 +18,17 @@ Remote Procedure Calls
         "Initiator" -> "Initiator" [note="Calculate page refresh (to audio or end)."];
         "User" <- "Initiator" [leftnote="200 OK\n<meta http-equiv=\"refresh\"\ncontent=\"5;\nurl=http://localhost:8080/\nsession?pause=&dwell=\">"];
     }
-   }
+    "User" <<- "Initiator";
+    "User" <<- "Initiator";
+    "User" <<- "Initiator";
+    "User" <<- "Initiator";
+    "Initiator" -> "Processor" [leftnote="POST /property"];
+    "Processor" -> "Processor" [note="Handle proprty event"];
+    "Initiator" <- "Processor";
+    "User" <<- "Initiator";
+    "User" <<- "Initiator";
+
+    ... Refresh time elapsed...
+    }
 
 
