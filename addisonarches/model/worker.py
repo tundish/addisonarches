@@ -17,7 +17,6 @@
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
 import asyncio
-import os
 import locale
 
 

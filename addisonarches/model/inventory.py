@@ -17,9 +17,7 @@
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import Counter
-from collections import namedtuple
 from enum import Enum
-import json
 
 from turberfield.utils.assembly import Assembly
 

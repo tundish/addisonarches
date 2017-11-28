@@ -26,7 +26,6 @@ from addisonarches.scenario.common import blue_monday
 from addisonarches.scenario.common import characters
 from addisonarches.scenario.common import locations
 from addisonarches.scenario.types import Antiques
-from addisonarches.scenario.types import Commodity
 from addisonarches.scenario.types import Hobbyist
 from addisonarches.scenario.types import HouseClearance
 from addisonarches.scenario.types import MarketStall
@@ -78,4 +77,3 @@ businesses = [
     MarketStall(characters[10], ValueBook(), [locations[5]]),
     Antiques(characters[12], ValueBook(), [locations[6]]),
 ]
-

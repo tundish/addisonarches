@@ -37,15 +37,15 @@ Valuation = namedtuple("Valuation", fields)
 class ValueBook(dict):
 
     @staticmethod
-    def approve(series, offer:set([Ask, Bid]), **kwargs):
+    def approve(series, offer: set([Ask, Bid]), **kwargs):
         sd = statistics.pstdev(i.value for i in series)
         estimate = ValueBook.estimate(series, **kwargs)
         if isinstance(offer, Ask):
             return (offer.value < estimate.value
                     or offer.value - estimate.value < sd / 2)
         elif isinstance(offer, Bid):
-            return (offer.value > estimate.value
-                    or estimate.value - offer.value < sd / 2)
+            return (offer.value > estimate.value or
+                    estimate.value - offer.value < sd / 2)
         else:
             raise NotImplementedError
 
@@ -62,7 +62,7 @@ class ValueBook(dict):
                 currencies.pop()
             )
 
-    def commit(self, commodity, obj:set([Ask, Bid, Note])):
+    def commit(self, commodity, obj: set([Ask, Bid, Note])):
         if isinstance(obj, Note):
             series = super().setdefault(
                 commodity,
@@ -80,7 +80,7 @@ class ValueBook(dict):
 
         return self.estimate(series)
 
-    def consider(self, commodity, offer:set([Ask, Bid]), constraint=1.0):
+    def consider(self, commodity, offer: set([Ask, Bid]), constraint=1.0):
         estimate = self.estimate(self[commodity])
         if isinstance(offer, Ask):
             if offer.value < estimate.value or random.random() >= constraint:

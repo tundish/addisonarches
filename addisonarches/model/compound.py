@@ -40,9 +40,9 @@ class Compound:
                 yield from k.requirements()
             except AttributeError:
                 yield (k, getattr(v, "value", v))
-        
+
     @classmethod
-    def build(class_, inventory:Counter, *args, **kwargs):
+    def build(class_, inventory: Counter, *args, **kwargs):
         recipe = Counter(
             {k: getattr(v, "value", v) for k, v in class_.recipe().items()}
         )
@@ -56,7 +56,7 @@ class Compound:
         if sum(recipe.values()):
             return None
         else:
-            inventory.subtract(components) 
+            inventory.subtract(components)
             return class_(components, *args, **kwargs)
 
     @property

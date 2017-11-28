@@ -17,7 +17,6 @@
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import logging
 import os.path
 
 from turberfield.ipc.cli import add_common_options
@@ -49,7 +48,7 @@ def add_web_options(parser):
 
 
 def parsers(description=__doc__):
-    parser =  argparse.ArgumentParser(
+    parser = argparse.ArgumentParser(
         description,
         fromfile_prefix_chars="@"
     )
@@ -71,7 +70,7 @@ def add_console_command_parser(subparsers):
         "console", "\n\naddisonarches [OPTIONS] console")
     return rv
 
- 
+
 def add_web_command_parser(subparsers):
     rv = subparsers.add_parser(
         "web", help="Play the game over a web interface.",

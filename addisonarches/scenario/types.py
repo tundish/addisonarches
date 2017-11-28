@@ -18,7 +18,6 @@
 
 from collections import namedtuple
 from enum import Enum
-import random
 
 from addisonarches.model.business import Trader
 from addisonarches.model.compound import Compound
@@ -47,17 +46,20 @@ class PrisonVisitor(Stateful, Persona): pass
 class FormB107(Stateful, DataObject): pass
 class Keys(Stateful, DataObject): pass
 
+
 class Pallet(Compound):
 
     @staticmethod
     def recipe():
         return {Plank: 6}
 
+
 class Hutch(Compound):
 
     @staticmethod
     def recipe():
         return {Plank: 8}
+
 
 class ShipmentOfTables(Compound):
     """
@@ -72,6 +74,7 @@ class ShipmentOfTables(Compound):
 Character = namedtuple("Character", ["uuid", "name"])
 Location = namedtuple("Location", ["name", "capacity"])
 
+
 class HouseClearance(Trader):
     """
     {proprietor.name} sells second-hand household articles. People
@@ -81,6 +84,7 @@ class HouseClearance(Trader):
     """
     pass
 
+
 class Hobbyist(Trader):
     """
     {proprietor.name} breeds rabbits. He'll pay money for wooden
@@ -89,12 +93,14 @@ class Hobbyist(Trader):
     """
     pass
 
+
 class Wholesale(Trader):
     """
     {proprietor.name} sells manufactured goods wholesale in quantity.
 
     """
     pass
+
 
 class Recycling(Trader):
     """
@@ -106,6 +112,7 @@ class Recycling(Trader):
     """
     pass
 
+
 class MarketStall(Trader):
     """
     {proprietor.name} has a stall on the market. He'll buy anything
@@ -113,6 +120,7 @@ class MarketStall(Trader):
 
     """
     pass
+
 
 class Antiques(Trader):
     """
@@ -122,6 +130,7 @@ class Antiques(Trader):
 
     """
     pass
+
 
 Assembly.register(
     Name,

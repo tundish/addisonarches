@@ -19,8 +19,6 @@
 
 import asyncio
 import logging
-from logging.handlers import WatchedFileHandler
-import os
 import sys
 
 from turberfield.ipc.fsdb import token
@@ -46,12 +44,13 @@ def main(args):
     down = asyncio.Queue(loop=loop)
     up = asyncio.Queue(loop=loop)
 
-    #TODO: Read service name from CLI
+    # TODO: Read service name from CLI
     service = "dev"  # Cf qa, demo, prod, etc
     tok = token(args.connect, service, args.session)
     node = create_udp_node(loop, tok, down, up)
     loop.create_task(node(token=tok))
 
+    log.info("Creating game...")
     progress, down, up = addisonarches.game.create(
         args.output, args.session, args.name,
         tok, down=down, up=up, loop=loop

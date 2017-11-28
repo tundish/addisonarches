@@ -16,9 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import Counter
 import datetime
-from decimal import Decimal
 import uuid
 
 from addisonarches.scenario.types import Character
@@ -32,20 +30,21 @@ from addisonarches.scenario.types import PrisonVisitor
 characters = [
     Character(uuid.uuid4().hex, i)
     for i in (
-    "Harry McAllister",
-    "Sally Paul",
-    "David Man",
-    "Jimmy Wei Zhang",
-    "Rob Fairfield",
-    "Mike Phillips",
-    "Ian Thomas",
-    "Barry Lattimer",
-    "Siobhan Regan",
-    "Freddie Mays",
-    "Ali Khan",
-    "Rashid Khan",
-    "Itta Metz",
-)]
+        "Harry McAllister",
+        "Sally Paul",
+        "David Man",
+        "Jimmy Wei Zhang",
+        "Rob Fairfield",
+        "Mike Phillips",
+        "Ian Thomas",
+        "Barry Lattimer",
+        "Siobhan Regan",
+        "Freddie Mays",
+        "Ali Khan",
+        "Rashid Khan",
+        "Itta Metz",
+    )
+]
 
 ensemble = [
     Prisoner(id=uuid.uuid4().hex, name="Mr Martin Sheppey"),

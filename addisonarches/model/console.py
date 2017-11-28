@@ -19,23 +19,17 @@
 import asyncio
 import cmd
 from collections import Counter
-from collections import defaultdict
-from collections import namedtuple
 import concurrent.futures
 import datetime
-from decimal import Decimal
 import getpass
 import itertools
 import operator
-import os.path
 import random
 import sys
-import uuid
 
 from turberfield.ipc.message import Alert
 from turberfield.ipc.message import parcel
 
-from addisonarches.business import CashBusiness
 from addisonarches.business import Buying
 from addisonarches.business import Selling
 from addisonarches.business import Trader
@@ -107,9 +101,9 @@ class Console(cmd.Cmd):
                     loop=loop)
             except asyncio.TimeoutError:
                 pass
-                
+
             yield from self.commands.put(line)
- 
+
     @asyncio.coroutine
     def command_loop(self, executor, loop=None):
         line = ""
@@ -124,7 +118,7 @@ class Console(cmd.Cmd):
                 msg = self.onecmd(line)
                 if msg is not None:
                     yield from self.up.put(msg)
-                    reply = yield from self.down.get()
+                    yield from self.down.get()
                 stop = self.postcmd(msg, line)
                 if stop:
                     # TODO: Send 'stop' msg to game (up)
@@ -134,7 +128,7 @@ class Console(cmd.Cmd):
 
             data = get_objects(self.progress)
             objs = group_by_type(data)
-            #print(*list(objs.items()), sep="\n")
+            # print(*list(objs.items()), sep="\n")
 
             locn = next(iter(objs[Location]), None)
             print("You're at {}.".format(getattr(locn, "name", "?")))
@@ -148,7 +142,9 @@ class Console(cmd.Cmd):
             tally = query_object_chain(data, "name", "cash")
             print("You've got {0.units}{0.value} in the kitty.".format(tally))
 
-            for actor, patter in itertools.groupby(objs[Trader.Patter], operator.attrgetter("actor")):
+            for actor, patter in itertools.groupby(
+                objs[Trader.Patter], operator.attrgetter("actor")
+            ):
                 print("{0[1]} says, ".format(actor))
                 phrases = list(patter)
                 for n, phrase in enumerate(phrases):
@@ -184,14 +180,14 @@ class Console(cmd.Cmd):
         """
         'Buy' lists items you can buy. Supply a number from
         that menu to buy a specific item, eg::
-            
+
             > buy
             (a list will be shown)
 
             > buy 3
         """
         line = arg.strip()
-        #view = self.game.here.inventories[self.game.location].contents.items()
+        # view = self.game.here.inventories[self.game.location].contents.items()
         data = get_objects(self.progress)
         progress = group_by_type(data)
         totals = Counter(progress[Game.Item])
@@ -201,7 +197,7 @@ class Console(cmd.Cmd):
             print("Here's what you can buy:")
             print(
                 *["{0:01}: {1.label} ({2})".format(n, i, totals[i])
-                for n, i in enumerate(menu) if totals[i]],
+                  for n, i in enumerate(menu) if totals[i]],
                 sep="\n")
             sys.stdout.write("\n")
         elif line.isdigit():
@@ -209,7 +205,7 @@ class Console(cmd.Cmd):
             drama = Buying(memory=[item])
             msg = parcel(None, drama)
             return msg
-        
+
     def do_ask(self, arg):
         """
         'Ask' demands money for an item, eg::
@@ -221,7 +217,7 @@ class Console(cmd.Cmd):
             offer = Ask(self.ts, int(line), "£")
             msg = parcel(None, offer)
             return msg
-        
+
     def do_bid(self, arg):
         """
         'Bid' offers money for an item, eg::
@@ -233,12 +229,12 @@ class Console(cmd.Cmd):
             offer = Bid(self.ts, int(line), "£")
             msg = parcel(None, offer)
             return msg
-        
+
     def do_sell(self, arg):
         """
         'Sell' lists items you can sell. Supply a number from
         that menu to sell a specific item, eg::
-            
+
             > sell
             (a list will be shown)
 
@@ -251,7 +247,7 @@ class Console(cmd.Cmd):
             print("Here's what you can sell:")
             print(
                 *["{0:01}: {1.label} ({2})".format(n, k, v)
-                for n, (k, v) in enumerate(view)],
+                  for n, (k, v) in enumerate(view)],
                 sep="\n")
             sys.stdout.write("\n")
         elif line.isdigit():
@@ -264,7 +260,7 @@ class Console(cmd.Cmd):
         """
         'Go' lists places you can go. Supply a number from
         that menu to travel to a specific location, eg::
-            
+
             > go
             (a list will be shown)
 
@@ -276,8 +272,10 @@ class Console(cmd.Cmd):
 
         if not line:
             print("Here's where you can go:")
-            print(*["{0:01}: {1}".format(i.id, i.name) for i in progress[Game.Via]],
-                    sep="\n")
+            print(
+                *["{0:01}: {1}".format(i.id, i.name) for i in progress[Game.Via]],
+                sep="\n"
+            )
             sys.stdout.write("\n")
         elif line.isdigit():
             via = progress[Game.Via][int(line)]
@@ -288,7 +286,7 @@ class Console(cmd.Cmd):
         """
         'Look' tells you where you are and what you can see.
         Add a number from that menu to get specific details, eg::
-            
+
             > look
             (a list will be shown)
 
@@ -306,11 +304,11 @@ class Console(cmd.Cmd):
             if menu:
                 print(
                     *["{0:01}: {1.label} ({2})".format(n, i, totals[i])
-                    for n, i in enumerate(menu) if totals[i]],
+                      for n, i in enumerate(menu) if totals[i]],
                     sep="\n")
         elif line.isdigit():
             prefix = random.choice([
-            "Dunno about the", "No details on the", "Just",
+                "Dunno about the", "No details on the", "Just",
             ])
             item = menu[int(line)]
             print(item.description or "{prefix} {0}{1}.".format(
@@ -322,7 +320,7 @@ class Console(cmd.Cmd):
         """
         'Split' tells you what you have that can be taken apart.
         Add a number from that menu to split that item up, eg::
-            
+
             > split
             (a list will be shown)
 
@@ -330,7 +328,8 @@ class Console(cmd.Cmd):
             (more details may follow)
         """
         line = arg.strip()
-        data = [i
+        data = [
+            i
             for i in get_objects(self.progress._replace(file="inventory.rson"))
             if getattr(i, "type", None) == "Compound"
         ]
@@ -339,7 +338,7 @@ class Console(cmd.Cmd):
             print("Here's what you can split:")
             print(
                 *["{0:01}: {1.label} ({2})".format(n, k, v)
-                for n, (k, v) in enumerate(view)],
+                  for n, (k, v) in enumerate(view)],
                 sep="\n")
             sys.stdout.write("\n")
         elif line.isdigit():
@@ -369,16 +368,16 @@ def main(args):
     loop = asyncio.SelectorEventLoop()
     asyncio.set_event_loop(loop)
 
-    #down = asyncio.Queue(loop=loop)
-    #up = asyncio.Queue(loop=loop)
+    # down = asyncio.Queue(loop=loop)
+    # up = asyncio.Queue(loop=loop)
 
-    #tok = token(args.connect, APP_NAME)
-    #node = create_udp_node(loop, tok, down, up)
-    #loop.create_task(node(token=tok))
+    # tok = token(args.connect, APP_NAME)
+    # node = create_udp_node(loop, tok, down, up)
+    # loop.create_task(node(token=tok))
     progress, down, up = addisonarches.game.create(
         args.output, user, name, loop=loop
     )
-    console = create_local_console(progress, down, up, loop=loop)
+    create_local_console(progress, down, up, loop=loop)
 
     try:
         loop.run_forever()
