@@ -382,14 +382,12 @@ class Workflow(Service):
                 "location": location,
             },
             "nav": [via(i, session=session) for i in groups[Game.Via]],
-            "items": [ tick(i, session=session) for i in groups[Clock.Tick] ] +
-                [ character(i, session=session) for i in groups[Character] ] +
-                [ tally(i, session=session) for i in groups[Game.Tally] ] +
-                [ patter(i, session=session) for i in groups[Trader.Patter] ] +
-                [ drama(i, session=session) for i in groups[Game.Drama] ] +
-                list(items.values()) +
-                [ alert(i, session=session) for i in groups[Alert] ]
-            
+            "items": [tick(i, session=session) for i in groups[Clock.Tick]] +
+                [character(i, session=session) for i in groups[Character]] +
+                [tally(i, session=session) for i in groups[Game.Tally]] +
+                [patter(i, session=session) for i in groups[Trader.Patter]] +
+                [drama(i, session=session) for i in groups[Game.Drama]] + list(items.values()) +
+                [alert(i, session=session) for i in groups[Alert]]
         }
 
     @asyncio.coroutine
@@ -450,6 +448,7 @@ class Workflow(Service):
             )
             yield from down.put(msg)
             reply = yield from up.get()
+            log.debug(reply)
         return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
@@ -474,6 +473,7 @@ class Workflow(Service):
             )
             yield from down.put(msg)
             reply = yield from up.get()
+            log.debug(reply)
         return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
@@ -499,6 +499,7 @@ class Workflow(Service):
             )
             yield from down.put(msg)
             reply = yield from up.get()
+            log.debug(reply)
         return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
@@ -525,6 +526,7 @@ class Workflow(Service):
             )
             yield from down.put(msg)
             reply = yield from up.get()
+            log.debug(reply)
         return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
@@ -551,6 +553,7 @@ class Workflow(Service):
             )
             yield from down.put(msg)
             reply = yield from up.get()
+            log.debug(reply)
         return aiohttp.web.HTTPFound("/{}".format(session))
 
     @asyncio.coroutine
@@ -579,6 +582,7 @@ class Workflow(Service):
             )
             yield from down.put(msg)
             reply = yield from up.get()
+            log.debug(reply)
         return aiohttp.web.HTTPFound("/{}".format(session))
 
 class Transitions(Service):
@@ -601,7 +605,6 @@ class Transitions(Service):
                 "version": __version__
             },
             "items": OrderedDict([(str(id(i)), i) for i in items]),
-            
         }
 
     @asyncio.coroutine

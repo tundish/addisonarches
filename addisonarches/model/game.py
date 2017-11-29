@@ -16,22 +16,18 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
-import ast
 import asyncio
 from collections import deque
 from collections import OrderedDict
 from collections import namedtuple
 import datetime
-from decimal import Decimal
 import getpass
 import itertools
-import logging
 import operator
 import os
 import os.path
 import pickle
 import random
-import sys
 import tempfile
 import time
 import uuid
@@ -40,8 +36,6 @@ from turberfield.dialogue.model import Model
 from turberfield.dialogue.player import run_through
 from turberfield.dialogue.types import Player
 from turberfield.ipc.message import Alert
-from turberfield.ipc.message import Message
-from turberfield.ipc.message import parcel
 from turberfield.ipc.message import reply
 from turberfield.utils.assembly import Assembly
 from turberfield.utils.expert import Expert
@@ -57,17 +51,9 @@ from addisonarches.model.valuation import Bid
 import addisonarches.scenario.easy
 import addisonarches.scenario.common
 import addisonarches.scenario.icons
-from addisonarches.scenario.common import blue_monday
 from addisonarches.scenario.common import locations
-from addisonarches.scenario.common import Location
 
-from addisonarches.scenario.types import Commodity
-from addisonarches.scenario.types import FormB107
-from addisonarches.scenario.types import Keys
 from addisonarches.scenario.types import Location
-from addisonarches.scenario.types import Prisoner
-from addisonarches.scenario.types import PrisonOfficer
-from addisonarches.scenario.types import PrisonVisitor
 
 
 __doc__ = """
@@ -81,7 +67,7 @@ class Persistent(Expert):
     RSON = namedtuple("RSON", ["name", "attr", "path"])
 
     @staticmethod
-    def make_path(path:Path, prefix="tmp", suffix=""):
+    def make_path(path: Path, prefix="tmp", suffix=""):
         if not path.home:
             path = path._replace(home=getpass.getuser())
         dctry = os.path.join(path.root, path.home)
@@ -94,14 +80,14 @@ class Persistent(Expert):
             return path
 
     @staticmethod
-    def recent_slot(path:Path):
+    def recent_slot(path: Path):
         try:
             slots = [i for i in os.listdir(os.path.join(path.root, path.home))
                      if os.path.isdir(os.path.join(path.root, path.home, i))]
             stats = [(os.path.getmtime(os.path.join(path.root, path.home, fP)), fP)
                      for fP in slots]
             stats.sort(key=operator.itemgetter(0), reverse=True)
-        except:
+        except IndexError:
             slots, stats = [], []
         return Persistent.Path(
             path.root, path.home, next((i[1] for i in stats), None), path.file)
@@ -111,8 +97,7 @@ class Persistent(Expert):
 
     def declare(self, data, loop=None):
         super().declare(data, loop)
-        events = (i for i in self._services.values()
-                   if isinstance(i, Persistent.RSON))
+        events = (i for i in self._services.values() if isinstance(i, Persistent.RSON))
         for each in events:
             path = Persistent.make_path(
                 Persistent.recent_slot(each.path)._replace(file=each.path.file)
@@ -128,8 +113,7 @@ class Persistent(Expert):
                         output.write("\n")
 
         pickles = (i for i in self._services.values()
-                   if isinstance(i, Persistent.Pickled)
-                   and data.get(i.name, False))
+                   if isinstance(i, Persistent.Pickled) and data.get(i.name, False))
         for p in pickles:
             fP = os.path.join(*p.path)
             with open(fP, "wb") as fObj:
@@ -163,7 +147,7 @@ class Clock(Persistent):
                 for i in itertools.islice(
                     itertools.count(0, 30 * 60),
                     7 * 24 * 60 // 30)
-                )
+            )
             if 8 <= t.hour <= 19)
         self.stop = False
 
@@ -194,7 +178,7 @@ class Clock(Persistent):
                 loop=loop
             )
             yield from asyncio.sleep(0, loop=loop)
-            
+
             self.declare(
                 dict(
                     active=False,
@@ -272,8 +256,7 @@ class Game(Persistent):
     def load(self):
         name, pickler = next(
             ((k, v) for k, v in self._services.items()
-            if isinstance(v, Persistent.Pickled)
-            and v.name == "businesses"),
+             if isinstance(v, Persistent.Pickled) and v.name == "businesses"),
             None
         )
         if pickler is not None:
@@ -285,7 +268,7 @@ class Game(Persistent):
             if not os.path.isfile(fP):
                 proprietor = Player(id=uuid.uuid4().hex, name=self.player.name)
                 locns = [Location("Addison Arches 18a", 100)]
-                
+
                 self.businesses.insert(
                     0, CashBusiness(proprietor, None, locns, tally=1000))
             else:
@@ -315,8 +298,7 @@ class Game(Persistent):
     def here(self):
         # TODO: separate Map expert
         return next(
-            (b for b in self.businesses
-            if self.location in b.inventories),
+            (b for b in self.businesses if self.location in b.inventories),
             None
         )
 
@@ -379,13 +361,13 @@ class Game(Persistent):
         if self.here is not None:
             iBusiness = self.businesses.index(self.here)
             rv.extend([
-                Game.Item("Compound", k.label, k.description, self.location, iBusiness) 
+                Game.Item("Compound", k.label, k.description, self.location, iBusiness)
                 for k, v in self.here.inventories[self.location].contents.items()
                 for i in range(v)
                 if getattr(k, "components", None)
             ])
             rv.extend([
-                Game.Item("Commodity", k.label, k.description, self.location, iBusiness) 
+                Game.Item("Commodity", k.label, k.description, self.location, iBusiness)
                 for k, v in self.here.inventories[self.location].contents.items()
                 for i in range(v)
                 if not getattr(k, "components", None)
@@ -436,8 +418,10 @@ class Game(Persistent):
             await asyncio.sleep(0, loop=loop)
 
         while Clock.public.running:
-            if self.here is None: # Not at a business
-                seqList = OrderedDict(gather_installed("turberfield.interfaces.sequence", log=self._log))
+            if self.here is None:  # Not at a business
+                seqList = OrderedDict(
+                    gather_installed("turberfield.interfaces.sequence", log=self._log)
+                )
                 choice = next(iter(seqList.keys()), None)
                 self._log.info("Selected sequence '{0}'.".format(choice))
                 folder = seqList[choice]
@@ -502,7 +486,7 @@ class Game(Persistent):
                             inv = self.here.inventories[self.location]
                             inv.contents[item] -= 1
                             inv.contents.update(item.components)
-                        except:
+                        except (AttributeError, KeyError, StopIteration):
                             # self.here != self.businesses[0]
                             self.alerts.append(Alert(
                                 datetime.datetime.now(),

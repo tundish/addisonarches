@@ -19,10 +19,8 @@
 
 import argparse
 import asyncio
-import functools
 import logging
 from logging.handlers import WatchedFileHandler
-import os
 import sys
 
 import aiohttp.web
@@ -34,7 +32,6 @@ from turberfield.ipc.node import create_udp_node
 from addisonarches import __version__
 from addisonarches.cli import add_game_options
 from addisonarches.cli import add_web_options
-import addisonarches.game
 from addisonarches.web.services import APP_NAME
 from addisonarches.web.services import Assets
 from addisonarches.web.services import Registration
@@ -71,7 +68,7 @@ def main(args):
     down = asyncio.Queue(loop=loop)
     up = asyncio.Queue(loop=loop)
 
-    #TODO: Read service name from CLI
+    # TODO: Read service name from CLI
     service = "dev"  # Cf qa, demo, prod, etc
     tok = token(args.connect, service, APP_NAME)
     node = create_udp_node(loop, tok, down, up)

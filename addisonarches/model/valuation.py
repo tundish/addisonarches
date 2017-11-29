@@ -18,7 +18,6 @@
 
 from collections import deque
 from collections import namedtuple
-import datetime
 import random
 import statistics
 import warnings
@@ -41,8 +40,8 @@ class ValueBook(dict):
         sd = statistics.pstdev(i.value for i in series)
         estimate = ValueBook.estimate(series, **kwargs)
         if isinstance(offer, Ask):
-            return (offer.value < estimate.value
-                    or offer.value - estimate.value < sd / 2)
+            return (offer.value < estimate.value or
+                    offer.value - estimate.value < sd / 2)
         elif isinstance(offer, Bid):
             return (offer.value > estimate.value or
                     estimate.value - offer.value < sd / 2)

@@ -18,15 +18,12 @@
 
 from collections import OrderedDict
 import datetime
-import logging
 import re
 import time
 
 from turberfield.dialogue.model import Model
 from turberfield.ipc.message import Alert
 
-from addisonarches.model.business import Buying
-from addisonarches.model.business import Selling
 from addisonarches.model.business import Trader
 from addisonarches.model.game import Game
 from addisonarches.model.game import Clock
@@ -35,7 +32,6 @@ from addisonarches.model.valuation import Bid
 from addisonarches.presenter.hateoas import Action
 from addisonarches.presenter.hateoas import Parameter
 from addisonarches.presenter.hateoas import View
-from addisonarches.scenario.types import Location
 from addisonarches.scenario.types import Character
 
 
@@ -57,10 +53,9 @@ def alert(data, session=None, **kwargs):
                         "text", "hidden",
                         re.compile("[\\w\.! ]{5,64}$"), [],
                         "Alert text is 5 to 64 characters long."),
-                    ],
+                ],
                 prompt="OK")),
-        ])
-    )
+    ]))
 
 def ask(data, session=None, **kwargs):
     types = {"ts": float, "value": int}
@@ -85,11 +80,10 @@ def ask(data, session=None, **kwargs):
                 Parameter(
                     "currency", "hidden", re.compile("[^{}/]+"),
                     [obj.currency], "Asking currency."),
-                ],
-                prompt="OK")),
-        ])
-    )
- 
+            ],
+            prompt="OK")),
+    ]))
+
 def bid(data, session=None, **kwargs):
     types = {"ts": float, "value": int}
     try:
@@ -113,18 +107,17 @@ def bid(data, session=None, **kwargs):
                 Parameter(
                     "currency", "hidden", re.compile("[^{}/]+"),
                     [obj.currency], "Bidding currency."),
-                ],
-                prompt="OK")),
-        ])
-    )
- 
+            ],
+            prompt="OK")),
+    ]))
+
 def character(data, session=None, **kwargs):
     try:
         obj = Character(**data)
     except TypeError:
         obj = data
     return View(obj, actions={})
- 
+
 def dialogue(data, session=None, **kwargs):
     try:
         obj = Model.Line(**data)
@@ -137,8 +130,7 @@ def drama(data, session=None, **kwargs):
         obj = Game.Drama(**data)
     except (AttributeError, TypeError):
         obj = data
-    rv =  View(obj, actions=OrderedDict())
-    log = logging.getLogger("addisonarches.web.drama")
+    rv = View(obj, actions=OrderedDict())
     if obj.type == "Buying":
         obj = Bid(time.time(), None, "£")
         rv.actions["bid"] = bid(obj, session).actions["bid"]
@@ -146,43 +138,42 @@ def drama(data, session=None, **kwargs):
         obj = Ask(time.time(), None, "£")
         rv.actions["ask"] = ask(obj, session).actions["ask"]
     return rv
- 
- 
+
+
 def item(data, session=None, totals={}, **kwargs):
     types = {"owner": int}
     try:
         obj = Game.Item(**{k: types.get(k, str)(v) for k, v in data.items()})
     except (AttributeError, TypeError):
         obj = data
-    rv =  View(obj, actions=OrderedDict([
+    rv = View(obj, actions=OrderedDict([
         ("buy", Action(
-                name="Buy",
-                rel="action",
-                typ="/{0}/buying",
-                ref=(session,),
-                method="post",
-                parameters=[
-                    Parameter(
-                        k, "hidden", re.compile("[^{}/]+"),
-                        [getattr(obj, k)], "Data field.")
-                    for k in obj._fields
-                    ],
-                prompt="OK")),
+            name="Buy",
+            rel="action",
+            typ="/{0}/buying",
+            ref=(session,),
+            method="post",
+            parameters=[
+                Parameter(
+                    k, "hidden", re.compile("[^{}/]+"),
+                    [getattr(obj, k)], "Data field.")
+                for k in obj._fields
+            ],
+            prompt="OK")),
         ("sell", Action(
-                name="Sell",
-                rel="action",
-                typ="/{0}/selling",
-                ref=(session,),
-                method="post",
-                parameters=[
-                    Parameter(
-                        k, "hidden", re.compile("[^{}/]+"),
-                        [getattr(obj, k)], "Data field.")
-                    for k in obj._fields
-                    ],
-                prompt="OK")),
-        ]),
-    )
+            name="Sell",
+            rel="action",
+            typ="/{0}/selling",
+            ref=(session,),
+            method="post",
+            parameters=[
+                Parameter(
+                    k, "hidden", re.compile("[^{}/]+"),
+                    [getattr(obj, k)], "Data field.")
+                for k in obj._fields
+            ],
+            prompt="OK")),
+    ]))
     if obj.type == "Compound":
         rv.actions["split"] = Action(
             name="Split",
@@ -195,25 +186,25 @@ def item(data, session=None, totals={}, **kwargs):
                     k, "hidden", re.compile("[^{}/]+"),
                     [getattr(obj, k)], "Data field.")
                 for k in obj._fields
-                ],
+            ],
             prompt="OK")
     rv.totals = totals
     return rv
- 
+
 def patter(data, session=None, **kwargs):
     try:
         obj = Trader.Patter(**data)
     except TypeError:
         obj = data
     return View(obj, actions={})
- 
+
 def tally(data, session=None, **kwargs):
     try:
         obj = Game.Tally(**data)
     except TypeError:
         obj = data
     return View(obj, actions={})
- 
+
 def tick(data, session=None, **kwargs):
     try:
         obj = Clock.Tick(**data)
@@ -223,9 +214,8 @@ def tick(data, session=None, **kwargs):
     t = datetime.datetime.strptime(obj.value, "%Y-%m-%d %H:%M:%S")
     obj = obj._replace(value="{:%A %H:%M}".format(t))
     return View(obj, actions={})
- 
+
 def via(data, session=None, **kwargs):
-    log = logging.getLogger("addisonarches.web")
     types = {"id": int}
     try:
         obj = Game.Via(**{k: types.get(k, str)(v) for k, v in data.items()})
@@ -248,14 +238,13 @@ def via(data, session=None, **kwargs):
                     Parameter(
                         "tip", True, re.compile("[^{}/]+"),
                         [obj.tip], "Go to {}.".format(obj.name)),
-                    ],
+                ],
                 prompt="OK")),
-        ])
-    )
+    ]))
 
 def login(data, **kwargs):
     try:
-        obj = User(**data)
+        obj = Character(**data)
     except IndexError:
         obj = data
     return View(obj, actions=OrderedDict([
@@ -289,7 +278,6 @@ def login(data, **kwargs):
                         </ul>
                         They cannot contain whitespace.
                         """),
-                    ],
+                ],
                 prompt="OK")),
-        ])
-    )
+    ]))

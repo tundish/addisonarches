@@ -50,9 +50,10 @@ class Business:
     def __init__(self, proprietor, book, locations):
         self.proprietor = proprietor
         self.book = book
-        self.inventories = OrderedDict([
-            (i.name, Inventory(capacity=i.capacity))
-             for i in locations])
+        self.inventories = OrderedDict(
+            [(i.name, Inventory(capacity=i.capacity))
+             for i in locations]
+        )
 
     def deposit(self, locN, item, quantity, note=None):
         if self.inventories[locN].constraint > 1 or item is None:
@@ -64,7 +65,7 @@ class Business:
             self.book.commit(type(item), note)
         return self
 
-    def store(self, asset:Asset):
+    def store(self, asset: Asset):
         rv = []
         unstored = asset.quantity
         schedule = iter(sorted(
@@ -86,7 +87,7 @@ class Business:
         finally:
             return rv
 
-    def retrieve(self, asset:Asset):
+    def retrieve(self, asset: Asset):
         rv = []
         schedule = iter(sorted(
             ((l.constraint, n, l) for n, l in self.inventories.items()),
@@ -114,7 +115,7 @@ class Trader(Handler, CashBusiness):
 
     Patter = namedtuple("Patter", ["actor", "text"])
 
-    def _handle_buying(self, drama:Buying, game, ts=None):
+    def _handle_buying(self, drama: Buying, game, ts=None):
         try:
             focus = drama.memory[0]
             offer = game.drama.memory[-1]
@@ -162,7 +163,7 @@ class Trader(Handler, CashBusiness):
             yield(e)
 
 
-    def _handle_selling(self, drama:Selling, game, ts=None):
+    def _handle_selling(self, drama: Selling, game, ts=None):
         try:
             focus = drama.memory[0]
             valuations = self.book[type(focus)]
@@ -172,8 +173,9 @@ class Trader(Handler, CashBusiness):
             yield Trader.Patter(self.proprietor, "No thanks, not at the moment.")
             try:
                 pick = random.choice(list(self.book.keys()))
-                need = " ".join(i.lower() for i in re.split(
-                "([A-Z][^A-Z]*)", pick.__name__) if i)
+                need = " ".join(
+                    i.lower() for i in re.split("([A-Z][^A-Z]*)", pick.__name__)
+                    if i)
             except IndexError:
                 yield Trader.Patter(
                     self.proprietor,
