@@ -17,9 +17,10 @@ except ImportError:
     except ImportError:
         # For pip installations
         version = str(ast.literal_eval(
-                    open(os.path.join(os.path.dirname(__file__),
-                    "addisonarches", "__init__.py"),
-                    'r').read().split("=")[-1].strip()))
+            open(os.path.join(os.path.dirname(__file__),
+                 "addisonarches", "__init__.py"),
+                 'r').read().split("=")[-1].strip()
+        ))
 
 __doc__ = open(os.path.join(os.path.dirname(__file__), "README.rst"),
                'r').read()

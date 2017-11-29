@@ -1,7 +1,6 @@
 import enum
 
 from turberfield.dialogue.types import EnumFactory
-from turberfield.utils.assembly import Assembly
 
 class Spot(EnumFactory, enum.Enum):
     goldhawk_approach = "gcpufzbd8x5d"

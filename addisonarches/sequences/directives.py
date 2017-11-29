@@ -19,7 +19,6 @@
 
 from collections import namedtuple
 import docutils.parsers.rst
-from docutils.parsers.rst.directives.body import ParsedLiteral
 
 class RoleDirective(docutils.parsers.rst.Directive):
 

@@ -33,7 +33,7 @@ class View:
         self.fields = obj._fields
         self.actions = actions
 
-    def rejects(self, action:str):
+    def rejects(self, action: str):
         try:
             data = vars(self.obj)
         except TypeError:
@@ -42,8 +42,9 @@ class View:
         missing = [i for i in action.parameters
                    if i.required and i.name not in data]
         missing = missing or [
-            i for i in action.parameters if i.name in data
-            and i.values and data[i.name] not in i.values]
+            i for i in action.parameters
+            if i.name in data and i.values and data[i.name] not in i.values
+        ]
         missing = missing or [
             i for i in action.parameters
             if i.name in data and not i.regex.match(str(data[i.name]))]

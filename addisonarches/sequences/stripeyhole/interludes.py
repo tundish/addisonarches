@@ -18,12 +18,12 @@
 
 from turberfield.dialogue.types import Player
 
-async def default(folder, ensemble:list, log=None, loop=None):
+async def default(folder, ensemble: list, log=None, loop=None):
     if log is not None:
         log.debug("No activity during interlude")
     return folder
 
-async def stop(folder, ensemble:list, log=None, loop=None):
+async def stop(folder, ensemble: list, log=None, loop=None):
     if log is not None:
         log.debug("Interlude stops dialogue")
     for entity in ensemble[:]:

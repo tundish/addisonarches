@@ -40,7 +40,6 @@ from addisonarches.model.business import Buying
 from addisonarches.model.business import Selling
 from addisonarches.model.business import Trader
 
-import addisonarches.model.game
 from addisonarches.model.game import Clock
 from addisonarches.model.game import Game
 from addisonarches.model.game import Persistent
@@ -49,7 +48,6 @@ from addisonarches.scenario.types import Character
 
 from addisonarches.utils import get_objects
 from addisonarches.utils import group_by_type
-from addisonarches.utils import query_object_chain
 
 from addisonarches.presenter.elements import alert
 from addisonarches.presenter.elements import ask
@@ -90,7 +88,6 @@ class Service:
                 else:
                     app.router.add_route(verb, path, fn, name=name)
                     yield (name, fn)
-                
 
 class Assets(Service):
 
@@ -148,7 +145,9 @@ class Assets(Service):
 
             return aiohttp.web.Response(
                 body=data,
-                content_type="application/font-ttf" if path.endswith("ttf") else "application/font-woff"
+                content_type=(
+                    "application/font-ttf" if path.endswith("ttf") else "application/font-woff"
+                )
             )
 
     @asyncio.coroutine
@@ -214,7 +213,6 @@ class Registration(Service):
                 "version": __version__
             },
             "items": OrderedDict([(str(id(i)), i) for i in items]),
-            
         }
 
     @asyncio.coroutine
@@ -268,7 +266,7 @@ class Registration(Service):
             try:
                 worker = subprocess.Popen(
                     args,
-                    #cwd=app.config.get("args")["output"],
+                    # cwd=app.config.get("args")["output"],
                     shell=False
                 )
             except OSError as e:
@@ -300,7 +298,6 @@ class Workflow(Service):
         )))
 
     def inventory(self, session, items=[]):
-        log = logging.getLogger("addisonarches.web.inventory")
         ts = time.time()
         path, down, up = self.sessions[session]
         items = items or get_objects(path._replace(file="inventory.rson"))
@@ -309,7 +306,7 @@ class Workflow(Service):
 
         location = next(iter(groups[Location]), None)
         items = [item(i, session=session, totals=totals)
-                 for i in groups[Game.Item] ]
+                 for i in groups[Game.Item]]
 
         for view in items:
             del view.actions["buy"]
@@ -330,7 +327,6 @@ class Workflow(Service):
         }
 
     def frame(self, session, items=[]):
-        log = logging.getLogger("addisonarches.web.frame")
         rv = self.progress(session, items)
         path, down, up = self.sessions[session]
         items = items or get_objects(path._replace(file="frame.rson"))
@@ -346,16 +342,16 @@ class Workflow(Service):
         Metadata about the game session.
 
         """
-        log = logging.getLogger("addisonarches.web.progress")
         ts = time.time()
         path, down, up = self.sessions[session]
         items = items or get_objects(path)
         groups = group_by_type(items)
         totals = Counter(groups[Game.Item])
 
-        items = OrderedDict([
-                (i, item(i, session=session, totals=totals))
-                for i in groups[Game.Item]])
+        items = OrderedDict(
+            [(i, item(i, session=session, totals=totals))
+             for i in groups[Game.Item]]
+        )
         location = next(iter(groups[Location]), None)
 
         # TODO: Needs to go in business layer
@@ -382,12 +378,14 @@ class Workflow(Service):
                 "location": location,
             },
             "nav": [via(i, session=session) for i in groups[Game.Via]],
-            "items": [tick(i, session=session) for i in groups[Clock.Tick]] +
+            "items": (
+                [tick(i, session=session) for i in groups[Clock.Tick]] +
                 [character(i, session=session) for i in groups[Character]] +
                 [tally(i, session=session) for i in groups[Game.Tally]] +
                 [patter(i, session=session) for i in groups[Trader.Patter]] +
                 [drama(i, session=session) for i in groups[Game.Drama]] + list(items.values()) +
                 [alert(i, session=session) for i in groups[Alert]]
+            )
         }
 
     @asyncio.coroutine

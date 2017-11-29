@@ -17,18 +17,13 @@
 # along with Addison Arches.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import ast
 from collections import defaultdict
-from collections import namedtuple
 import itertools
 import os.path
 import pkg_resources
-from pprint import pprint
-import sys
 
 import rson
 
-from turberfield.ipc.message import Alert
 from turberfield.utils.assembly import Assembly
 
 
@@ -62,7 +57,8 @@ def rson2objs(text):
     return [Assembly.object_hook(i) for i in things]
 
 def group_by_type(items):
-    return defaultdict(list,
+    return defaultdict(
+        list,
         {k: list(v) for k, v in itertools.groupby(items, key=type)}
     )
 
@@ -82,17 +78,17 @@ def query_object_chain(items, key, value=None, group="", obj=None):
     if not group:
         return next(
             (item
-            for item in chain
-            if value is None and hasattr(item, key)
-            or value is not None and getattr(item, key, None) == value),
+             for item in chain
+             if value is None and hasattr(item, key) or
+             value is not None and getattr(item, key, None) == value),
             None
         )
     else:
         return next(
             (item
-            for item in chain
-            for p in getattr(item, group, [])
-            if value is None and hasattr(item, key)
-            or value is not None and getattr(p, key, None) == value),
+             for item in chain
+             for p in getattr(item, group, [])
+             if value is None and hasattr(item, key) or
+             value is not None and getattr(p, key, None) == value),
             None
         )
