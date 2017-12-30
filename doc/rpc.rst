@@ -31,4 +31,10 @@ Remote Procedure Calls
     ... Refresh time elapsed...
     }
 
+TODO
+====
+
+* http://code.stephenmorley.org/html-and-css/tabbed-panels/
+* https://codepen.io/renatorib/pen/rlpfj
+* https://codepen.io/wallaceerick/pen/ojtal/
 
