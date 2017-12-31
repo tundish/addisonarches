@@ -83,13 +83,13 @@ setup(
         ]
     },
     install_requires=[
-        "aiohttp>=2.2.5",
-        "rson>=0.9",
+        "aiohttp>=2.3.7",
+        "rson>=0.9",  # TODO: remove
         "pyratemp>=0.3.2",
-        "tallywallet-common>=0.009.0",
-        "turberfield-dialogue>=0.9.0",
-        "turberfield-ipc>=0.13.0",
-        "turberfield-utils>=0.21.0",
+        "tallywallet-common>=0.9.0",
+        "turberfield-dialogue>=0.13.0",
+        "turberfield-ipc>=0.15.0",
+        "turberfield-utils>=0.33.0",
     ],
     extras_require={
         "dev": [
