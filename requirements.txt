@@ -1,5 +1,5 @@
 --extra-index-url https://pypi.fury.io/tundish
-aiohttp==3.7.4
+aiohttp==3.8.5
 chardet==2.3.0
 pyratemp==0.3.2
 rson==0.9
